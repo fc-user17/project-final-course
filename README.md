@@ -1,3 +1,4 @@
+# Descripción 
 Este módulo permite gestionar de manera integral los equipos, herramientas y recursos almacenados de la empresa. Facilita el control de activos, asignaciones, mantenimientos, movimientos de almacén y niveles de stock, manteniendo un historial de cada recurso.
 
 Además, se integra con el módulo de Operaciones, permitiendo que los repuestos y materiales utilizados en las órdenes de trabajo se descuenten automáticamente del almacén, mejorando el control y la trazabilidad de los recursos.
