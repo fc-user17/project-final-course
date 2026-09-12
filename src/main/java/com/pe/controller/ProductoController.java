@@ -2,6 +2,7 @@ package com.pe.controller;
 
 import com.pe.model.Producto;
 import com.pe.service.ProductoService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,7 +34,7 @@ public class ProductoController {
 
     @PostMapping
     public ResponseEntity<Producto> registrarProducto(
-            @RequestBody Producto producto) {
+            @Valid @RequestBody Producto producto) {
 
         Producto nuevoProducto = productoService.registrarProducto(producto);
 
@@ -44,7 +45,7 @@ public class ProductoController {
     @PutMapping("/{id}")
     public ResponseEntity<Producto> actualizarProducto(
             @PathVariable Long id,
-            @RequestBody Producto producto) {
+            @Valid @RequestBody Producto producto) {
 
         return productoService.actualizarProducto(id, producto)
                 .map(ResponseEntity::ok)
