@@ -66,7 +66,7 @@ public class MovimientoInventarioService {
 
     @Transactional(readOnly = true)
     public List<MovimientoInventario> listarMovimientos() {
-        return movimientoRepository.findAll();
+        return movimientoRepository.findAllByOrderByFechaMovimientoDescIdDesc();
     }
 
     @Transactional(readOnly = true)
@@ -76,6 +76,6 @@ public class MovimientoInventarioService {
                     HttpStatus.NOT_FOUND, "Producto no encontrado");
         }
 
-        return movimientoRepository.findByProductoIdOrderByFechaMovimientoDesc(productoId);
+        return movimientoRepository.findByProductoIdOrderByFechaMovimientoDescIdDesc(productoId);
     }
 }
