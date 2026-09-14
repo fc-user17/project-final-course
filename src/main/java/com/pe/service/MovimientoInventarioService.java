@@ -33,6 +33,11 @@ public class MovimientoInventarioService {
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "Producto no encontrado"));
 
+        if (!Boolean.TRUE.equals(producto.getEstado())) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT, "No se pueden registrar movimientos para un producto inactivo");
+        }
+
         int stockAnterior = producto.getStockActual();
         int variacion = request.getTipoMovimiento() == TipoMovimiento.ENTRADA
                 ? request.getCantidad()

@@ -13,6 +13,7 @@ import lombok.Setter;
 public class MovimientoInventarioRequest {
 
     @NotNull(message = "El producto es obligatorio")
+    @Positive(message = "El producto debe tener un identificador valido")
     private Long productoId;
 
     @NotNull(message = "El tipo de movimiento es obligatorio")

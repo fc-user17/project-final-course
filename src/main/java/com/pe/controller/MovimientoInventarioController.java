@@ -4,14 +4,17 @@ import com.pe.dto.MovimientoInventarioRequest;
 import com.pe.model.MovimientoInventario;
 import com.pe.service.MovimientoInventarioService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/movimientos-inventario")
+@Validated
 public class MovimientoInventarioController {
 
     private final MovimientoInventarioService movimientoService;
@@ -34,7 +37,7 @@ public class MovimientoInventarioController {
 
     @GetMapping("/producto/{productoId}")
     public ResponseEntity<List<MovimientoInventario>> listarMovimientosPorProducto(
-            @PathVariable Long productoId) {
+            @PathVariable @Positive(message = "El producto debe tener un identificador valido") Long productoId) {
         return ResponseEntity.ok(movimientoService.listarMovimientosPorProducto(productoId));
     }
 }
