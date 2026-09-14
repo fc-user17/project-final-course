@@ -1,5 +1,6 @@
 package com.pe.service;
 
+import com.pe.dto.ProductoStockBajoResponse;
 import com.pe.model.Producto;
 import com.pe.repository.ProductoRepository;
 import org.springframework.stereotype.Service;
@@ -56,7 +57,22 @@ public class ProductoService {
         return true;
     }
 
-    public List<Producto> obtenerProductosStockBajo() {
-        return productoRepository.findProductosConStockBajo();
+    public List<ProductoStockBajoResponse> obtenerProductosStockBajo() {
+        return productoRepository.findProductosConStockBajo().stream()
+                .map(this::convertirAAlertaStock)
+                .toList();
+    }
+
+    private ProductoStockBajoResponse convertirAAlertaStock(Producto producto) {
+        int cantidadFaltante = producto.getStockMinimo() - producto.getStockActual();
+
+        return new ProductoStockBajoResponse(
+                producto.getId(),
+                producto.getCodigo(),
+                producto.getNombre(),
+                producto.getStockActual(),
+                producto.getStockMinimo(),
+                cantidadFaltante,
+                producto.getPrecioUnitario());
     }
 }

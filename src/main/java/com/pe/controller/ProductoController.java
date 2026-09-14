@@ -1,5 +1,6 @@
 package com.pe.controller;
 
+import com.pe.dto.ProductoStockBajoResponse;
 import com.pe.model.Producto;
 import com.pe.service.ProductoService;
 import jakarta.validation.Valid;
@@ -63,7 +64,7 @@ public class ProductoController {
     }
 
     @GetMapping("/stock-bajo")
-    public ResponseEntity<List<Producto>> obtenerProductosStockBajo() {
+    public ResponseEntity<List<ProductoStockBajoResponse>> obtenerProductosStockBajo() {
 
         return ResponseEntity.ok(
                 productoService.obtenerProductosStockBajo()
