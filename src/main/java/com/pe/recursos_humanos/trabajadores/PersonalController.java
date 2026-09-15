@@ -1,11 +1,8 @@
 package com.pe.recursos_humanos.trabajadores;
 
-import com.pe.recursos_humanos.trabajadores.PersonalService;
-import com.pe.recursos_humanos.trabajadores.Trabajador;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.bind.annotation.CrossOrigin;
 
 import java.util.List;
 
