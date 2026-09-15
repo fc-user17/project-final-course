@@ -26,6 +26,16 @@ public class AsistenciaService {
             TipoMarcacion tipo,
             LocalDateTime fechaHora) {
 
+        if (documentoIdentidad == null || documentoIdentidad.isBlank()) {
+            throw new IllegalArgumentException(
+                    "El documento de identidad es obligatorio");
+        }
+
+        if (tipo == null) {
+            throw new IllegalArgumentException(
+                    "El tipo de marcación es obligatorio");
+        }
+
         Trabajador trabajador =
                 personalService.buscarPorDocumento(documentoIdentidad)
                         .orElseThrow(() -> new NoSuchElementException(
@@ -37,7 +47,9 @@ public class AsistenciaService {
         marcacion.setId(contadorId.incrementAndGet());
         marcacion.setTrabajadorId(trabajador.getId());
         marcacion.setTipo(tipo);
-        marcacion.setFechaHora(fechaHora);
+        marcacion.setFechaHora(
+                fechaHora != null ? fechaHora : LocalDateTime.now()
+        );
 
         marcaciones.add(marcacion);
 
