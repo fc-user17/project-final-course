@@ -24,7 +24,7 @@ Esta rama contiene la implementación de la arquitectura de seguridad base del s
 Para mantener el presupuesto del proyecto en cero y agilizar el desarrollo, la arquitectura de autenticación se apoyará en herramientas con capas gratuitas robustas.
 
 *   **Backend / Auth:** . Su módulo de autenticación nativo maneja automáticamente la encriptación de contraseñas de forma segura sin costo adicional.
-*   **Base de Datos:** PostgreSQL (vía Supabase). Permite usar *Row Level Security* (RLS) para blindar los datos según el rol asignado a cada cuenta.
+*   **Base de Datos:** PostgreSQL. Permite usar *Row Level Security* (RLS) para blindar los datos según el rol asignado a cada cuenta.
 *   **Estructura de Datos Inicial:**
     *   Tabla `roles`: `id`, `nombre_rol`, `descripcion`
     *   Tabla `usuarios`: `id`, `email`, `password_hash`, `rol_id` (Foreign Key)
