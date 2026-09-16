@@ -33,8 +33,8 @@ Para mantener el presupuesto del proyecto en cero y agilizar el desarrollo, la a
 
 ## 📋 Checklist de Tareas (Diagrama de Gantt)
 
-- [ ] Definir e implementar el modelo de base de datos para `roles` y `usuarios`.
-- [ ] Configurar el proveedor de autenticación y los servicios de encriptación en el backend.
-- [ ] Crear el script de inserción (seeder) con los roles por defecto y un usuario administrador de prueba.
-- [ ] Desarrollar el endpoint/función de Login que valide el usuario, compare el hash y devuelva la sesión.
-- [ ] Implementar el *middleware* o guardián de rutas que bloquee el acceso a vistas no autorizadas según el `rol_id`.
+- [✔️] Definir e implementar el modelo de base de datos para `roles` y `usuarios`.
+- [✔️] Configurar el proveedor de autenticación y los servicios de encriptación en el backend.
+- [✔️] Crear el script de inserción (seeder) con los roles por defecto y un usuario administrador de prueba.
+- [✔️] Desarrollar el endpoint/función de Login que valide el usuario, compare el hash y devuelva la sesión.
+- [✔️] Implementar el *middleware* o guardián de rutas que bloquee el acceso a vistas no autorizadas según el `rol_id`.
