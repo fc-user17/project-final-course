@@ -14,8 +14,8 @@ Este módulo se encarga de controlar la parte económica de la empresa, permitie
 
 ### Pagos y cuentas
 - Pagos.
-- Cuentas por cobrar.
-- Cuentas por pagar.
+- Cuentas por cobrar
+- Cuentas por pagar
 
 ### Facturación y control
 - Facturación.
