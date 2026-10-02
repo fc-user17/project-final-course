@@ -86,6 +86,19 @@ public class OrdenTrabajoServiceImpl implements OrdenTrabajoService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<OrdenTrabajoResponse> findByEquipoId(Long equipoId) {
+        if (!equipoRepository.existsById(equipoId)) {
+            throw new ResourceNotFoundException("No se encontró el equipo con id " + equipoId);
+        }
+
+        return repository.findByEquipoIdOrderByFechaCreacionDescIdDesc(equipoId)
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    @Override
     public void delete(Long id) {
         OrdenTrabajo entidad = buscarOFallar(id);
         repository.delete(entidad);
