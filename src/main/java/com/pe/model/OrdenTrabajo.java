@@ -30,6 +30,10 @@ public class OrdenTrabajo {
     @JoinColumn(name = "tipo_mantenimiento_id", nullable = false)
     private TipoMantenimiento tipoMantenimiento;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "equipo_id")
+    private Equipo equipo;
+
     @Column(name = "tecnico_id")
     private Long tecnicoId;
 

@@ -3,9 +3,11 @@ package com.pe.service;
 import com.pe.dto.OrdenTrabajoRequest;
 import com.pe.dto.OrdenTrabajoResponse;
 import com.pe.exception.ResourceNotFoundException;
+import com.pe.model.Equipo;
 import com.pe.model.EstadoOrden;
 import com.pe.model.OrdenTrabajo;
 import com.pe.model.TipoMantenimiento;
+import com.pe.repository.EquipoRepository;
 import com.pe.repository.OrdenTrabajoRepository;
 import com.pe.repository.TipoMantenimientoRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,15 +23,18 @@ public class OrdenTrabajoServiceImpl implements OrdenTrabajoService {
 
     private final OrdenTrabajoRepository repository;
     private final TipoMantenimientoRepository tipoMantenimientoRepository;
+    private final EquipoRepository equipoRepository;
 
     @Override
     public OrdenTrabajoResponse save(OrdenTrabajoRequest request) {
         TipoMantenimiento tipo = tipoMantenimientoRepository.findById(request.getTipoMantenimientoId())
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "No existe el tipo de mantenimiento con id " + request.getTipoMantenimientoId()));
+        Equipo equipo = buscarEquipoOpcional(request.getEquipoId());
 
         OrdenTrabajo entidad = OrdenTrabajo.builder()
                 .tipoMantenimiento(tipo)
+                .equipo(equipo)
                 .fechaProgramada(request.getFechaProgramada())
                 .prioridad(request.getPrioridad())
                 .descripcion(request.getDescripcion())
@@ -51,8 +56,10 @@ public class OrdenTrabajoServiceImpl implements OrdenTrabajoService {
         TipoMantenimiento tipo = tipoMantenimientoRepository.findById(request.getTipoMantenimientoId())
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "No existe el tipo de mantenimiento con id " + request.getTipoMantenimientoId()));
+        Equipo equipo = buscarEquipoOpcional(request.getEquipoId());
 
         entidad.setTipoMantenimiento(tipo);
+        entidad.setEquipo(equipo);
         entidad.setFechaProgramada(request.getFechaProgramada());
         entidad.setPrioridad(request.getPrioridad());
         entidad.setDescripcion(request.getDescripcion());
@@ -96,6 +103,16 @@ public class OrdenTrabajoServiceImpl implements OrdenTrabajoService {
                 .orElseThrow(() -> new ResourceNotFoundException("No se encontró la orden de trabajo con id " + id));
     }
 
+    private Equipo buscarEquipoOpcional(Long equipoId) {
+        if (equipoId == null) {
+            return null;
+        }
+
+        return equipoRepository.findById(equipoId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "No existe el equipo con id " + equipoId));
+    }
+
     private String generarCodigo(Long id) {
         return String.format("OT-%05d", id);
     }
@@ -106,6 +123,10 @@ public class OrdenTrabajoServiceImpl implements OrdenTrabajoService {
                 .codigo(entidad.getCodigo())
                 .tipoMantenimientoId(entidad.getTipoMantenimiento().getId())
                 .tipoMantenimientoNombre(entidad.getTipoMantenimiento().getNombre())
+                .equipoId(entidad.getEquipo() != null ? entidad.getEquipo().getId() : null)
+                .equipoCodigoPatrimonial(entidad.getEquipo() != null
+                        ? entidad.getEquipo().getCodigoPatrimonial()
+                        : null)
                 .tecnicoId(entidad.getTecnicoId())
                 .fechaProgramada(entidad.getFechaProgramada())
                 .prioridad(entidad.getPrioridad())
