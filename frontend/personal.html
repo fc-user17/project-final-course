@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Personal - Sistema de Gestión Empresarial</title>
+
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+</head>
+
+<body>
+
+    <header>
+        <h1>Gestión de Personal</h1>
+        <p>Administración de trabajadores, asistencia y documentos</p>
+    </header>
+
+    <nav aria-label="Navegación principal">
+        <a href="index.html">Inicio</a>
+        <a href="personal.html">Personal</a>
+        <a href="compras.html">Compras</a>
+        <a href="ventas.html">Ventas</a>
+        <a href="pagos.html">Pagos</a>
+        <a href="proveedores.html">Proveedores</a>
+    </nav>
+
+    <main>
+
+        <section id="trabajadores">
+
+            <h2>Trabajadores</h2>
+
+            <p>
+                Lista de trabajadores registrados en la empresa.
+            </p>
+
+            <form id="formTrabajador">
+
+                <label for="nombres">Nombres</label>
+
+                <input type="text" id="nombres" name="nombres" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ ]{2,100}"
+                    title="Ingrese solo letras y espacios" required>
+
+                <label for="documentoIdentidad">
+                    Documento de identidad
+                </label>
+
+                <input type="text" id="documentoIdentidad" name="documentoIdentidad" pattern="[0-9]{8}" maxlength="8"
+                    inputmode="numeric" title="Ingrese 8 dígitos" required>
+
+                <label for="cargo">Cargo</label>
+
+                <input type="text" id="cargo" name="cargo" required>
+
+                <label for="areaTrabajador">Área</label>
+
+                <input type="text" id="areaTrabajador" name="areaTrabajador" required>
+
+                <button type="submit">
+                    Registrar trabajador
+                </button>
+
+            </form>
+
+            <article class="tabla-contenedor">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Área</th>
+                            <th>Cargo</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="listaTrabajadores">
+                    </tbody>
+
+                </table>
+
+            </article>
+
+        </section>
+
+        <section id="asistencia">
+
+            <h2>Registro de Asistencia</h2>
+
+            <p>
+                Registra la asistencia de un trabajador.
+            </p>
+
+            <form id="formAsistencia">
+
+                <label for="documentoAsistencia">
+                    Documento de identidad
+                </label>
+
+                <input type="text" id="documentoAsistencia" name="documentoAsistencia" pattern="[0-9]{8}" maxlength="8"
+                    inputmode="numeric" required>
+
+                <label for="tipoAsistencia">
+                    Tipo de marcación
+                </label>
+
+                <select id="tipoAsistencia" name="tipoAsistencia" required>
+                    <option value="">Seleccione</option>
+                    <option value="ENTRADA">Entrada</option>
+                    <option value="SALIDA">Salida</option>
+                </select>
+
+                <label for="horaAsistencia">
+                    Hora
+                </label>
+
+                <input type="time" id="horaAsistencia" name="horaAsistencia" required>
+
+                <button type="submit">
+                    Registrar asistencia
+                </button>
+
+                <div id="resultadoAsistencia"></div>
+
+            </form>
+
+
+            <h2>Consultar Asistencia</h2>
+
+            <form id="formConsultaAsistencia">
+
+                <label for="consultaTrabajadorId">
+                    ID del empleado
+                </label>
+
+                <input type="number" id="consultaTrabajadorId" name="consultaTrabajadorId" min="1" required>
+
+                <button type="submit">
+                    Consultar asistencia
+                </button>
+
+            </form>
+
+            <div id="resultadoConsultaAsistencia"></div>
+
+        </section>
+
+        <section id="documentos">
+
+            <h2>Documentos</h2>
+
+            <p>
+                Consulta los documentos registrados y revisa cuáles
+                están próximos a vencer.
+            </p>
+
+            <article class="tabla-contenedor">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Documento</th>
+                            <th>Trabajador ID</th>
+                            <th>Vencimiento</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="listaDocumentos">
+                    </tbody>
+
+                </table>
+
+            </article>
+
+        </section>
+
+        <section id="documentosPorVencer">
+
+            <h2>Documentos por vencer</h2>
+
+            <article class="tabla-contenedor">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Documento</th>
+                            <th>Trabajador ID</th>
+                            <th>Vencimiento</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="listaDocumentosPorVencer">
+                    </tbody>
+
+                </table>
+
+            </article>
+
+        </section>
+
+    </main>
+
+    <footer>
+        <p>Sistema de Gestión Empresarial</p>
+    </footer>
+
+    <script src="js/app.js"></script>
+
+</body>
+
+</html>

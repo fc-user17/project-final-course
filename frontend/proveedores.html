@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Proveedores - Sistema de Gestión Empresarial</title>
+
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+</head>
+
+<body>
+
+    <header>
+        <h1>Gestión de Proveedores</h1>
+        <p>Registro y listado de proveedores</p>
+    </header>
+
+    <nav aria-label="Navegación principal">
+        <a href="index.html">Inicio</a>
+        <a href="personal.html">Personal</a>
+        <a href="compras.html">Compras</a>
+        <a href="ventas.html">Ventas</a>
+        <a href="pagos.html">Pagos</a>
+        <a href="proveedores.html">Proveedores</a>
+    </nav>
+
+    <main>
+
+        <section id="proveedores">
+
+            <h2>Proveedores</h2>
+
+            <p>
+                Registra un proveedor con su RUC y razón social.
+                Luego podrás usar ese RUC para registrar compras.
+            </p>
+
+            <form id="formProveedor">
+
+                <label for="rucProveedor">RUC</label>
+
+                <input
+                    type="text"
+                    id="rucProveedor"
+                    name="rucProveedor"
+                    pattern="[0-9]{11}"
+                    maxlength="11"
+                    inputmode="numeric"
+                    title="Ingrese los 11 dígitos del RUC"
+                    required
+                >
+
+                <label for="razonSocial">Razón social</label>
+
+                <input
+                    type="text"
+                    id="razonSocial"
+                    name="razonSocial"
+                    required
+                >
+
+                <button type="submit">
+                    Registrar proveedor
+                </button>
+
+            </form>
+
+            <article class="tabla-contenedor">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>RUC</th>
+                            <th>Razón social</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="listaProveedores">
+                    </tbody>
+
+                </table>
+
+            </article>
+
+        </section>
+
+    </main>
+
+    <footer>
+        <p>Sistema de Gestión Empresarial</p>
+    </footer>
+
+    <script src="js/app.js"></script>
+
+</body>
+
+</html>

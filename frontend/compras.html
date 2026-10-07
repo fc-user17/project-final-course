@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Compras - Sistema de Gestión Empresarial</title>
+
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+</head>
+
+<body>
+
+    <header>
+        <h1>Gestión de Compras</h1>
+        <p>Registro de compras y cálculo de IGV por periodo</p>
+    </header>
+
+    <nav aria-label="Navegación principal">
+        <a href="index.html">Inicio</a>
+        <a href="personal.html">Personal</a>
+        <a href="compras.html">Compras</a>
+        <a href="ventas.html">Ventas</a>
+        <a href="pagos.html">Pagos</a>
+        <a href="proveedores.html">Proveedores</a>
+    </nav>
+
+    <main>
+
+        <section id="compras">
+
+            <h2>Compras</h2>
+
+            <p>
+                Registra una compra indicando el RUC del proveedor.
+                El sistema calcula el IGV (18%) y el monto total.
+            </p>
+
+            <form id="formCompra">
+
+                <label for="rucCompra">Proveedor</label>
+
+                <select
+                    id="rucCompra"
+                    name="rucCompra"
+                    required
+                >
+                    <option value="">Selecciona un proveedor...</option>
+                </select>
+
+                <label for="numeroComprobante">Número de comprobante</label>
+
+                <input
+                    type="text"
+                    id="numeroComprobante"
+                    name="numeroComprobante"
+                    placeholder="F001-1"
+                    required
+                >
+
+                <label for="montoSinIgv">Monto sin IGV (S/)</label>
+
+                <input
+                    type="number"
+                    id="montoSinIgv"
+                    name="montoSinIgv"
+                    min="0.01"
+                    step="0.01"
+                    required
+                >
+
+                <label for="fechaCompra">Fecha</label>
+
+                <input
+                    type="date"
+                    id="fechaCompra"
+                    name="fechaCompra"
+                    required
+                >
+
+                <button type="submit">
+                    Registrar compra
+                </button>
+
+            </form>
+
+            <article class="tabla-contenedor">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Proveedor (ID)</th>
+                            <th>Comprobante</th>
+                            <th>Monto sin IGV</th>
+                            <th>IGV</th>
+                            <th>Total</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="listaCompras">
+                    </tbody>
+
+                </table>
+
+            </article>
+
+        </section>
+
+        <section id="resumenCompras">
+
+            <h2>Resumen de compras</h2>
+
+            <p>
+                Consulta el total de IGV pagado en compras
+                dentro de un periodo de fechas.
+            </p>
+
+            <form id="formIgvPeriodo">
+
+                <label for="desdeIgv">Desde</label>
+
+                <input
+                    type="date"
+                    id="desdeIgv"
+                    name="desdeIgv"
+                    required
+                >
+
+                <label for="hastaIgv">Hasta</label>
+
+                <input
+                    type="date"
+                    id="hastaIgv"
+                    name="hastaIgv"
+                    required
+                >
+
+                <button type="submit">
+                    Calcular IGV del periodo
+                </button>
+
+            </form>
+
+            <div id="resultadoIgv"></div>
+
+        </section>
+
+    </main>
+
+    <footer>
+        <p>Sistema de Gestión Empresarial</p>
+    </footer>
+
+    <script src="js/app.js"></script>
+
+</body>
+
+</html>

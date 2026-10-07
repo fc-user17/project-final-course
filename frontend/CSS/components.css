@@ -1,0 +1,186 @@
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+label {
+    font-weight: bold;
+}
+
+input {
+    padding: 0.75rem;
+    border: 1px solid #cccccc;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+button {
+    padding: 0.75rem;
+    border: none;
+    border-radius: 4px;
+    background-color: var(--color-primary);
+    color: var(--color-white);
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: var(--color-secondary);
+}
+
+input:focus-visible,
+button:focus-visible {
+    outline: 3px solid var(--color-secondary);
+}
+
+/* Tarjetas de los módulos */
+
+.tarjetas {
+    display: grid;
+    gap: 1rem;
+}
+
+.tarjeta {
+    padding: 1.5rem;
+    border: 1px solid #dddddd;
+    border-radius: 8px;
+    background-color: var(--color-white);
+}
+
+.tarjeta h3 {
+    margin-top: 0;
+}
+
+.tarjeta a {
+    display: inline-block;
+    margin-top: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 4px;
+    background-color: var(--color-primary);
+    color: var(--color-white);
+}
+
+.tarjeta a:hover {
+    background-color: var(--color-secondary);
+}
+
+.tarjeta a:focus-visible {
+    outline: 3px solid var(--color-secondary);
+}
+
+/* =========================================
+   MODULO PERSONAL
+   ========================================= */
+
+#trabajadores,
+#asistencia,
+#documentos,
+#documentos-proximos,
+main > #compras,
+#resumenCompras,
+main > #ventas,
+#resumenVentas,
+main > #proveedores {
+    margin-bottom: 1rem;
+    padding: 1.5rem;
+    background-color: var(--color-white);
+    border-radius: 8px;
+}
+
+#trabajadores h2,
+#asistencia h2,
+#documentos h2,
+#documentos-proximos h2,
+main > #compras h2,
+#resumenCompras h2,
+main > #ventas h2,
+#resumenVentas h2,
+main > #proveedores h2 {
+    margin-top: 0;
+    color: var(--color-primary);
+}
+
+/* Tablas */
+
+.tabla-contenedor {
+    width: 100%;
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+th,
+td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid #dddddd;
+}
+
+th {
+    background-color: var(--color-primary);
+    color: var(--color-white);
+}
+
+tbody tr:hover {
+    background-color: #f1f5f9;
+}
+
+/* Formulario de asistencia */
+
+#formAsistencia {
+    max-width: 600px;
+    margin: 1.5rem auto 0;
+}
+
+#formAsistencia input {
+    width: 100%;
+}
+
+/* Botón */
+
+#formAsistencia button {
+    margin-top: 0.5rem;
+}
+
+/* Estados */
+
+.estado-vigente {
+    font-weight: bold;
+}
+
+.estado-proximo {
+    font-weight: bold;
+}
+
+/* Pantallas grandes */
+
+@media (min-width: 768px) {
+
+    #trabajadores,
+    #asistencia,
+    #documentos,
+    #documentos-proximos,
+    main > #compras,
+    #resumenCompras,
+    main > #ventas,
+    #resumenVentas,
+    main > #proveedores {
+        padding: 2rem;
+    }
+
+    #formAsistencia {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem 1rem;
+    }
+
+    #formAsistencia button {
+        grid-column: 1 / -1;
+    }
+}
