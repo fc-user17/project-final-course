@@ -15,6 +15,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/tipos-mantenimiento")
+@CrossOrigin(origins = "*")
 @RequiredArgsConstructor
 public class TipoMantenimientoController {
 
