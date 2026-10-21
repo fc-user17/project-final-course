@@ -209,6 +209,104 @@
             </div>
         </section>
 
+        <section class="almacen-seccion" aria-labelledby="titulo-equipos">
+            <div class="almacen-seccion-encabezado">
+                <div>
+                    <h2 id="titulo-equipos">Equipos</h2>
+                    <p>Registra y consulta equipos asociados al mantenimiento de la empresa.</p>
+                </div>
+            </div>
+
+            <form id="formEquipo" class="almacen-formulario-equipo">
+                <h3 id="tituloFormularioEquipo">Registrar equipo</h3>
+                <input id="equipoId" name="id" type="hidden">
+
+                <label for="codigoPatrimonial">Código patrimonial</label>
+                <input id="codigoPatrimonial" name="codigoPatrimonial" type="text" maxlength="30" required>
+
+                <label for="marcaEquipo">Marca</label>
+                <input id="marcaEquipo" name="marca" type="text" maxlength="100" required>
+
+                <label for="modeloEquipo">Modelo</label>
+                <input id="modeloEquipo" name="modelo" type="text" maxlength="100" required>
+
+                <label for="numeroSerieEquipo">Número de serie</label>
+                <input id="numeroSerieEquipo" name="numeroSerie" type="text" maxlength="100" required>
+
+                <label for="estadoEquipo">Estado</label>
+                <select id="estadoEquipo" name="estado" required>
+                    <option value="OPERATIVO">Operativo</option>
+                    <option value="EN_MANTENIMIENTO">En mantenimiento</option>
+                    <option value="FUERA_DE_SERVICIO">Fuera de servicio</option>
+                    <option value="BAJA">Baja</option>
+                </select>
+
+                <label for="ubicacionEquipo">Ubicación</label>
+                <input id="ubicacionEquipo" name="ubicacion" type="text" maxlength="150" required>
+
+                <label for="responsableEquipo">Responsable</label>
+                <input id="responsableEquipo" name="responsable" type="text" maxlength="150" required>
+
+                <div class="almacen-acciones-formulario">
+                    <button id="guardarEquipo" type="submit">Registrar equipo</button>
+                    <button id="cancelarEdicionEquipo" class="almacen-boton-secundario" type="button" hidden>
+                        Cancelar edición
+                    </button>
+                </div>
+            </form>
+
+            <p id="estadoFormularioEquipo" class="almacen-mensaje" role="status" aria-live="polite"></p>
+            <p id="estadoEquipos" class="almacen-mensaje" role="status" aria-live="polite">
+                Cargando equipos...
+            </p>
+
+            <div class="tabla-contenedor">
+                <table>
+                    <thead>
+                        <tr>
+                            <th scope="col">Código patrimonial</th>
+                            <th scope="col">Marca</th>
+                            <th scope="col">Modelo</th>
+                            <th scope="col">Número de serie</th>
+                            <th scope="col">Estado</th>
+                            <th scope="col">Ubicación</th>
+                            <th scope="col">Responsable</th>
+                            <th scope="col">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="listaEquipos" aria-busy="true">
+                        <tr>
+                            <td colspan="8" class="almacen-vacio">Consultando equipos...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <section id="historialEquipo" class="almacen-historial-equipo" aria-labelledby="tituloHistorialEquipo" hidden>
+                <h3 id="tituloHistorialEquipo">Historial de mantenimiento</h3>
+                <p id="estadoHistorialEquipo" class="almacen-mensaje" role="status" aria-live="polite"></p>
+                <div class="tabla-contenedor">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th scope="col">Orden</th>
+                                <th scope="col">Tipo de mantenimiento</th>
+                                <th scope="col">Fecha programada</th>
+                                <th scope="col">Prioridad</th>
+                                <th scope="col">Estado</th>
+                                <th scope="col">Descripción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="listaHistorialEquipo" aria-busy="false">
+                            <tr>
+                                <td colspan="6" class="almacen-vacio">Selecciona un equipo para consultar su historial.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </section>
+
     </main>
 
     <footer>
