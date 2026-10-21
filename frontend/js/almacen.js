@@ -13,6 +13,8 @@ const botonGuardarMovimiento = document.querySelector("#guardarMovimiento");
 const estadoFormularioMovimiento = document.querySelector("#estadoFormularioMovimiento");
 const listaMovimientos = document.querySelector("#listaMovimientos");
 const estadoMovimientos = document.querySelector("#estadoMovimientos");
+const listaAlertasStock = document.querySelector("#listaAlertasStock");
+const estadoAlertasStock = document.querySelector("#estadoAlertasStock");
 
 let productosAlmacen = [];
 
@@ -275,6 +277,70 @@ async function cargarMovimientos() {
     }
 }
 
+function mostrarMensajeAlertas(mensaje) {
+    const fila = document.createElement("tr");
+    const celda = document.createElement("td");
+
+    celda.colSpan = 5;
+    celda.className = "almacen-vacio";
+    celda.textContent = mensaje;
+    fila.append(celda);
+    listaAlertasStock.replaceChildren(fila);
+}
+
+function mostrarAlertasStock(alertas) {
+    if (alertas.length === 0) {
+        mostrarMensajeAlertas("No hay productos con stock bajo.");
+        estadoAlertasStock.textContent = "No hay alertas de stock bajo.";
+        return;
+    }
+
+    const filas = alertas.map((alerta) => {
+        const fila = document.createElement("tr");
+        fila.append(
+            crearCelda(alerta.codigo ?? "—"),
+            crearCelda(alerta.nombre ?? "—"),
+            crearCelda(Number.isFinite(Number(alerta.stockActual))
+                ? Number(alerta.stockActual).toLocaleString("es-PE")
+                : "—"),
+            crearCelda(Number.isFinite(Number(alerta.stockMinimo))
+                ? Number(alerta.stockMinimo).toLocaleString("es-PE")
+                : "—"),
+            crearCelda(Number.isFinite(Number(alerta.cantidadFaltante))
+                ? Number(alerta.cantidadFaltante).toLocaleString("es-PE")
+                : "—")
+        );
+        return fila;
+    });
+
+    listaAlertasStock.replaceChildren(...filas);
+    estadoAlertasStock.textContent = `${alertas.length.toLocaleString("es-PE")} producto(s) requieren reposición.`;
+}
+
+async function cargarAlertasStock() {
+    listaAlertasStock.setAttribute("aria-busy", "true");
+
+    try {
+        const respuesta = await solicitarApi("/api/productos/stock-bajo");
+        const alertas = await respuesta.json();
+        if (!Array.isArray(alertas)) {
+            throw new Error("La respuesta del backend para las alertas no tiene el formato esperado.");
+        }
+
+        mostrarAlertasStock(alertas);
+        estadoAlertasStock.classList.remove("almacen-mensaje-error");
+        return true;
+    } catch (error) {
+        console.error("Error al cargar las alertas de stock bajo:", error);
+        mostrarMensajeAlertas(error.message || "Ocurrió un error al cargar las alertas.");
+        estadoAlertasStock.textContent = error.message || "Ocurrió un error al cargar las alertas.";
+        estadoAlertasStock.classList.add("almacen-mensaje-error");
+        return false;
+    } finally {
+        listaAlertasStock.setAttribute("aria-busy", "false");
+    }
+}
+
 function establecerEstadoFormulario(mensaje, esError = false) {
     estadoFormularioProducto.textContent = mensaje;
     estadoFormularioProducto.classList.toggle("almacen-mensaje-error", esError);
@@ -355,11 +421,19 @@ formularioProducto.addEventListener("submit", async (evento) => {
         );
 
         restablecerFormularioProducto();
-        const productosCargados = await cargarProductos();
+        const [productosCargados, alertasCargadas] = await Promise.all([
+            cargarProductos(),
+            cargarAlertasStock()
+        ]);
         establecerEstadoFormulario(
             id
-                ? productosCargados ? "Producto actualizado correctamente." : "Producto actualizado, pero no se pudo refrescar la lista."
-                : productosCargados ? "Producto registrado correctamente." : "Producto registrado, pero no se pudo refrescar la lista."
+                ? productosCargados && alertasCargadas
+                    ? "Producto actualizado correctamente."
+                    : "Producto actualizado, pero no se pudo actualizar el inventario o las alertas."
+                : productosCargados && alertasCargadas
+                    ? "Producto registrado correctamente."
+                    : "Producto registrado, pero no se pudo actualizar el inventario o las alertas.",
+            !(productosCargados && alertasCargadas)
         );
     } catch (error) {
         console.error("Error al guardar el producto:", error);
@@ -391,18 +465,19 @@ formularioMovimiento.addEventListener("submit", async (evento) => {
         });
 
         formularioMovimiento.reset();
-        const [productosCargados, movimientosCargados] = await Promise.all([
+        const [productosCargados, movimientosCargados, alertasCargadas] = await Promise.all([
             cargarProductos(),
-            cargarMovimientos()
+            cargarMovimientos(),
+            cargarAlertasStock()
         ]);
         const mensaje = tipoMovimiento === "ENTRADA"
             ? "Entrada registrada correctamente."
             : "Salida registrada correctamente.";
         establecerEstadoFormularioMovimiento(
-            productosCargados && movimientosCargados
+            productosCargados && movimientosCargados && alertasCargadas
                 ? mensaje
                 : `${mensaje} No se pudo actualizar una de las vistas; vuelve a cargar la página.`,
-            !(productosCargados && movimientosCargados)
+            !(productosCargados && movimientosCargados && alertasCargadas)
         );
     } catch (error) {
         console.error("Error al registrar el movimiento de inventario:", error);
@@ -418,3 +493,4 @@ formularioMovimiento.addEventListener("submit", async (evento) => {
 
 cargarProductos();
 cargarMovimientos();
+cargarAlertasStock();

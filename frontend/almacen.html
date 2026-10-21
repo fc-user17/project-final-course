@@ -183,8 +183,29 @@
                 </div>
             </div>
 
-            <div class="almacen-alerta-vacia" role="status">
-                Las alertas de inventario se mostrarán aquí al conectar el backend.
+            <p id="estadoAlertasStock" class="almacen-mensaje" role="status" aria-live="polite">
+                Cargando alertas de stock...
+            </p>
+
+            <div class="tabla-contenedor">
+                <table>
+                    <thead>
+                        <tr>
+                            <th scope="col">Código</th>
+                            <th scope="col">Producto</th>
+                            <th scope="col">Stock actual</th>
+                            <th scope="col">Stock mínimo</th>
+                            <th scope="col">Faltante</th>
+                        </tr>
+                    </thead>
+                    <tbody id="listaAlertasStock" aria-busy="true">
+                        <tr>
+                            <td colspan="5" class="almacen-vacio">
+                                Consultando alertas...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </section>
 
