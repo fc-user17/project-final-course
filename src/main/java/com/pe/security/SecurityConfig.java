@@ -17,12 +17,19 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 /**
+ * Autor: VLM
  * Configuracion central de Spring Security para el modulo de autenticacion.
  *
  * Decisiones de diseno:
  * - La API es stateless: no se usan sesiones HTTP, cada peticion se autentica con JWT.
+ * - Soporte CORS para comunicacion con el frontend.
  * - Se deshabilita CSRF porque no hay formularios web, solo endpoints REST.
  * - Las rutas /api/auth/** son publicas (login y registro no requieren token).
  * - El resto de rutas requiere autenticacion valida.
@@ -66,6 +73,24 @@ public class SecurityConfig {
     }
 
     /**
+     * Autor: VLM
+     * Descripción: Configuración de CORS para permitir la comunicación del frontend
+     * con los endpoints del backend sin bloqueos de origen cruzado en el navegador.
+     */
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOriginPatterns(List.of("*"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+
+    /**
      * Cadena de filtros de seguridad principal.
      * Define que rutas son publicas, cuales requieren autenticacion,
      * y registra el JwtAuthFilter antes del filtro estandar de Spring Security.
@@ -73,6 +98,9 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                // Soporte CORS para peticiones del frontend
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+
                 // Sin CSRF: API REST stateless
                 .csrf(AbstractHttpConfigurer::disable)
 

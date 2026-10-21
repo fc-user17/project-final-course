@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión - Sistema de Gestión Empresarial</title>
+
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/auth.css">
+</head>
+
+<body class="login-body">
+
+    <!-- Autor: VLM | Descripción: Vista de inicio de sesión conectada con Spring Security /api/auth/login -->
+    <div class="login-card">
+
+        <div class="login-header">
+            <span class="login-icon" aria-hidden="true">🛡️</span>
+            <h1>Iniciar Sesión</h1>
+            <p>Acceso al Sistema de Gestión Empresarial</p>
+        </div>
+
+        <div id="loginAlert" class="auth-alert" role="alert"></div>
+
+        <form id="formLogin" class="login-form">
+
+            <div class="form-group">
+                <label for="email">Correo Electrónico</label>
+                <input type="email" id="email" name="email" placeholder="ejemplo@empresa.pe" required autocomplete="email" autofocus>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Contraseña</label>
+                <input type="password" id="password" name="password" placeholder="••••••••" required autocomplete="current-password">
+            </div>
+
+            <button type="submit" id="btnLogin" class="btn-login">
+                Ingresar al Sistema
+            </button>
+
+        </form>
+
+        <div class="demo-credentials">
+            <h4>Credenciales de Prueba (Seeder):</h4>
+            <ul>
+                <li><strong>Admin:</strong> <code onclick="rellenarDemo('admin@empresa.pe', 'Admin123!')">admin@empresa.pe / Admin123!</code></li>
+            </ul>
+            <small style="display:block; margin-top:0.4rem; color:#64748b;">(Haz clic sobre las credenciales para autocompletar)</small>
+        </div>
+
+    </div>
+
+    <!-- Scripts de autenticación -->
+    <script src="js/auth.js"></script>
+    <script>
+        // Función rápida para demo
+        function rellenarDemo(email, pass) {
+            document.getElementById('email').value = email;
+            document.getElementById('password').value = pass;
+        }
+
+        // Manejar el submit del login
+        const form = document.getElementById('formLogin');
+        const alertBox = document.getElementById('loginAlert');
+        const btn = document.getElementById('btnLogin');
+
+        form.addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+
+            alertBox.style.display = 'none';
+            alertBox.className = 'auth-alert';
+            btn.disabled = true;
+            btn.textContent = 'Verificando credenciales...';
+
+            try {
+                const resultado = await window.auth.login(email, password);
+
+                if (resultado.success) {
+                    alertBox.className = 'auth-alert auth-alert-success';
+                    alertBox.textContent = '¡Bienvenido! Redirigiendo...';
+                    alertBox.style.display = 'block';
+
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 600);
+                } else {
+                    alertBox.className = 'auth-alert auth-alert-error';
+                    alertBox.textContent = resultado.message || 'Credenciales incorrectas';
+                    alertBox.style.display = 'block';
+                    btn.disabled = false;
+                    btn.textContent = 'Ingresar al Sistema';
+                }
+            } catch (err) {
+                console.error(err);
+                alertBox.className = 'auth-alert auth-alert-error';
+                alertBox.textContent = 'Error al conectar con el servidor backend (' + (window.API_URL || 'http://localhost:8080') + '). Verifica que esté iniciado.';
+                alertBox.style.display = 'block';
+                btn.disabled = false;
+                btn.textContent = 'Ingresar al Sistema';
+            }
+        });
+    </script>
+
+</body>
+
+</html>
