@@ -37,14 +37,54 @@
             </div>
         </section>
 
-        <section class="almacen-seccion" aria-labelledby="titulo-productos">
+        <section id="seccionProductos" class="almacen-seccion" aria-labelledby="titulo-productos">
             <div class="almacen-seccion-encabezado">
                 <div>
                     <h2 id="titulo-productos">Productos</h2>
-                    <p>Productos registrados y niveles actuales de inventario.</p>
+                    <p>Registra productos desde el formulario y consulta aquí los niveles de inventario.</p>
                 </div>
             </div>
 
+            <form id="formProducto" class="almacen-formulario-producto">
+                <h3 id="tituloFormularioProducto">Registrar producto</h3>
+                <input id="productoId" name="id" type="hidden">
+
+                <label for="codigoProducto">Código</label>
+                <input id="codigoProducto" name="codigo" type="text" maxlength="20" required>
+
+                <label for="nombreProducto">Nombre</label>
+                <input id="nombreProducto" name="nombre" type="text" maxlength="100" required>
+
+                <label for="descripcionProducto">Descripción</label>
+                <input id="descripcionProducto" name="descripcion" type="text" maxlength="255">
+
+                <label for="unidadProducto">Unidad de medida</label>
+                <input id="unidadProducto" name="unidadMedida" type="text" maxlength="20" required>
+
+                <label for="stockActualProducto">Stock actual</label>
+                <input id="stockActualProducto" name="stockActual" type="number" min="0" step="1" required>
+
+                <label for="stockMinimoProducto">Stock mínimo</label>
+                <input id="stockMinimoProducto" name="stockMinimo" type="number" min="0" step="1" required>
+
+                <label for="precioProducto">Precio unitario</label>
+                <input id="precioProducto" name="precioUnitario" type="number" min="0" step="0.01" required>
+
+                <label for="estadoProducto">Estado</label>
+                <select id="estadoProducto" name="estado" required>
+                    <option value="true">Activo</option>
+                    <option value="false">Inactivo</option>
+                </select>
+
+                <div class="almacen-acciones-formulario">
+                    <button id="guardarProducto" type="submit">Registrar producto</button>
+                    <button id="cancelarEdicion" class="almacen-boton-secundario" type="button" hidden>
+                        Cancelar edición
+                    </button>
+                </div>
+            </form>
+
+            <p id="estadoFormularioProducto" class="almacen-mensaje" role="status" aria-live="polite"></p>
             <p id="estadoProductos" class="almacen-mensaje" role="status" aria-live="polite">
                 Cargando productos...
             </p>
@@ -60,11 +100,12 @@
                             <th scope="col">Stock mínimo</th>
                             <th scope="col">Estado</th>
                             <th scope="col">Situación del stock</th>
+                            <th scope="col">Acciones</th>
                         </tr>
                     </thead>
-                    <tbody id="listaProductos" aria-busy="true">
+                    <tbody id="listaProductos" aria-busy="false">
                         <tr>
-                            <td colspan="7" class="almacen-vacio">
+                            <td colspan="8" class="almacen-vacio">
                                 Consultando el inventario...
                             </td>
                         </tr>
