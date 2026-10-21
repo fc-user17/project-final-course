@@ -15,6 +15,7 @@ public interface OrdenTrabajoRepository extends JpaRepository<OrdenTrabajo, Long
 
     List<OrdenTrabajo> findByTipoMantenimientoId(Long tipoMantenimientoId);
 
+
     /** RF-04: Obtener OTs por técnico asignado. */
     List<OrdenTrabajo> findByTecnicoId(Long tecnicoId);
 
@@ -33,5 +34,8 @@ public interface OrdenTrabajoRepository extends JpaRepository<OrdenTrabajo, Long
     boolean tecnicoOcupadoEnFecha(@Param("tecnicoId") Long tecnicoId,
                                   @Param("fecha") LocalDate fecha,
                                   @Param("excludeId") Long excludeId);
+
+    List<OrdenTrabajo> findByEquipoIdOrderByFechaCreacionDescIdDesc(Long equipoId);
+
 }
 

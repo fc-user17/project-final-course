@@ -22,6 +22,8 @@ public interface OrdenTrabajoService {
 
     List<OrdenTrabajoResponse> findByEstado(EstadoOrden estado);
 
+    List<OrdenTrabajoResponse> findByEquipoId(Long equipoId);
+
     void delete(Long id);
 
     OrdenTrabajoResponse changeStatus(Long id, EstadoOrden estado);

@@ -18,6 +18,8 @@ public class OrdenTrabajoResponse {
     private String codigo;
     private Long tipoMantenimientoId;
     private String tipoMantenimientoNombre;
+    private Long equipoId;
+    private String equipoCodigoPatrimonial;
     private Long tecnicoId;
     private LocalDate fechaProgramada;
     private Prioridad prioridad;
