@@ -8,6 +8,7 @@ import lombok.Getter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Builder
@@ -26,4 +27,6 @@ public class OrdenTrabajoResponse {
     private String descripcion;
     private LocalDateTime fechaCreacion;
     private LocalDateTime fechaActualizacion;
+    /** Equipos y herramientas asignados a esta OT (RF-05). */
+    private List<OrdenTrabajoRecursoResponse> recursos;
 }
