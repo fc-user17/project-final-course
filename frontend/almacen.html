@@ -118,9 +118,39 @@
             <div class="almacen-seccion-encabezado">
                 <div>
                     <h2 id="titulo-movimientos">Movimientos de inventario</h2>
-                    <p>Historial de entradas y salidas de productos.</p>
+                    <p>Registra entradas o salidas y consulta el historial de cambios de stock.</p>
                 </div>
             </div>
+
+            <form id="formMovimiento" class="almacen-formulario-movimiento">
+                <h3>Registrar movimiento</h3>
+
+                <label for="productoMovimiento">Producto</label>
+                <select id="productoMovimiento" name="productoId" required>
+                    <option value="">Cargando productos...</option>
+                </select>
+
+                <label for="tipoMovimiento">Tipo de movimiento</label>
+                <select id="tipoMovimiento" name="tipoMovimiento" required>
+                    <option value="ENTRADA">Entrada</option>
+                    <option value="SALIDA">Salida</option>
+                </select>
+
+                <label for="cantidadMovimiento">Cantidad</label>
+                <input id="cantidadMovimiento" name="cantidad" type="number" min="1" step="1" required>
+
+                <label for="motivoMovimiento">Motivo</label>
+                <input id="motivoMovimiento" name="motivo" type="text" maxlength="255" required>
+
+                <div class="almacen-acciones-formulario">
+                    <button id="guardarMovimiento" type="submit" disabled>Registrar movimiento</button>
+                </div>
+            </form>
+
+            <p id="estadoFormularioMovimiento" class="almacen-mensaje" role="status" aria-live="polite"></p>
+            <p id="estadoMovimientos" class="almacen-mensaje" role="status" aria-live="polite">
+                Cargando movimientos...
+            </p>
 
             <div class="tabla-contenedor">
                 <table>
@@ -131,12 +161,13 @@
                             <th scope="col">Tipo</th>
                             <th scope="col">Cantidad</th>
                             <th scope="col">Motivo</th>
+                            <th scope="col">Stock resultante</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="listaMovimientos" aria-busy="true">
                         <tr>
-                            <td colspan="5" class="almacen-vacio">
-                                No se pudieron cargar los movimientos de inventario.
+                            <td colspan="6" class="almacen-vacio">
+                                Consultando los movimientos...
                             </td>
                         </tr>
                     </tbody>

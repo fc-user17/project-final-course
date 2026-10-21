@@ -73,8 +73,15 @@
     margin-top: 1rem;
 }
 
+.almacen-formulario-movimiento {
+    max-width: 760px;
+    margin-top: 1rem;
+}
+
 .almacen-formulario-producto input,
-.almacen-formulario-producto select {
+.almacen-formulario-producto select,
+.almacen-formulario-movimiento input,
+.almacen-formulario-movimiento select {
     width: 100%;
     padding: 0.7rem;
     border: 1px solid #c5cdd5;
@@ -85,7 +92,9 @@
 }
 
 .almacen-formulario-producto input:focus-visible,
-.almacen-formulario-producto select:focus-visible {
+.almacen-formulario-producto select:focus-visible,
+.almacen-formulario-movimiento input:focus-visible,
+.almacen-formulario-movimiento select:focus-visible {
     outline: 3px solid var(--color-secondary);
 }
 
@@ -98,7 +107,21 @@
     background-color: #f8fafc;
 }
 
+.almacen-formulario-movimiento {
+    display: grid;
+    gap: 0.65rem 1rem;
+    padding: 1rem;
+    border: 1px solid #dce2e8;
+    border-radius: 6px;
+    background-color: #f8fafc;
+}
+
 .almacen-formulario-producto h3 {
+    margin: 0 0 0.25rem;
+    color: var(--color-primary);
+}
+
+.almacen-formulario-movimiento h3 {
     margin: 0 0 0.25rem;
     color: var(--color-primary);
 }
@@ -160,7 +183,14 @@
         align-items: center;
     }
 
+    .almacen-formulario-movimiento {
+        display: grid;
+        grid-template-columns: minmax(130px, 0.7fr) minmax(220px, 1.3fr);
+        align-items: center;
+    }
+
     .almacen-formulario-producto h3,
+    .almacen-formulario-movimiento h3,
     .almacen-acciones-formulario {
         grid-column: 1 / -1;
     }
