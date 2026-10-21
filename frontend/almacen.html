@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Almacén - Sistema de Gestión Empresarial</title>
+
+    <link rel="stylesheet" href="CSS/variables.css">
+    <link rel="stylesheet" href="CSS/base.css">
+    <link rel="stylesheet" href="CSS/layout.css">
+    <link rel="stylesheet" href="CSS/components.css">
+    <link rel="stylesheet" href="CSS/almacen.css">
+</head>
+
+<body>
+
+    <header>
+        <h1>Gestión de Almacén</h1>
+        <p>Consulta de productos, movimientos y alertas de inventario</p>
+    </header>
+
+    <nav aria-label="Navegación de almacén">
+        <a href="index.html">Inicio</a>
+    </nav>
+
+    <main class="almacen">
+
+        <section class="almacen-intro" aria-labelledby="titulo-almacen">
+            <div>
+                <p class="almacen-etiqueta">INVENTARIO</p>
+                <h2 id="titulo-almacen">Panel de almacén</h2>
+                <p>
+                    Administra los productos y consulta las existencias y sus movimientos.
+                </p>
+            </div>
+        </section>
+
+        <section class="almacen-seccion" aria-labelledby="titulo-productos">
+            <div class="almacen-seccion-encabezado">
+                <div>
+                    <h2 id="titulo-productos">Productos</h2>
+                    <p>Productos registrados y niveles actuales de inventario.</p>
+                </div>
+            </div>
+
+            <div class="tabla-contenedor">
+                <table>
+                    <thead>
+                        <tr>
+                            <th scope="col">Código</th>
+                            <th scope="col">Producto</th>
+                            <th scope="col">Unidad</th>
+                            <th scope="col">Stock actual</th>
+                            <th scope="col">Stock mínimo</th>
+                            <th scope="col">Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="6" class="almacen-vacio">
+                                No se pudieron cargar los productos.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="almacen-seccion" aria-labelledby="titulo-movimientos">
+            <div class="almacen-seccion-encabezado">
+                <div>
+                    <h2 id="titulo-movimientos">Movimientos de inventario</h2>
+                    <p>Historial de entradas y salidas de productos.</p>
+                </div>
+            </div>
+
+            <div class="tabla-contenedor">
+                <table>
+                    <thead>
+                        <tr>
+                            <th scope="col">Fecha</th>
+                            <th scope="col">Producto</th>
+                            <th scope="col">Tipo</th>
+                            <th scope="col">Cantidad</th>
+                            <th scope="col">Motivo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="5" class="almacen-vacio">
+                                No se pudieron cargar los movimientos de inventario.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="almacen-seccion" aria-labelledby="titulo-stock-bajo">
+            <div class="almacen-seccion-encabezado">
+                <div>
+                    <h2 id="titulo-stock-bajo">Alertas de stock bajo</h2>
+                    <p>Productos cuyo stock actual requiere atención.</p>
+                </div>
+            </div>
+
+            <div class="almacen-alerta-vacia" role="status">
+                Las alertas de inventario se mostrarán aquí al conectar el backend.
+            </div>
+        </section>
+
+    </main>
+
+    <footer>
+        <p>Sistema de Gestión Empresarial</p>
+    </footer>
+
+</body>
+
+</html>

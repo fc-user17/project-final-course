@@ -1,0 +1,76 @@
+.almacen {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.almacen-intro,
+.almacen-seccion {
+    margin-bottom: 1rem;
+    padding: 1.5rem;
+    border: 1px solid #dce2e8;
+    border-radius: 8px;
+    background-color: var(--color-white);
+}
+
+.almacen-intro {
+    border-left: 5px solid var(--color-secondary);
+}
+
+.almacen-intro h2,
+.almacen-seccion h2 {
+    margin: 0;
+    color: var(--color-primary);
+}
+
+.almacen-intro p:last-child,
+.almacen-seccion-encabezado p {
+    margin-bottom: 0;
+    line-height: 1.5;
+}
+
+.almacen-etiqueta {
+    margin: 0 0 0.5rem;
+    color: var(--color-secondary);
+    font-size: 0.75rem;
+    font-weight: bold;
+    letter-spacing: 0.08em;
+}
+
+.almacen-seccion-encabezado {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.almacen-seccion-encabezado p {
+    margin-top: 0.4rem;
+}
+
+.almacen-vacio,
+.almacen-alerta-vacia {
+    padding: 1.25rem;
+    color: #59636e;
+    text-align: center;
+}
+
+.almacen-alerta-vacia {
+    border: 1px dashed #c5cdd5;
+    border-radius: 6px;
+    background-color: #f8fafc;
+}
+
+@media (min-width: 768px) {
+    .almacen-intro,
+    .almacen-seccion {
+        padding: 2rem;
+    }
+}
+
+@media (max-width: 600px) {
+    .almacen-intro,
+    .almacen-seccion {
+        padding: 1rem;
+    }
+}
