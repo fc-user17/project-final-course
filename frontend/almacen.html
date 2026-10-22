@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Almacén - Sistema de Gestión Empresarial</title>
+
+    <link rel="stylesheet" href="CSS/variables.css">
+    <link rel="stylesheet" href="CSS/base.css">
+    <link rel="stylesheet" href="CSS/layout.css">
+    <link rel="stylesheet" href="CSS/components.css">
+    <link rel="stylesheet" href="CSS/almacen.css">
+</head>
+
+<body>
+
+    <header>
+        <h1>Gestión de Almacén</h1>
+        <p>Consulta de productos, movimientos y alertas de inventario</p>
+    </header>
+
+    <nav aria-label="Navegación de almacén">
+        <a href="index.html">Inicio</a>
+    </nav>
+
+    <main class="almacen">
+
+        <section class="almacen-intro" aria-labelledby="titulo-almacen">
+            <div>
+                <p class="almacen-etiqueta">INVENTARIO</p>
+                <h2 id="titulo-almacen">Panel de almacén</h2>
+                <p>
+                    Administra los productos y consulta las existencias y sus movimientos.
+                </p>
+            </div>
+        </section>
+
+        <section id="seccionProductos" class="almacen-seccion" aria-labelledby="titulo-productos">
+            <div class="almacen-seccion-encabezado">
+                <div>
+                    <h2 id="titulo-productos">Productos</h2>
+                    <p>Registra productos desde el formulario y consulta aquí los niveles de inventario.</p>
+                </div>
+            </div>
+
+            <form id="formProducto" class="almacen-formulario-producto">
+                <h3 id="tituloFormularioProducto">Registrar producto</h3>
+                <input id="productoId" name="id" type="hidden">
+
+                <label for="codigoProducto">Código</label>
+                <input id="codigoProducto" name="codigo" type="text" maxlength="20" required>
+
+                <label for="nombreProducto">Nombre</label>
+                <input id="nombreProducto" name="nombre" type="text" maxlength="100" required>
+
+                <label for="descripcionProducto">Descripción</label>
+                <input id="descripcionProducto" name="descripcion" type="text" maxlength="255">
+
+                <label for="unidadProducto">Unidad de medida</label>
+                <input id="unidadProducto" name="unidadMedida" type="text" maxlength="20" required>
+
+                <label for="stockActualProducto">Stock actual</label>
+                <input id="stockActualProducto" name="stockActual" type="number" min="0" step="1" required>
+
+                <label for="stockMinimoProducto">Stock mínimo</label>
+                <input id="stockMinimoProducto" name="stockMinimo" type="number" min="0" step="1" required>
+
+                <label for="precioProducto">Precio unitario</label>
+                <input id="precioProducto" name="precioUnitario" type="number" min="0" step="0.01" required>
+
+                <label for="estadoProducto">Estado</label>
+                <select id="estadoProducto" name="estado" required>
+                    <option value="true">Activo</option>
+                    <option value="false">Inactivo</option>
+                </select>
+
+                <div class="almacen-acciones-formulario">
+                    <button id="guardarProducto" type="submit">Registrar producto</button>
+                    <button id="cancelarEdicion" class="almacen-boton-secundario" type="button" hidden>
+                        Cancelar edición
+                    </button>
+                </div>
+            </form>
+
+            <p id="estadoFormularioProducto" class="almacen-mensaje" role="status" aria-live="polite"></p>
+            <p id="estadoProductos" class="almacen-mensaje" role="status" aria-live="polite">
+                Cargando productos...
+            </p>
+
+            <div class="tabla-contenedor">
+                <table>
+                    <thead>
+                        <tr>
+                            <th scope="col">Código</th>
+                            <th scope="col">Producto</th>
+                            <th scope="col">Unidad</th>
+                            <th scope="col">Stock actual</th>
+                            <th scope="col">Stock mínimo</th>
+                            <th scope="col">Estado</th>
+                            <th scope="col">Situación del stock</th>
+                            <th scope="col">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="listaProductos" aria-busy="false">
+                        <tr>
+                            <td colspan="8" class="almacen-vacio">
+                                Consultando el inventario...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="almacen-seccion" aria-labelledby="titulo-movimientos">
+            <div class="almacen-seccion-encabezado">
+                <div>
+                    <h2 id="titulo-movimientos">Movimientos de inventario</h2>
+                    <p>Registra entradas o salidas y consulta el historial de cambios de stock.</p>
+                </div>
+            </div>
+
+            <form id="formMovimiento" class="almacen-formulario-movimiento">
+                <h3>Registrar movimiento</h3>
+
+                <label for="productoMovimiento">Producto</label>
+                <select id="productoMovimiento" name="productoId" required>
+                    <option value="">Cargando productos...</option>
+                </select>
+
+                <label for="tipoMovimiento">Tipo de movimiento</label>
+                <select id="tipoMovimiento" name="tipoMovimiento" required>
+                    <option value="ENTRADA">Entrada</option>
+                    <option value="SALIDA">Salida</option>
+                </select>
+
+                <label for="cantidadMovimiento">Cantidad</label>
+                <input id="cantidadMovimiento" name="cantidad" type="number" min="1" step="1" required>
+
+                <label for="motivoMovimiento">Motivo</label>
+                <input id="motivoMovimiento" name="motivo" type="text" maxlength="255" required>
+
+                <div class="almacen-acciones-formulario">
+                    <button id="guardarMovimiento" type="submit" disabled>Registrar movimiento</button>
+                </div>
+            </form>
+
+            <p id="estadoFormularioMovimiento" class="almacen-mensaje" role="status" aria-live="polite"></p>
+            <p id="estadoMovimientos" class="almacen-mensaje" role="status" aria-live="polite">
+                Cargando movimientos...
+            </p>
+
+            <div class="tabla-contenedor">
+                <table>
+                    <thead>
+                        <tr>
+                            <th scope="col">Fecha</th>
+                            <th scope="col">Producto</th>
+                            <th scope="col">Tipo</th>
+                            <th scope="col">Cantidad</th>
+                            <th scope="col">Motivo</th>
+                            <th scope="col">Stock resultante</th>
+                        </tr>
+                    </thead>
+                    <tbody id="listaMovimientos" aria-busy="true">
+                        <tr>
+                            <td colspan="6" class="almacen-vacio">
+                                Consultando los movimientos...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="almacen-seccion" aria-labelledby="titulo-stock-bajo">
+            <div class="almacen-seccion-encabezado">
+                <div>
+                    <h2 id="titulo-stock-bajo">Alertas de stock bajo</h2>
+                    <p>Productos cuyo stock actual requiere atención.</p>
+                </div>
+            </div>
+
+            <p id="estadoAlertasStock" class="almacen-mensaje" role="status" aria-live="polite">
+                Cargando alertas de stock...
+            </p>
+
+            <div class="tabla-contenedor">
+                <table>
+                    <thead>
+                        <tr>
+                            <th scope="col">Código</th>
+                            <th scope="col">Producto</th>
+                            <th scope="col">Stock actual</th>
+                            <th scope="col">Stock mínimo</th>
+                            <th scope="col">Faltante</th>
+                        </tr>
+                    </thead>
+                    <tbody id="listaAlertasStock" aria-busy="true">
+                        <tr>
+                            <td colspan="5" class="almacen-vacio">
+                                Consultando alertas...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="almacen-seccion" aria-labelledby="titulo-equipos">
+            <div class="almacen-seccion-encabezado">
+                <div>
+                    <h2 id="titulo-equipos">Equipos</h2>
+                    <p>Registra y consulta equipos asociados al mantenimiento de la empresa.</p>
+                </div>
+            </div>
+
+            <form id="formEquipo" class="almacen-formulario-equipo">
+                <h3 id="tituloFormularioEquipo">Registrar equipo</h3>
+                <input id="equipoId" name="id" type="hidden">
+
+                <label for="codigoPatrimonial">Código patrimonial</label>
+                <input id="codigoPatrimonial" name="codigoPatrimonial" type="text" maxlength="30" required>
+
+                <label for="marcaEquipo">Marca</label>
+                <input id="marcaEquipo" name="marca" type="text" maxlength="100" required>
+
+                <label for="modeloEquipo">Modelo</label>
+                <input id="modeloEquipo" name="modelo" type="text" maxlength="100" required>
+
+                <label for="numeroSerieEquipo">Número de serie</label>
+                <input id="numeroSerieEquipo" name="numeroSerie" type="text" maxlength="100" required>
+
+                <label for="estadoEquipo">Estado</label>
+                <select id="estadoEquipo" name="estado" required>
+                    <option value="OPERATIVO">Operativo</option>
+                    <option value="EN_MANTENIMIENTO">En mantenimiento</option>
+                    <option value="FUERA_DE_SERVICIO">Fuera de servicio</option>
+                    <option value="BAJA">Baja</option>
+                </select>
+
+                <label for="ubicacionEquipo">Ubicación</label>
+                <input id="ubicacionEquipo" name="ubicacion" type="text" maxlength="150" required>
+
+                <label for="responsableEquipo">Responsable</label>
+                <input id="responsableEquipo" name="responsable" type="text" maxlength="150" required>
+
+                <div class="almacen-acciones-formulario">
+                    <button id="guardarEquipo" type="submit">Registrar equipo</button>
+                    <button id="cancelarEdicionEquipo" class="almacen-boton-secundario" type="button" hidden>
+                        Cancelar edición
+                    </button>
+                </div>
+            </form>
+
+            <p id="estadoFormularioEquipo" class="almacen-mensaje" role="status" aria-live="polite"></p>
+            <p id="estadoEquipos" class="almacen-mensaje" role="status" aria-live="polite">
+                Cargando equipos...
+            </p>
+
+            <div class="tabla-contenedor">
+                <table>
+                    <thead>
+                        <tr>
+                            <th scope="col">Código patrimonial</th>
+                            <th scope="col">Marca</th>
+                            <th scope="col">Modelo</th>
+                            <th scope="col">Número de serie</th>
+                            <th scope="col">Estado</th>
+                            <th scope="col">Ubicación</th>
+                            <th scope="col">Responsable</th>
+                            <th scope="col">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="listaEquipos" aria-busy="true">
+                        <tr>
+                            <td colspan="8" class="almacen-vacio">Consultando equipos...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <section id="historialEquipo" class="almacen-historial-equipo" aria-labelledby="tituloHistorialEquipo" hidden>
+                <h3 id="tituloHistorialEquipo">Historial de mantenimiento</h3>
+                <p id="estadoHistorialEquipo" class="almacen-mensaje" role="status" aria-live="polite"></p>
+                <div class="tabla-contenedor">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th scope="col">Orden</th>
+                                <th scope="col">Tipo de mantenimiento</th>
+                                <th scope="col">Fecha programada</th>
+                                <th scope="col">Prioridad</th>
+                                <th scope="col">Estado</th>
+                                <th scope="col">Descripción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="listaHistorialEquipo" aria-busy="false">
+                            <tr>
+                                <td colspan="6" class="almacen-vacio">Selecciona un equipo para consultar su historial.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </section>
+
+    </main>
+
+    <footer>
+        <p>Sistema de Gestión Empresarial</p>
+    </footer>
+
+    <script src="js/almacen.js"></script>
+
+</body>
+
+</html>
