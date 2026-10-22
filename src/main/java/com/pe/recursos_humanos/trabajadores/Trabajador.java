@@ -1,12 +1,31 @@
+
 package com.pe.recursos_humanos.trabajadores;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Column;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "trabajadores")
 public class Trabajador {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false)
     private String nombres;
+
+    @Column(name = "documento_identidad", nullable = false, unique = true)
     private String documentoIdentidad;
+
     private String cargo;
+
     private String area;
+
     private String estado;
 
     public Trabajador() {

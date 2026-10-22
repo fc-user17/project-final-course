@@ -1,32 +1,37 @@
+
 package com.pe.recursos_humanos.asistencia;
 
 import com.pe.recursos_humanos.trabajadores.PersonalService;
 import com.pe.recursos_humanos.trabajadores.Trabajador;
+
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.concurrent.atomic.AtomicLong;
 
 @Service
 public class AsistenciaService {
 
     private final PersonalService personalService;
-    private final List<Marcacion> marcaciones = new ArrayList<>();
-    private final AtomicLong contadorId = new AtomicLong(0);
+    private final MarcacionRepository marcacionRepository;
 
-    public AsistenciaService(PersonalService personalService) {
+    public AsistenciaService(
+            PersonalService personalService,
+            MarcacionRepository marcacionRepository) {
         this.personalService = personalService;
+        this.marcacionRepository = marcacionRepository;
     }
 
+    @Transactional
     public Marcacion marcar(
             String documentoIdentidad,
             TipoMarcacion tipo,
             LocalDateTime fechaHora) {
 
-        if (documentoIdentidad == null || documentoIdentidad.isBlank()) {
+        if (documentoIdentidad == null
+                || documentoIdentidad.isBlank()) {
             throw new IllegalArgumentException(
                     "El documento de identidad es obligatorio");
         }
@@ -43,26 +48,20 @@ public class AsistenciaService {
                                         + documentoIdentidad));
 
         Marcacion marcacion = new Marcacion();
-
-        marcacion.setId(contadorId.incrementAndGet());
         marcacion.setTrabajadorId(trabajador.getId());
         marcacion.setTipo(tipo);
         marcacion.setFechaHora(
                 fechaHora != null ? fechaHora : LocalDateTime.now()
         );
 
-        marcaciones.add(marcacion);
-
-        return marcacion;
+        return marcacionRepository.save(marcacion);
     }
 
     public List<Marcacion> listarTodas() {
-        return marcaciones;
+        return marcacionRepository.findAll();
     }
 
     public List<Marcacion> listarPorTrabajador(Long trabajadorId) {
-        return marcaciones.stream()
-                .filter(m -> m.getTrabajadorId().equals(trabajadorId))
-                .toList();
+        return marcacionRepository.findByTrabajadorId(trabajadorId);
     }
 }

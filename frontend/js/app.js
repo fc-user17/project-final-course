@@ -1,136 +1,153 @@
 
+/* =========================================
+   CONFIGURACIÓN Y AUTENTICACIÓN
+========================================= */
 
-const API_URL = "http://localhost:8080";
+const API_URL = "http://localhost:8081";
 
+function obtenerHeadersAutenticados(headersAdicionales = {}) {
+    const headers = new Headers(headersAdicionales);
+    const token = sessionStorage.getItem("autenticacion");
 
-/* PERSONAL - REGISTRAR TRABAJADOR*/
+    if (token) {
+        headers.set("Authorization", `Bearer ${token}`);
+    }
 
-const formularioTrabajador =
-    document.querySelector("#formTrabajador");
+    return headers;
+}
 
-if (formularioTrabajador) {
+async function fetchAutenticado(url, opciones = {}) {
+    const headers = obtenerHeadersAutenticados(opciones.headers || {});
 
-    formularioTrabajador.addEventListener("submit", async function (event) {
+    if (
+        opciones.body &&
+        !(opciones.body instanceof FormData) &&
+        !headers.has("Content-Type")
+    ) {
+        headers.set("Content-Type", "application/json");
+    }
 
-        event.preventDefault();
-
-        const trabajador = {
-            nombres: document.querySelector("#nombres").value,
-            documentoIdentidad: document.querySelector("#documentoIdentidad").value,
-            cargo: document.querySelector("#cargo").value,
-            area: document.querySelector("#areaTrabajador").value,
-            estado: "Activo"
-        };
-
-        try {
-
-            const respuesta = await fetch(
-                `${API_URL}/api/personal`,
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify(trabajador)
-                }
-            );
-
-            if (!respuesta.ok) {
-                throw new Error(
-                    "No se pudo registrar el trabajador"
-                );
-            }
-
-            const trabajadorCreado =
-                await respuesta.json();
-
-            alert("Trabajador registrado correctamente");
-
-            formularioTrabajador.reset();
-
-            cargarTrabajadores();
-
-            console.log(
-                "Trabajador creado:",
-                trabajadorCreado
-            );
-
-        } catch (error) {
-
-            console.error(error);
-
-            alert(
-                "No se pudo registrar el trabajador."
-            );
-        }
+    const respuesta = await fetch(url, {
+        ...opciones,
+        headers
     });
+
+    if (respuesta.status === 401 || respuesta.status === 403) {
+        console.error("Acceso rechazado:", respuesta.status, url);
+    }
+
+    return respuesta;
 }
 
 
-/*PERSONAL - LISTAR TRABAJADORES*/
+/* =========================================
+   PERSONAL - LISTAR TRABAJADORES
+========================================= */
 
 async function cargarTrabajadores() {
+    const lista = document.querySelector("#listaTrabajadores");
 
-    const lista =
-        document.querySelector("#listaTrabajadores");
-
-    if (!lista) {
-        return;
-    }
+    if (!lista) return;
 
     try {
-
-        const respuesta =
-            await fetch(`${API_URL}/api/personal`);
+        const respuesta = await fetchAutenticado(`${API_URL}/api/personal`);
 
         if (!respuesta.ok) {
-            throw new Error(
-                "Error al obtener los trabajadores"
-            );
+            throw new Error(`Error HTTP ${respuesta.status}`);
         }
 
-        const trabajadores =
-            await respuesta.json();
+        const trabajadores = await respuesta.json();
 
+        if (!Array.isArray(trabajadores)) {
+            throw new Error("La API no devolvió una lista de trabajadores.");
+        }
 
         lista.innerHTML = "";
 
         if (trabajadores.length === 0) {
-
             lista.innerHTML = `
                 <tr>
-                    <td colspan="5">
+                    <td colspan="7" class="empty-state">
                         No hay trabajadores registrados.
                     </td>
                 </tr>
             `;
 
+            actualizarCantidadListado(0);
+            await actualizarConteoTrabajadores();
             return;
         }
 
         trabajadores.forEach(function (trabajador) {
+            const fila = document.createElement("tr");
 
-            const fila =
-                document.createElement("tr");
+            // Las siete columnas de la tabla
+            const valores = [
+                trabajador.id,
+                trabajador.nombres,
+                trabajador.documentoIdentidad,
+                trabajador.cargo,
+                trabajador.area,
+                trabajador.estado
+            ];
 
-            fila.innerHTML = `
-                <td>${trabajador.id}</td>
-                <td>${trabajador.nombres}</td>
-                <td>${trabajador.area}</td>
-                <td>${trabajador.cargo}</td>
-                <td>${trabajador.estado}</td>
-            `;
+            valores.forEach(function (valor) {
+                const celda = document.createElement("td");
+                celda.textContent = valor ?? "—";
+                fila.appendChild(celda);
+            });
 
+            // Columna de acciones
+            const acciones = document.createElement("td");
+
+            const botonEditar = document.createElement("button");
+            botonEditar.type = "button";
+            botonEditar.className = "accion-editar";
+            botonEditar.textContent = "Editar";
+            botonEditar.addEventListener("click", function () {
+                editarTrabajador(trabajador);
+            });
+
+      
+            const botonEstado = document.createElement("button");
+            botonEstado.type = "button";
+            botonEstado.className = "accion-estado";
+
+            const estadoActual = String(trabajador.estado || "").toUpperCase();
+            const estaActivo = estadoActual === "ACTIVO";
+
+            botonEstado.textContent = estaActivo ? "Dar de baja" : "Reactivar";
+
+            botonEstado.addEventListener("click", function () {
+                cambiarEstadoTrabajador(
+                    trabajador.id,
+                    estaActivo ? "CESADO" : "ACTIVO"
+                );
+            });
+
+            const botonEliminar = document.createElement("button");
+            botonEliminar.type = "button";
+            botonEliminar.className = "accion-eliminar";
+            botonEliminar.textContent = "Eliminar";
+            botonEliminar.addEventListener("click", function () {
+                eliminarTrabajador(trabajador);
+            });
+
+            acciones.append(botonEditar, botonEstado, botonEliminar);
+            fila.appendChild(acciones);
             lista.appendChild(fila);
         });
 
-    } catch (error) {
+        // Aplicar los filtros después de cargar los datos
+        filtrarTrabajadores();
+        await actualizarConteoTrabajadores();
 
-        console.error(error);
+    } catch (error) {
+        console.error("Error al cargar trabajadores:", error);
 
         lista.innerHTML = `
             <tr>
-                <td colspan="5">
+                <td colspan="7" class="empty-state">
                     No se pudieron cargar los trabajadores.
                 </td>
             </tr>
@@ -138,98 +155,342 @@ async function cargarTrabajadores() {
     }
 }
 
-/* ASISTENCIA - REGISTRAR Y CONSULTAR */
 
-const formularioAsistencia =
-    document.querySelector("#formAsistencia");
+/* =========================================
+   PERSONAL - REGISTRAR TRABAJADOR
+========================================= */
 
-if (formularioAsistencia) {
+const formularioTrabajador = document.querySelector("#formTrabajador");
 
-    formularioAsistencia.addEventListener("submit", async function (event) {
-
+if (formularioTrabajador) {
+    formularioTrabajador.addEventListener("submit", async function (event) {
         event.preventDefault();
 
-        const documento =
-            document.querySelector("#documentoAsistencia").value;
+        const nombres = document.querySelector("#nombres")?.value.trim();
+        const documentoIdentidad =
+            document.querySelector("#documentoIdentidad")?.value.trim();
+        const cargo = document.querySelector("#cargo")?.value.trim();
+        const area = document.querySelector("#areaTrabajador")?.value.trim();
 
-        const tipo =
-            document.querySelector("#tipoAsistencia").value;
+        if (!nombres || !documentoIdentidad) {
+            alert("El nombre y el documento de identidad son obligatorios.");
+            return;
+        }
 
-        const hora =
-            document.querySelector("#horaAsistencia").value;
-
-        const resultado =
-            document.querySelector("#resultadoAsistencia");
+        const trabajador = {
+            nombres,
+            documentoIdentidad,
+            cargo,
+            area,
+            estado: "ACTIVO"
+        };
 
         try {
-
-            const ahora = new Date();
-
-            const fecha =
-                ahora.toISOString().split("T")[0];
-
-            const fechaHora =
-                `${fecha}T${hora}:00`;
-
-            const respuesta = await fetch(
-                `${API_URL}/api/asistencia/marcar`,
+            const respuesta = await fetchAutenticado(
+                `${API_URL}/api/personal`,
                 {
                     method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        documentoIdentidad: documento,
-                        tipo: tipo,
-                        fechaHora: fechaHora
-                    })
+                    body: JSON.stringify(trabajador)
                 }
             );
 
             if (!respuesta.ok) {
-
-                const mensaje =
-                    await respuesta.text();
-
-                throw new Error(mensaje);
+                const mensaje = await respuesta.text();
+                throw new Error(mensaje || `Error HTTP ${respuesta.status}`);
             }
 
-            const asistencia =
-                await respuesta.json();
+            const trabajadorCreado = await respuesta.json();
 
-            resultado.innerHTML = `
-                <article>
-                    <p>
-                        Asistencia registrada correctamente.
-                    </p>
+            alert("Trabajador registrado correctamente.");
+            formularioTrabajador.reset();
 
-                    <p>
-                        Tipo: ${asistencia.tipo}
-                    </p>
+            await cargarTrabajadores();
 
-                    <p>
-                        Hora: ${hora}
-                    </p>
-                </article>
-            `;
-
-            formularioAsistencia.reset();
+            console.log("Trabajador creado:", trabajadorCreado);
 
         } catch (error) {
-
-            console.error(error);
-
-            resultado.innerHTML = `
-                <article>
-                    <p>
-                        No se pudo registrar la asistencia.
-                    </p>
-                </article>
-            `;
+            console.error("Error al registrar:", error);
+            alert("No se pudo registrar el trabajador: " + error.message);
         }
-
     });
 }
+
+
+/* =========================================
+   PERSONAL - EDITAR TRABAJADOR
+========================================= */
+
+async function editarTrabajador(trabajador) {
+    const nombres = prompt("Nombres y apellidos:", trabajador.nombres);
+    if (nombres === null) return;
+
+    const documentoIdentidad = prompt(
+        "Documento de identidad:",
+        trabajador.documentoIdentidad || ""
+    );
+    if (documentoIdentidad === null) return;
+
+    const cargo = prompt("Cargo:", trabajador.cargo || "");
+    if (cargo === null) return;
+
+    const area = prompt("Área:", trabajador.area || "");
+    if (area === null) return;
+
+    if (!nombres.trim() || !documentoIdentidad.trim()) {
+        alert("El nombre y el documento son obligatorios.");
+        return;
+    }
+
+    try {
+        const respuesta = await fetchAutenticado(
+            `${API_URL}/api/personal/${trabajador.id}`,
+            {
+                method: "PUT",
+                body: JSON.stringify({
+                    nombres: nombres.trim(),
+                    documentoIdentidad: documentoIdentidad.trim(),
+                    cargo: cargo.trim(),
+                    area: area.trim()
+                })
+            }
+        );
+
+        if (!respuesta.ok) {
+            const mensaje = await respuesta.text();
+            throw new Error(mensaje || `Error HTTP ${respuesta.status}`);
+        }
+
+        alert("Trabajador actualizado correctamente.");
+        await cargarTrabajadores();
+
+    } catch (error) {
+        console.error("Error al editar:", error);
+        alert("No se pudo editar el trabajador: " + error.message);
+    }
+}
+
+
+/* =========================================
+   PERSONAL - CESAR O REACTIVAR
+========================================= */
+
+async function cambiarEstadoTrabajador(id, estado) {
+    const accion = estado === "CESADO" ? "dar de baja" : "reactivar";
+
+    if (!confirm(`¿Deseas ${accion} a este trabajador?`)) {
+        return;
+    }
+
+    try {
+        const respuesta = await fetchAutenticado(
+            `${API_URL}/api/personal/${id}/estado`,
+            {
+                method: "PUT",
+                body: JSON.stringify({ estado })
+            }
+        );
+
+        if (!respuesta.ok) {
+            const mensaje = await respuesta.text();
+            throw new Error(mensaje || `Error HTTP ${respuesta.status}`);
+        }
+
+        alert(
+            estado === "CESADO"
+                ? "El trabajador ha sido cesado correctamente."
+                : "El trabajador ha sido reactivado correctamente."
+        );
+
+        await cargarTrabajadores();
+
+    } catch (error) {
+        console.error("Error al cambiar el estado:", error);
+        alert("No se pudo cambiar el estado: " + error.message);
+    }
+}
+
+
+/* =========================================
+   PERSONAL - ELIMINAR TRABAJADOR
+========================================= */
+
+async function eliminarTrabajador(trabajador) {
+    const confirmar = confirm(
+        `¿Seguro que deseas eliminar a ${trabajador.nombres}? Esta acción no se puede deshacer.`
+    );
+
+    if (!confirmar) return;
+
+    try {
+        const respuesta = await fetchAutenticado(
+            `${API_URL}/api/personal/${trabajador.id}`,
+            { method: "DELETE" }
+        );
+
+        if (!respuesta.ok) {
+            const mensaje = await respuesta.text();
+            throw new Error(mensaje || `Error HTTP ${respuesta.status}`);
+        }
+
+        alert("Trabajador eliminado correctamente.");
+        await cargarTrabajadores();
+
+    } catch (error) {
+        console.error("Error al eliminar:", error);
+        alert(
+            "No se pudo eliminar el trabajador. Puede tener registros relacionados. " +
+            error.message
+        );
+    }
+}
+
+
+/* =========================================
+   BUSCADOR Y FILTRO POR ÁREA
+========================================= */
+
+function inicializarBusquedaTrabajadores() {
+    const buscador = document.getElementById("buscarTrabajador");
+    const filtroArea = document.getElementById("filtroArea");
+
+    if (buscador) {
+        buscador.addEventListener("input", filtrarTrabajadores);
+    }
+
+    if (filtroArea) {
+        filtroArea.addEventListener("change", filtrarTrabajadores);
+    }
+}
+
+function filtrarTrabajadores() {
+    const lista = document.getElementById("listaTrabajadores");
+    const buscador = document.getElementById("buscarTrabajador");
+    const filtroArea = document.getElementById("filtroArea");
+
+    if (!lista) return;
+
+    const texto = (buscador?.value || "").trim().toLowerCase();
+    const areaSeleccionada =
+        (filtroArea?.value || "").trim().toLowerCase();
+
+    const filas = lista.querySelectorAll("tr");
+    let cantidad = 0;
+
+    filas.forEach(function (fila) {
+        const celdas = fila.querySelectorAll("td");
+
+        // Ignorar filas de mensajes
+        if (celdas.length !== 7) {
+            return;
+        }
+
+        const nombre = celdas[1].textContent.toLowerCase();
+        const documento = celdas[2].textContent.toLowerCase();
+        const area = celdas[4].textContent.trim().toLowerCase();
+
+        const coincideTexto =
+            nombre.includes(texto) || documento.includes(texto);
+
+        const coincideArea =
+            !areaSeleccionada || area === areaSeleccionada;
+
+        const mostrar = coincideTexto && coincideArea;
+
+        fila.style.display = mostrar ? "" : "none";
+
+        if (mostrar) cantidad++;
+    });
+
+    // Mostrar mensaje cuando no hay coincidencias
+    let filaVacia = lista.querySelector(".fila-sin-resultados");
+
+    if (cantidad === 0) {
+        if (!filaVacia) {
+            filaVacia = document.createElement("tr");
+            filaVacia.className = "fila-sin-resultados";
+
+            const celda = document.createElement("td");
+            celda.colSpan = 7;
+            celda.className = "empty-state";
+            celda.textContent = "No se encontraron trabajadores con esos filtros.";
+
+            filaVacia.appendChild(celda);
+            lista.appendChild(filaVacia);
+        }
+    } else if (filaVacia) {
+        filaVacia.remove();
+    }
+
+    actualizarCantidadListado(cantidad);
+}
+
+function actualizarCantidadListado(cantidad) {
+    const contador = document.getElementById("cantidadTrabajadoresListado");
+
+    if (contador) {
+        contador.textContent =
+            `${cantidad} ${cantidad === 1 ? "trabajador encontrado" : "trabajadores encontrados"}`;
+    }
+}
+
+
+/* =========================================
+   TARJETAS DE RESUMEN
+========================================= */
+
+async function actualizarConteoTrabajadores() {
+    const elementoTotal = document.getElementById("totalTrabajadores");
+    const elementoActivos = document.getElementById("trabajadoresActivos");
+
+    // Algunas páginas podrían no tener estas tarjetas
+    if (!elementoTotal && !elementoActivos) return;
+
+    try {
+        const respuesta = await fetchAutenticado(`${API_URL}/api/personal`);
+
+        if (!respuesta.ok) {
+            throw new Error(`Error HTTP ${respuesta.status}`);
+        }
+
+        const trabajadores = await respuesta.json();
+
+        if (!Array.isArray(trabajadores)) {
+            throw new Error("La API no devolvió una lista de trabajadores.");
+        }
+
+        if (elementoTotal) {
+            elementoTotal.textContent = trabajadores.length;
+        }
+
+        const activos = trabajadores.filter(function (trabajador) {
+            return String(trabajador.estado || "")
+                .trim()
+                .toUpperCase() === "ACTIVO";
+        }).length;
+
+        if (elementoActivos) {
+            elementoActivos.textContent = activos;
+        }
+
+    } catch (error) {
+        console.error("Error al actualizar las tarjetas:", error);
+
+        if (elementoTotal) elementoTotal.textContent = "—";
+        if (elementoActivos) elementoActivos.textContent = "—";
+    }
+}
+
+
+/* =========================================
+   INICIAR FUNCIONES AL CARGAR LA PÁGINA
+========================================= */
+
+document.addEventListener("DOMContentLoaded", function () {
+    inicializarBusquedaTrabajadores();
+    cargarTrabajadores();
+    actualizarConteoTrabajadores();
+});
+
 
 
 /* ASISTENCIA - CONSULTAR */
@@ -257,7 +518,7 @@ if (formularioConsultaAsistencia) {
 
             try {
 
-                const respuesta = await fetch(
+                const respuesta = await fetchAutenticado(
                     `${API_URL}/api/asistencia/trabajador/${trabajadorId}`
                 );
 
@@ -355,7 +616,7 @@ if (formularioConsultaAsistencia) {
     );
 }
 
-/* DOCUMENTOS - REGISTRAR*/
+/* DOCUMENTOS - REGISTRAR */
 
 const formularioDocumento =
     document.querySelector("#formDocumento");
@@ -368,53 +629,71 @@ if (formularioDocumento) {
 
             event.preventDefault();
 
-            const documento = {
+            const mensaje =
+                document.querySelector("#mensajeDocumento");
 
-                documentoIdentidad:
-                    document.querySelector(
-                        "#documentoIdentidadDocumento"
-                    ).value,
+            const boton =
+                document.querySelector("#btnRegistrarDocumento");
 
-                tipo:
-                    document.querySelector(
-                        "#tipoDocumento"
-                    ).value,
+            const archivo =
+                document.querySelector("#archivoDocumento").files[0];
 
-                fechaVencimiento:
-                    document.querySelector(
-                        "#fechaVencimientoDocumento"
-                    ).value
-            };
+            if (!archivo) {
+                alert("Selecciona el archivo del documento.");
+                return;
+            }
+
+            const datos = new FormData();
+
+            datos.append(
+                "documentoIdentidad",
+                document.querySelector(
+                    "#documentoIdentidadDocumento"
+                ).value.trim()
+            );
+
+            datos.append(
+                "tipo",
+                document.querySelector("#tipoDocumento").value
+            );
+
+            datos.append(
+                "fechaVencimiento",
+                document.querySelector(
+                    "#fechaVencimientoDocumento"
+                ).value
+            );
+
+            datos.append("archivoDocumento", archivo);
 
             try {
 
-                const respuesta = await fetch(
+                if (boton) {
+                    boton.disabled = true;
+                    boton.textContent = "Registrando...";
+                }
+
+                if (mensaje) {
+                    mensaje.textContent =
+                        "Registrando documento...";
+                }
+
+                const respuesta = await fetchAutenticado(
                     `${API_URL}/api/documentos`,
                     {
                         method: "POST",
-
-                        headers: {
-                            "Content-Type":
-                                "application/json"
-                        },
-
-                        body:
-                            JSON.stringify(documento)
+                        body: datos
                     }
                 );
 
                 if (!respuesta.ok) {
 
-                    const mensaje =
-                        await respuesta.text();
+                    const detalle = await respuesta.text();
 
-                    console.error(
-                        "Error de API:",
-                        mensaje
-                    );
+                    console.error("Error de API:", detalle);
 
                     throw new Error(
-                        "No se pudo registrar el documento"
+                        detalle || "No se pudo registrar el documento."
                     );
                 }
 
@@ -426,22 +705,38 @@ if (formularioDocumento) {
                     documentoCreado
                 );
 
-                alert(
-                    "Documento registrado correctamente"
-                );
+                alert("Documento y archivo registrados correctamente.");
 
                 formularioDocumento.reset();
 
-                cargarDocumentos();
-                cargarDocumentosPorVencer();
+                await cargarDocumentos();
+                await cargarDocumentosPorVencer();
+
+                if (mensaje) {
+                    mensaje.textContent =
+                        "Documento registrado correctamente.";
+                }
 
             } catch (error) {
 
                 console.error(error);
 
+                if (mensaje) {
+                    mensaje.textContent =
+                        "Error: no se pudo registrar el documento.";
+                }
+
                 alert(
-                    "No se pudo registrar el documento."
+                    "No se pudo registrar el documento. " +
+                    "Revisa la consola para conocer el error."
                 );
+
+            } finally {
+
+                if (boton) {
+                    boton.disabled = false;
+                    boton.textContent = "Registrar documento";
+                }
             }
         }
     );
@@ -462,7 +757,7 @@ async function cargarDocumentos() {
     try {
 
         const respuesta =
-            await fetch(
+            await fetchAutenticado(
                 `${API_URL}/api/documentos`
             );
 
@@ -568,7 +863,7 @@ async function cargarDocumentosPorVencer() {
 
     try {
 
-        const respuesta = await fetch(
+        const respuesta = await fetchAutenticado(
             `${API_URL}/api/documentos/proximos-a-vencer?dias=30`
         );
 
@@ -679,7 +974,7 @@ async function cargarProveedoresParaCompras() {
     try {
 
         const respuesta =
-            await fetch(`${API_URL}/api/proveedores`);
+            await fetchAutenticado(`${API_URL}/api/proveedores`);
 
         if (!respuesta.ok) {
             throw new Error("Error al obtener proveedores");
@@ -723,7 +1018,7 @@ if (formularioCompra) {
 
         try {
 
-            const respuesta = await fetch(
+            const respuesta = await fetchAutenticado(
                 `${API_URL}/api/compras`,
                 {
                     method: "POST",
@@ -782,7 +1077,7 @@ async function cargarCompras() {
     try {
 
         const respuesta =
-            await fetch(`${API_URL}/api/compras`);
+            await fetchAutenticado(`${API_URL}/api/compras`);
 
         if (!respuesta.ok) {
             throw new Error("Error al obtener las compras");
@@ -860,7 +1155,7 @@ if (formularioIgvPeriodo) {
 
         try {
 
-            const respuesta = await fetch(
+            const respuesta = await fetchAutenticado(
                 `${API_URL}/api/compras/igv-periodo?desde=${desde}&hasta=${hasta}`
             );
 
@@ -914,7 +1209,7 @@ if (formularioVenta) {
 
         try {
 
-            const respuesta = await fetch(
+            const respuesta = await fetchAutenticado(
                 `${API_URL}/api/ventas`,
                 {
                     method: "POST",
@@ -973,7 +1268,7 @@ async function cargarVentas() {
     try {
 
         const respuesta =
-            await fetch(`${API_URL}/api/ventas`);
+            await fetchAutenticado(`${API_URL}/api/ventas`);
 
         if (!respuesta.ok) {
             throw new Error("Error al obtener las ventas");
@@ -1051,7 +1346,7 @@ if (formularioIgvPeriodoVenta) {
 
         try {
 
-            const respuesta = await fetch(
+            const respuesta = await fetchAutenticado(
                 `${API_URL}/api/ventas/igv-periodo?desde=${desde}&hasta=${hasta}`
             );
 
@@ -1103,7 +1398,7 @@ if (formularioProveedor) {
 
         try {
 
-            const respuesta = await fetch(
+            const respuesta = await fetchAutenticado(
                 `${API_URL}/api/proveedores`,
                 {
                     method: "POST",
@@ -1163,7 +1458,7 @@ async function cargarProveedores() {
     try {
 
         const respuesta =
-            await fetch(`${API_URL}/api/proveedores`);
+            await fetchAutenticado(`${API_URL}/api/proveedores`);
 
         if (!respuesta.ok) {
             throw new Error("Error al obtener los proveedores");
@@ -1267,7 +1562,7 @@ async function cargarTrabajadoresParaPagos() {
     try {
 
         const respuesta =
-            await fetch(`${API_URL}/api/personal`);
+            await fetchAutenticado(`${API_URL}/api/personal`);
 
         if (!respuesta.ok) {
             throw new Error("Error al obtener trabajadores");
@@ -1306,7 +1601,7 @@ async function cargarProveedoresParaPagos() {
     try {
 
         const respuesta =
-            await fetch(`${API_URL}/api/proveedores`);
+            await fetchAutenticado(`${API_URL}/api/proveedores`);
 
         if (!respuesta.ok) {
             throw new Error("Error al obtener proveedores");
@@ -1334,7 +1629,7 @@ async function cargarPagos(url = `${API_URL}/api/pagos`) {
     try {
 
         const respuesta =
-            await fetch(url);
+            await fetchAutenticado(url);
 
         if (!respuesta.ok) {
             throw new Error("Error al obtener pagos");
@@ -1472,7 +1767,7 @@ if (formularioPago) {
 
         try {
 
-            const respuesta = await fetch(
+            const respuesta = await fetchAutenticado(
                 `${API_URL}/api/pagos`,
                 {
                     method: "POST",
@@ -1528,7 +1823,7 @@ if (tbodyPagos) {
 
         try {
 
-            const respuesta = await fetch(
+            const respuesta = await fetchAutenticado(
                 `${API_URL}/api/pagos/${boton.dataset.pagoId}/pagar`,
                 {
                     method: "PUT"

@@ -1,8 +1,23 @@
+
 :root {
+    /* Colores principales de SEA RR. HH. */
     --color-primary: #1f4e79;
     --color-secondary: #2e75b6;
     --color-background: #f4f6f8;
-    --color-text: #333333;
     --color-white: #ffffff;
+
+    /* Colores de texto */
+    --color-text: #263445;
+    --color-text-secondary: #64748b;
+    --color-heading: #17365d;
+    --color-muted: #8491a3;
+
+    /* Colores de estado */
+    --color-success: #15803d;
+    --color-warning: #b45309;
+    --color-danger: #b91c1c;
+
+    /* Bordes y espacios */
+    --color-border: #e2e8f0;
     --espaciado: 1rem;
 }
