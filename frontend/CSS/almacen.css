@@ -1,0 +1,258 @@
+.almacen {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.almacen-intro,
+.almacen-seccion {
+    margin-bottom: 1rem;
+    padding: 1.5rem;
+    border: 1px solid #dce2e8;
+    border-radius: 8px;
+    background-color: var(--color-white);
+}
+
+[hidden] {
+    display: none !important;
+}
+
+.almacen-intro {
+    border-left: 5px solid var(--color-secondary);
+}
+
+.almacen-intro h2,
+.almacen-seccion h2 {
+    margin: 0;
+    color: var(--color-primary);
+}
+
+.almacen-intro p:last-child,
+.almacen-seccion-encabezado p {
+    margin-bottom: 0;
+    line-height: 1.5;
+}
+
+.almacen-etiqueta {
+    margin: 0 0 0.5rem;
+    color: var(--color-secondary);
+    font-size: 0.75rem;
+    font-weight: bold;
+    letter-spacing: 0.08em;
+}
+
+.almacen-seccion-encabezado {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.almacen-seccion-encabezado p {
+    margin-top: 0.4rem;
+}
+
+.almacen-vacio,
+.almacen-alerta-vacia {
+    padding: 1.25rem;
+    color: #59636e;
+    text-align: center;
+}
+
+.almacen-mensaje {
+    margin: 0 0 0.75rem;
+    color: #59636e;
+}
+
+.almacen-mensaje-error {
+    color: #a12622;
+}
+
+.almacen-formulario-producto {
+    max-width: 760px;
+    margin-top: 1rem;
+}
+
+.almacen-formulario-movimiento {
+    max-width: 760px;
+    margin-top: 1rem;
+}
+
+.almacen-formulario-equipo {
+    max-width: 760px;
+    margin-top: 1rem;
+}
+
+.almacen-formulario-producto input,
+.almacen-formulario-producto select,
+.almacen-formulario-movimiento input,
+.almacen-formulario-movimiento select,
+.almacen-formulario-equipo input,
+.almacen-formulario-equipo select {
+    width: 100%;
+    padding: 0.7rem;
+    border: 1px solid #c5cdd5;
+    border-radius: 4px;
+    background-color: var(--color-white);
+    color: var(--color-text);
+    font: inherit;
+}
+
+.almacen-formulario-producto input:focus-visible,
+.almacen-formulario-producto select:focus-visible,
+.almacen-formulario-movimiento input:focus-visible,
+.almacen-formulario-movimiento select:focus-visible,
+.almacen-formulario-equipo input:focus-visible,
+.almacen-formulario-equipo select:focus-visible {
+    outline: 3px solid var(--color-secondary);
+}
+
+.almacen-formulario-producto {
+    display: grid;
+    gap: 0.65rem 1rem;
+    padding: 1rem;
+    border: 1px solid #dce2e8;
+    border-radius: 6px;
+    background-color: #f8fafc;
+}
+
+.almacen-formulario-movimiento {
+    display: grid;
+    gap: 0.65rem 1rem;
+    padding: 1rem;
+    border: 1px solid #dce2e8;
+    border-radius: 6px;
+    background-color: #f8fafc;
+}
+
+.almacen-formulario-equipo {
+    display: grid;
+    gap: 0.65rem 1rem;
+    padding: 1rem;
+    border: 1px solid #dce2e8;
+    border-radius: 6px;
+    background-color: #f8fafc;
+}
+
+.almacen-formulario-producto h3 {
+    margin: 0 0 0.25rem;
+    color: var(--color-primary);
+}
+
+.almacen-formulario-movimiento h3 {
+    margin: 0 0 0.25rem;
+    color: var(--color-primary);
+}
+
+.almacen-formulario-equipo h3,
+.almacen-historial-equipo h3 {
+    margin: 0 0 0.25rem;
+    color: var(--color-primary);
+}
+
+.almacen-historial-equipo {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    border: 1px solid #dce2e8;
+    border-radius: 6px;
+    background-color: #f8fafc;
+}
+
+.almacen-acciones-formulario {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.almacen-boton-secundario {
+    background-color: #59636e;
+}
+
+.almacen-boton-secundario:hover {
+    background-color: #414a53;
+}
+
+.almacen-boton-editar {
+    padding: 0.45rem 0.7rem;
+}
+
+.almacen-boton-historial {
+    margin-top: 0.4rem;
+    padding: 0.45rem 0.7rem;
+    background-color: #59636e;
+}
+
+.almacen-boton-historial:hover {
+    background-color: #414a53;
+}
+
+.almacen-etiqueta-estado {
+    display: inline-block;
+    padding: 0.25rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.almacen-etiqueta-activo,
+.almacen-etiqueta-stock-disponible {
+    background-color: #e6f4ea;
+    color: #216e39;
+}
+
+.almacen-etiqueta-inactivo,
+.almacen-etiqueta-stock-bajo {
+    background-color: #fce8e6;
+    color: #a12622;
+}
+
+.almacen-alerta-vacia {
+    border: 1px dashed #c5cdd5;
+    border-radius: 6px;
+    background-color: #f8fafc;
+}
+
+@media (min-width: 768px) {
+    .almacen-intro,
+    .almacen-seccion {
+        padding: 2rem;
+    }
+
+    .almacen-formulario-producto {
+        display: grid;
+        grid-template-columns: minmax(130px, 0.7fr) minmax(220px, 1.3fr);
+        align-items: center;
+    }
+
+    .almacen-formulario-movimiento {
+        display: grid;
+        grid-template-columns: minmax(130px, 0.7fr) minmax(220px, 1.3fr);
+        align-items: center;
+    }
+
+    .almacen-formulario-equipo {
+        display: grid;
+        grid-template-columns: minmax(130px, 0.7fr) minmax(220px, 1.3fr);
+        align-items: center;
+    }
+
+    .almacen-formulario-producto h3,
+    .almacen-formulario-movimiento h3,
+    .almacen-formulario-equipo h3,
+    .almacen-acciones-formulario {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 600px) {
+    .almacen-intro,
+    .almacen-seccion {
+        padding: 1rem;
+    }
+
+    .almacen-seccion-encabezado {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
