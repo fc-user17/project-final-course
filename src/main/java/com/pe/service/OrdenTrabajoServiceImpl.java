@@ -17,6 +17,7 @@ import com.pe.repository.OrdenTrabajoRecursoRepository;
 import com.pe.repository.EquipoRepository;
 import com.pe.repository.OrdenTrabajoRepository;
 import com.pe.repository.TipoMantenimientoRepository;
+import com.pe.recursos_humanos.trabajadores.TrabajadorRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +35,7 @@ public class OrdenTrabajoServiceImpl implements OrdenTrabajoService {
     private final TipoMantenimientoRepository tipoMantenimientoRepository;
     private final OrdenTrabajoRecursoRepository recursoRepository;
     private final EquipoRepository equipoRepository;
+    private final TrabajadorRepository trabajadorRepository;
 
 
     @Override
@@ -285,6 +287,20 @@ public class OrdenTrabajoServiceImpl implements OrdenTrabajoService {
                         .map(this::toRecursoResponse)
                         .toList();
 
+        // Resolver nombre del técnico desde la tabla de trabajadores (módulo RRHH)
+        String tecnicoNombre = null;
+        if (entidad.getTecnicoId() != null) {
+            tecnicoNombre = trabajadorRepository.findById(entidad.getTecnicoId())
+                    .map(t -> t.getNombres())
+                    .orElse("Técnico #" + entidad.getTecnicoId());
+        }
+
+        // Descripción legible del equipo: "Marca Modelo"
+        String equipoDescripcion = null;
+        if (entidad.getEquipo() != null) {
+            equipoDescripcion = entidad.getEquipo().getMarca() + " " + entidad.getEquipo().getModelo();
+        }
+
         return OrdenTrabajoResponse.builder()
                 .id(entidad.getId())
                 .codigo(entidad.getCodigo())
@@ -294,7 +310,9 @@ public class OrdenTrabajoServiceImpl implements OrdenTrabajoService {
                 .equipoCodigoPatrimonial(entidad.getEquipo() != null
                         ? entidad.getEquipo().getCodigoPatrimonial()
                         : null)
+                .equipoDescripcion(equipoDescripcion)
                 .tecnicoId(entidad.getTecnicoId())
+                .tecnicoNombre(tecnicoNombre)
                 .fechaProgramada(entidad.getFechaProgramada())
                 .prioridad(entidad.getPrioridad())
                 .estado(entidad.getEstado())

@@ -20,7 +20,9 @@ public class OrdenTrabajoResponse {
     private String tipoMantenimientoNombre;
     private Long equipoId;
     private String equipoCodigoPatrimonial;
+    private String equipoDescripcion;
     private Long tecnicoId;
+    private String tecnicoNombre;
     private LocalDate fechaProgramada;
     private Prioridad prioridad;
     private EstadoOrden estado;
