@@ -16,11 +16,17 @@ const API_BASE = window.API_URL || ((window.location.protocol === 'file:' || (wi
 
 const ENDPOINTS = {
     tipos: `${API_BASE}/api/v1/tipos-mantenimiento`,
-    ordenes: `${API_BASE}/api/v1/ordenes-trabajo`
+    ordenes: `${API_BASE}/api/v1/ordenes-trabajo`,
+    personal: `${API_BASE}/api/personal`,
+    equiposApi: `${API_BASE}/api/v1/equipos`
 };
 
 // Cache de tipos de mantenimiento para formularios y visualización
 let tiposMantenimientoCache = [];
+// Cache de técnicos (trabajadores activos desde RRHH)
+let tecnicosCache = [];
+// Cache de equipos del módulo Almacén
+let equiposListaCache = [];
 
 // =============================================================================
 // UTILIDADES: NOTIFICACIONES TOAST Y MODALES
@@ -416,7 +422,7 @@ async function cargarOrdenesTrabajo() {
         lista.innerHTML = '';
         if (ordenes.length === 0) {
             lista.innerHTML = `
-                <tr><td colspan="8" class="tabla-vacia">No se encontraron órdenes de trabajo${estado ? ` con estado "${estado}"` : ''}.</td></tr>
+                <tr><td colspan="9" class="tabla-vacia">No se encontraron órdenes de trabajo${estado ? ` con estado "${estado}"` : ''}.</td></tr>
             `;
             return;
         }
@@ -431,10 +437,15 @@ async function cargarOrdenesTrabajo() {
             const estadoClase = (ot.estado || '').toLowerCase();
             const badgeEstado = `<span class="badge badge-estado-${estadoClase}">${ot.estado || '-'}</span>`;
 
-            // Técnico asignado
+            // Técnico asignado — muestra el nombre, no el ID
             const tecnicoHtml = ot.tecnicoId
-                ? `<span>👷 ID: <strong>#${ot.tecnicoId}</strong></span>`
+                ? `<span>👷 <strong>${escapeHtml(ot.tecnicoNombre || 'Técnico #' + ot.tecnicoId)}</strong></span>`
                 : `<span style="color: #94a3b8; font-style: italic;">Sin asignar</span>`;
+
+            // Equipo asignado — muestra código + descripción
+            const equipoHtml = ot.equipoId
+                ? `<span title="${escapeHtml(ot.equipoCodigoPatrimonial || '')}" style="font-size:0.82rem;">🔧 ${escapeHtml(ot.equipoDescripcion || ot.equipoCodigoPatrimonial || '#' + ot.equipoId)}</span>`
+                : `<span style="color: #94a3b8; font-style: italic;">Sin equipo</span>`;
 
             // Cantidad de recursos asignados
             const cantRecursos = ot.recursos ? ot.recursos.length : 0;
@@ -445,6 +456,7 @@ async function cargarOrdenesTrabajo() {
             tr.innerHTML = `
                 <td><span class="codigo-ot">${escapeHtml(ot.codigo || `OT-#${ot.id}`)}</span></td>
                 <td><strong>${escapeHtml(ot.tipoMantenimientoNombre || `Tipo #${ot.tipoMantenimientoId}`)}</strong></td>
+                <td>${equipoHtml}</td>
                 <td>${formatearFecha(ot.fechaProgramada)}</td>
                 <td>${badgePrioridad}</td>
                 <td>${badgeEstado}</td>
@@ -469,7 +481,7 @@ async function cargarOrdenesTrabajo() {
 
     } catch (error) {
         console.error(error);
-        lista.innerHTML = `<tr><td colspan="8" class="tabla-vacia" style="color:#dc2626;">⚠️ Error al conectar con el servidor: ${error.message}</td></tr>`;
+        lista.innerHTML = `<tr><td colspan="9" class="tabla-vacia" style="color:#dc2626;">⚠️ Error al conectar con el servidor: ${error.message}</td></tr>`;
     }
 }
 
@@ -492,12 +504,14 @@ if (formOrdenTrabajo) {
 
         const id = document.getElementById('otId').value;
         const tipoMantenimientoId = document.getElementById('otTipoMantenimiento').value;
+        const equipoId = document.getElementById('otEquipo').value;
         const fechaProgramada = document.getElementById('otFechaProgramada').value;
         const prioridad = document.getElementById('otPrioridad').value;
         const descripcion = document.getElementById('otDescripcion').value.trim();
 
         const body = {
             tipoMantenimientoId: parseInt(tipoMantenimientoId, 10),
+            equipoId: equipoId ? parseInt(equipoId, 10) : null,
             fechaProgramada,
             prioridad,
             descripcion: descripcion || null
@@ -537,6 +551,7 @@ function editarOt(id) {
 
     document.getElementById('otId').value = ot.id;
     document.getElementById('otTipoMantenimiento').value = ot.tipoMantenimientoId;
+    document.getElementById('otEquipo').value = ot.equipoId || '';
     document.getElementById('otFechaProgramada').value = ot.fechaProgramada || '';
     document.getElementById('otPrioridad').value = ot.prioridad || 'MEDIA';
     document.getElementById('otDescripcion').value = ot.descripcion || '';
@@ -668,6 +683,73 @@ if (formProgramarPreventivo) {
 
 
 // =============================================================================
+// CARGA DINÁMICA DE TÉCNICOS (desde módulo RRHH) Y EQUIPOS (desde Almacén)
+// =============================================================================
+
+/**
+ * Carga los trabajadores activos desde /api/personal y los inyecta en un <select>.
+ * Usa caché para no repetir la llamada si ya se cargaron.
+ */
+async function cargarTecnicosEnSelect(selectEl, tecnicoIdActual = null) {
+    try {
+        if (tecnicosCache.length === 0) {
+            const res = await fetch(`${ENDPOINTS.personal}?estado=ACTIVO`);
+            if (!res.ok) throw new Error('Error al cargar técnicos');
+            tecnicosCache = await res.json();
+        }
+
+        selectEl.innerHTML = '<option value="">-- Selecciona un técnico --</option>';
+
+        if (tecnicosCache.length === 0) {
+            selectEl.innerHTML += '<option value="" disabled>No hay trabajadores registrados</option>';
+            return;
+        }
+
+        tecnicosCache.forEach(t => {
+            const opt = document.createElement('option');
+            opt.value = t.id;
+            opt.textContent = `${t.nombres}${t.cargo ? ' — ' + t.cargo : ''}${t.area ? ' (' + t.area + ')' : ''}`;
+            if (tecnicoIdActual && String(t.id) === String(tecnicoIdActual)) {
+                opt.selected = true;
+            }
+            selectEl.appendChild(opt);
+        });
+    } catch (error) {
+        console.error('cargarTecnicosEnSelect:', error);
+        selectEl.innerHTML = '<option value="">⚠️ Error al cargar técnicos</option>';
+    }
+}
+
+/**
+ * Carga los equipos desde /api/v1/equipos y los inyecta en un <select>.
+ * Usa caché para no repetir la llamada.
+ */
+async function cargarEquiposEnSelect(selectEl, equipoIdActual = null) {
+    try {
+        if (equiposListaCache.length === 0) {
+            const res = await fetch(`${ENDPOINTS.equiposApi}`);
+            if (!res.ok) throw new Error('Error al cargar equipos');
+            equiposListaCache = await res.json();
+        }
+
+        selectEl.innerHTML = '<option value="">Sin equipo asignado (opcional)</option>';
+
+        equiposListaCache.forEach(e => {
+            const opt = document.createElement('option');
+            opt.value = e.id;
+            opt.textContent = `[${e.codigoPatrimonial}] ${e.marca} ${e.modelo}`;
+            if (equipoIdActual && String(e.id) === String(equipoIdActual)) {
+                opt.selected = true;
+            }
+            selectEl.appendChild(opt);
+        });
+    } catch (error) {
+        console.error('cargarEquiposEnSelect:', error);
+        selectEl.innerHTML = '<option value="">⚠️ Error al cargar equipos</option>';
+    }
+}
+
+// =============================================================================
 // MODAL RF-04: ASIGNAR TÉCNICO A ORDEN DE TRABAJO
 // =============================================================================
 
@@ -680,7 +762,9 @@ function abrirModalTecnico(id) {
     otSeleccionadaIdTecnico = id;
     document.getElementById('tecnicoOtCodigo').textContent = ot.codigo || `#${ot.id}`;
     document.getElementById('tecnicoOtFecha').textContent = formatearFecha(ot.fechaProgramada);
-    document.getElementById('inputTecnicoId').value = ot.tecnicoId || '';
+
+    const selectTecnico = document.getElementById('selectTecnicoId');
+    cargarTecnicosEnSelect(selectTecnico, ot.tecnicoId);
 
     abrirModal('modalTecnico');
 }
@@ -690,9 +774,9 @@ if (btnGuardarTecnico) {
     btnGuardarTecnico.addEventListener('click', async () => {
         if (!otSeleccionadaIdTecnico) return;
 
-        const tecnicoId = document.getElementById('inputTecnicoId').value;
-        if (!tecnicoId || parseInt(tecnicoId, 10) <= 0) {
-            showToast('Por favor ingresa un ID de técnico válido (mayor a 0)', 'warning');
+        const tecnicoId = document.getElementById('selectTecnicoId').value;
+        if (!tecnicoId) {
+            showToast('Por favor selecciona un técnico de la lista', 'warning');
             return;
         }
 
@@ -941,4 +1025,8 @@ function escapeHtml(text) {
 document.addEventListener('DOMContentLoaded', () => {
     cargarTiposMantenimiento();
     cargarOrdenesTrabajo();
+    // Pre-cargar equipos para que el combobox esté listo cuando el usuario abra el formulario
+    const selectEquipoForm = document.getElementById('otEquipo');
+    if (selectEquipoForm) cargarEquiposEnSelect(selectEquipoForm);
 });
+

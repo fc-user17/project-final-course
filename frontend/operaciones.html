@@ -147,6 +147,13 @@
                             <span class="form-ayuda">Solo se muestran tipos activos</span>
                         </div>
                         <div class="form-campo">
+                            <label for="otEquipo">Equipo a Intervenir</label>
+                            <select id="otEquipo" name="equipoId">
+                                <option value="">Sin equipo asignado (opcional)</option>
+                            </select>
+                            <span class="form-ayuda">Equipos registrados en el módulo de Almacén</span>
+                        </div>
+                        <div class="form-campo">
                             <label for="otFechaProgramada">Fecha Programada <span class="req">*</span></label>
                             <input type="date" id="otFechaProgramada" name="fechaProgramada" required>
                             <span class="form-ayuda">No puede ser una fecha pasada</span>
@@ -200,6 +207,7 @@
                         <tr>
                             <th>Código</th>
                             <th>Tipo Mantenimiento</th>
+                            <th>Equipo</th>
                             <th>Fecha Prog.</th>
                             <th>Prioridad</th>
                             <th>Estado</th>
@@ -210,7 +218,7 @@
                     </thead>
                     <tbody id="listaOrdenesTrabajo">
                         <tr>
-                            <td colspan="8" class="tabla-loading">
+                            <td colspan="9" class="tabla-loading">
                                 <div class="loading-spinner"></div>
                                 Cargando órdenes de trabajo...
                             </td>
@@ -423,8 +431,10 @@
             </div>
             <div class="modal-body">
                 <div class="form-campo">
-                    <label for="inputTecnicoId">ID del Técnico <span class="req">*</span></label>
-                    <input type="number" id="inputTecnicoId" min="1" placeholder="Ej: 1, 2, 7">
+                    <label for="selectTecnicoId">Técnico <span class="req">*</span></label>
+                    <select id="selectTecnicoId">
+                        <option value="">Cargando técnicos...</option>
+                    </select>
                     <span class="form-ayuda">El sistema valida que el técnico no tenga otra OT <strong>EN_PROCESO</strong> la misma fecha.</span>
                 </div>
             </div>
