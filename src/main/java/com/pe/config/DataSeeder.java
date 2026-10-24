@@ -20,13 +20,15 @@ import java.util.Map;
  *
  * Siembra de forma idempotente (solo inserta si el dato no existe):
  *  1. Los 4 roles del sistema.
- *  2. Usuario administrador de prueba.
+ *  2. Usuarios de prueba para cada rol del sistema.
  *  3. Tipos de mantenimiento (Preventivo, Correctivo, Predictivo).
  *  4. Ordenes de trabajo de demostracion con distintos estados y prioridades.
  *
- * Credenciales del admin de prueba:
- *   Email:    admin@empresa.pe
- *   Password: Admin123!
+ * Credenciales de prueba:
+ *   ADMIN:    admin@empresa.pe / Admin123!
+ *   TECNICO:  tecnico@empresa.pe / Tecnico123!
+ *   RRHH:     rrhh@empresa.pe / Rrhh123!
+ *   FINANZAS: finanzas@empresa.pe / Finanzas123!
  */
 @Component
 @RequiredArgsConstructor
@@ -44,7 +46,7 @@ public class DataSeeder implements CommandLineRunner {
     public void run(String... args) {
         log.info("========== Iniciando seeder de datos base ==========");
         seedRoles();
-        seedAdminUser();
+        seedUsers();
         seedTiposMantenimiento();
         seedOrdenesTrabajo();
         log.info("========== Seeder finalizado correctamente ==========");
@@ -75,41 +77,33 @@ public class DataSeeder implements CommandLineRunner {
     }
 
     // =========================================================================
-    // 2. USUARIO ADMIN
+    // 2. USUARIOS DE PRUEBA
     // =========================================================================
 
-    private void seedAdminUser() {
-        String adminEmail = "admin@empresa.pe";
-        if (!usuarioRepository.existsByEmail(adminEmail)) {
-            Rol rolAdmin = rolRepository.findByNombreRol(NombreRol.ADMIN)
-                    .orElseThrow(() -> new RuntimeException("Rol ADMIN no encontrado"));
+    private void seedUsers() {
+        seedUser("admin@empresa.pe", "Admin123!", NombreRol.ADMIN);
+        seedUser("tecnico@empresa.pe", "Tecnico123!", NombreRol.TECNICO);
+        seedUser("rrhh@empresa.pe", "Rrhh123!", NombreRol.RRHH);
+        seedUser("finanzas@empresa.pe", "Finanzas123!", NombreRol.FINANZAS);
+    }
 
-            Usuario admin = Usuario.builder()
-                    .email(adminEmail)
-                    .passwordHash(passwordEncoder.encode("Admin123!"))
-                    .rol(rolAdmin)
-                    .activo(true)
-                    .build();
-
-            usuarioRepository.save(admin);
-            log.info("  [USUARIO] Admin creado: {}", adminEmail);
+    private void seedUser(String email, String password, NombreRol nombreRol) {
+        if (usuarioRepository.existsByEmail(email)) {
+            return;
         }
 
-        String tecnicoEmail = "tecnico@empresa.pe";
-        if (!usuarioRepository.existsByEmail(tecnicoEmail)) {
-            Rol rolTecnico = rolRepository.findByNombreRol(NombreRol.TECNICO)
-                    .orElseThrow(() -> new RuntimeException("Rol TECNICO no encontrado"));
+        Rol rol = rolRepository.findByNombreRol(nombreRol)
+                .orElseThrow(() -> new RuntimeException("Rol " + nombreRol + " no encontrado"));
 
-            Usuario tecnico = Usuario.builder()
-                    .email(tecnicoEmail)
-                    .passwordHash(passwordEncoder.encode("Tecnico123!"))
-                    .rol(rolTecnico)
-                    .activo(true)
-                    .build();
+        Usuario usuario = Usuario.builder()
+                .email(email)
+                .passwordHash(passwordEncoder.encode(password))
+                .rol(rol)
+                .activo(true)
+                .build();
 
-            usuarioRepository.save(tecnico);
-            log.info("  [USUARIO] Tecnico creado: {}", tecnicoEmail);
-        }
+        usuarioRepository.save(usuario);
+        log.info("  [USUARIO] Creado {}: {}", nombreRol, email);
     }
 
     // =========================================================================
