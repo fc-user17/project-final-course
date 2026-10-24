@@ -21,8 +21,15 @@
         <p>Consulta de productos, movimientos y alertas de inventario</p>
     </header>
 
-    <nav aria-label="Navegación de almacén">
+    <nav aria-label="Navegación principal">
         <a href="index.html">Inicio</a>
+        <a href="operaciones.html">Operaciones</a>
+        <a href="RRHH.html">RRHH</a>
+        <a href="compras.html">Compras</a>
+        <a href="ventas.html">Ventas</a>
+        <a href="pagos.html">Pagos</a>
+        <a href="proveedores.html">Proveedores</a>
+        <a href="almacen.html" style="background-color: var(--color-primary); font-weight: bold;" aria-current="page">Almacén</a>
     </nav>
 
     <main class="almacen">
@@ -37,14 +44,70 @@
             </div>
         </section>
 
+        <section class="almacen-metricas" aria-label="Resumen de almacén">
+            <article class="almacen-metrica">
+                <span class="almacen-metrica-icono" aria-hidden="true">📦</span>
+                <div>
+                    <h2>Productos</h2>
+                    <p id="kpiProductos">—</p>
+                </div>
+            </article>
+            <article class="almacen-metrica almacen-metrica-alerta">
+                <span class="almacen-metrica-icono" aria-hidden="true">⚠️</span>
+                <div>
+                    <h2>Stock bajo</h2>
+                    <p id="kpiStockBajo">—</p>
+                </div>
+            </article>
+            <article class="almacen-metrica">
+                <span class="almacen-metrica-icono" aria-hidden="true">🔄</span>
+                <div>
+                    <h2>Movimientos</h2>
+                    <p id="kpiMovimientos">—</p>
+                </div>
+            </article>
+            <article class="almacen-metrica">
+                <span class="almacen-metrica-icono" aria-hidden="true">🛠️</span>
+                <div>
+                    <h2>Equipos</h2>
+                    <p id="kpiEquipos">—</p>
+                </div>
+            </article>
+        </section>
+
+        <div class="almacen-pestanas" role="tablist" aria-label="Secciones de almacén">
+            <button class="almacen-pestana active" id="pestana-productos" type="button"
+                role="tab" aria-selected="true" aria-controls="panel-productos" data-panel="panel-productos">
+                📦 Productos
+            </button>
+            <button class="almacen-pestana" id="pestana-movimientos" type="button"
+                role="tab" aria-selected="false" aria-controls="panel-movimientos" data-panel="panel-movimientos" tabindex="-1">
+                🔄 Movimientos
+            </button>
+            <button class="almacen-pestana" id="pestana-alertas" type="button"
+                role="tab" aria-selected="false" aria-controls="panel-alertas" data-panel="panel-alertas" tabindex="-1">
+                ⚠️ Alertas de stock
+            </button>
+            <button class="almacen-pestana" id="pestana-equipos" type="button"
+                role="tab" aria-selected="false" aria-controls="panel-equipos" data-panel="panel-equipos" tabindex="-1">
+                🛠️ Equipos
+            </button>
+        </div>
+
+        <section id="panel-productos" class="almacen-panel active" role="tabpanel" aria-labelledby="pestana-productos" tabindex="0">
         <section id="seccionProductos" class="almacen-seccion" aria-labelledby="titulo-productos">
             <div class="almacen-seccion-encabezado">
                 <div>
                     <h2 id="titulo-productos">Productos</h2>
-                    <p>Registra productos desde el formulario y consulta aquí los niveles de inventario.</p>
+                    <p>Consulta y administra los productos y sus existencias.</p>
                 </div>
+                <button id="btnToggleFormProducto" class="almacen-boton-principal" type="button"
+                    aria-expanded="false" aria-controls="contenedorFormProducto">
+                    ➕ Nuevo producto
+                </button>
             </div>
 
+            <div id="contenedorFormProducto" class="almacen-formulario-contenedor" hidden>
             <form id="formProducto" class="almacen-formulario-producto">
                 <h3 id="tituloFormularioProducto">Registrar producto</h3>
                 <input id="productoId" name="id" type="hidden">
@@ -83,11 +146,36 @@
                     </button>
                 </div>
             </form>
+            </div>
 
             <p id="estadoFormularioProducto" class="almacen-mensaje" role="status" aria-live="polite"></p>
             <p id="estadoProductos" class="almacen-mensaje" role="status" aria-live="polite">
                 Cargando productos...
             </p>
+
+            <div class="almacen-barra-filtros">
+                <div class="almacen-filtro">
+                    <label for="filtroBuscarProducto">Buscar producto</label>
+                    <input id="filtroBuscarProducto" type="search" placeholder="Código o nombre">
+                </div>
+                <div class="almacen-filtro">
+                    <label for="filtroEstadoProducto">Estado</label>
+                    <select id="filtroEstadoProducto">
+                        <option value="">Todos</option>
+                        <option value="activo">Activos</option>
+                        <option value="inactivo">Inactivos</option>
+                    </select>
+                </div>
+                <div class="almacen-filtro">
+                    <label for="filtroStockProducto">Stock</label>
+                    <select id="filtroStockProducto">
+                        <option value="">Todos</option>
+                        <option value="bajo">Stock bajo</option>
+                        <option value="disponible">Disponible</option>
+                    </select>
+                </div>
+                <button id="btnRefrescarProductos" class="almacen-boton-secundario" type="button">↻ Actualizar</button>
+            </div>
 
             <div class="tabla-contenedor">
                 <table>
@@ -113,15 +201,22 @@
                 </table>
             </div>
         </section>
+        </section>
 
+        <section id="panel-movimientos" class="almacen-panel" role="tabpanel" aria-labelledby="pestana-movimientos" tabindex="0" hidden>
         <section class="almacen-seccion" aria-labelledby="titulo-movimientos">
             <div class="almacen-seccion-encabezado">
                 <div>
                     <h2 id="titulo-movimientos">Movimientos de inventario</h2>
-                    <p>Registra entradas o salidas y consulta el historial de cambios de stock.</p>
+                    <p>Consulta el kardex y registra entradas o salidas de inventario.</p>
                 </div>
+                <button id="btnToggleFormMovimiento" class="almacen-boton-principal" type="button"
+                    aria-expanded="false" aria-controls="contenedorFormMovimiento">
+                    ➕ Registrar movimiento
+                </button>
             </div>
 
+            <div id="contenedorFormMovimiento" class="almacen-formulario-contenedor" hidden>
             <form id="formMovimiento" class="almacen-formulario-movimiento">
                 <h3>Registrar movimiento</h3>
 
@@ -146,11 +241,38 @@
                     <button id="guardarMovimiento" type="submit" disabled>Registrar movimiento</button>
                 </div>
             </form>
+            </div>
 
             <p id="estadoFormularioMovimiento" class="almacen-mensaje" role="status" aria-live="polite"></p>
             <p id="estadoMovimientos" class="almacen-mensaje" role="status" aria-live="polite">
                 Cargando movimientos...
             </p>
+
+            <div class="almacen-barra-filtros">
+                <div class="almacen-filtro">
+                    <label for="filtroTipoMovimiento">Tipo</label>
+                    <select id="filtroTipoMovimiento">
+                        <option value="">Todos</option>
+                        <option value="ENTRADA">Entradas</option>
+                        <option value="SALIDA">Salidas</option>
+                    </select>
+                </div>
+                <div class="almacen-filtro">
+                    <label for="filtroProductoMovimiento">Producto</label>
+                    <select id="filtroProductoMovimiento">
+                        <option value="">Todos los productos</option>
+                    </select>
+                </div>
+                <div class="almacen-filtro">
+                    <label for="filtroDesdeMovimiento">Desde</label>
+                    <input id="filtroDesdeMovimiento" type="date">
+                </div>
+                <div class="almacen-filtro">
+                    <label for="filtroHastaMovimiento">Hasta</label>
+                    <input id="filtroHastaMovimiento" type="date">
+                </div>
+                <button id="btnRefrescarMovimientos" class="almacen-boton-secundario" type="button">↻ Actualizar</button>
+            </div>
 
             <div class="tabla-contenedor">
                 <table>
@@ -174,7 +296,9 @@
                 </table>
             </div>
         </section>
+        </section>
 
+        <section id="panel-alertas" class="almacen-panel" role="tabpanel" aria-labelledby="pestana-alertas" tabindex="0" hidden>
         <section class="almacen-seccion" aria-labelledby="titulo-stock-bajo">
             <div class="almacen-seccion-encabezado">
                 <div>
@@ -186,6 +310,14 @@
             <p id="estadoAlertasStock" class="almacen-mensaje" role="status" aria-live="polite">
                 Cargando alertas de stock...
             </p>
+
+            <div class="almacen-barra-filtros">
+                <div class="almacen-filtro">
+                    <label for="filtroBuscarAlerta">Buscar alerta</label>
+                    <input id="filtroBuscarAlerta" type="search" placeholder="Código o nombre">
+                </div>
+                <button id="btnRefrescarAlertas" class="almacen-boton-secundario" type="button">↻ Actualizar</button>
+            </div>
 
             <div class="tabla-contenedor">
                 <table>
@@ -208,15 +340,22 @@
                 </table>
             </div>
         </section>
+        </section>
 
+        <section id="panel-equipos" class="almacen-panel" role="tabpanel" aria-labelledby="pestana-equipos" tabindex="0" hidden>
         <section class="almacen-seccion" aria-labelledby="titulo-equipos">
             <div class="almacen-seccion-encabezado">
                 <div>
                     <h2 id="titulo-equipos">Equipos</h2>
                     <p>Registra y consulta equipos asociados al mantenimiento de la empresa.</p>
                 </div>
+                <button id="btnToggleFormEquipo" class="almacen-boton-principal" type="button"
+                    aria-expanded="false" aria-controls="contenedorFormEquipo">
+                    ➕ Nuevo equipo
+                </button>
             </div>
 
+            <div id="contenedorFormEquipo" class="almacen-formulario-contenedor" hidden>
             <form id="formEquipo" class="almacen-formulario-equipo">
                 <h3 id="tituloFormularioEquipo">Registrar equipo</h3>
                 <input id="equipoId" name="id" type="hidden">
@@ -254,11 +393,30 @@
                     </button>
                 </div>
             </form>
+            </div>
 
             <p id="estadoFormularioEquipo" class="almacen-mensaje" role="status" aria-live="polite"></p>
             <p id="estadoEquipos" class="almacen-mensaje" role="status" aria-live="polite">
                 Cargando equipos...
             </p>
+
+            <div class="almacen-barra-filtros">
+                <div class="almacen-filtro">
+                    <label for="filtroBuscarEquipo">Buscar equipo</label>
+                    <input id="filtroBuscarEquipo" type="search" placeholder="Código, marca, modelo o serie">
+                </div>
+                <div class="almacen-filtro">
+                    <label for="filtroEstadoEquipo">Estado</label>
+                    <select id="filtroEstadoEquipo">
+                        <option value="">Todos</option>
+                        <option value="OPERATIVO">Operativo</option>
+                        <option value="EN_MANTENIMIENTO">En mantenimiento</option>
+                        <option value="FUERA_DE_SERVICIO">Fuera de servicio</option>
+                        <option value="BAJA">Baja</option>
+                    </select>
+                </div>
+                <button id="btnRefrescarEquipos" class="almacen-boton-secundario" type="button">↻ Actualizar</button>
+            </div>
 
             <div class="tabla-contenedor">
                 <table>
@@ -305,6 +463,7 @@
                     </table>
                 </div>
             </section>
+        </section>
         </section>
 
     </main>

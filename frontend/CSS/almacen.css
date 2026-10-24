@@ -20,6 +20,111 @@
     border-left: 5px solid var(--color-secondary);
 }
 
+.almacen-metricas {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.almacen-metrica {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.1rem;
+    border: 1px solid #dce2e8;
+    border-radius: 8px;
+    background-color: var(--color-white);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.almacen-metrica-icono {
+    display: grid;
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+    place-items: center;
+    border-radius: 8px;
+    background: #edf2f7;
+    font-size: 1.5rem;
+}
+
+.almacen-metrica h2 {
+    margin: 0;
+    color: #64748b;
+    font-size: 0.8rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.almacen-metrica p {
+    margin: 0.2rem 0 0;
+    color: var(--color-primary);
+    font-size: 1.55rem;
+    font-weight: 700;
+}
+
+.almacen-metrica-alerta p {
+    color: var(--color-danger);
+}
+
+.almacen-pestanas {
+    display: flex;
+    gap: 0.4rem;
+    margin-bottom: 1rem;
+    overflow-x: auto;
+    border-bottom: 2px solid #dce2e8;
+}
+
+.almacen-pestana {
+    flex: 0 0 auto;
+    padding: 0.75rem 1rem;
+    border: 0;
+    border-bottom: 3px solid transparent;
+    border-radius: 6px 6px 0 0;
+    background: transparent;
+    color: var(--color-text);
+    font-size: 0.95rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.almacen-pestana:hover {
+    background-color: rgba(46, 117, 182, 0.08);
+    color: var(--color-primary);
+}
+
+.almacen-pestana.active {
+    border-bottom-color: var(--color-primary);
+    background-color: var(--color-white);
+    color: var(--color-primary);
+}
+
+.almacen-pestana:focus-visible {
+    outline: 3px solid var(--color-secondary);
+    outline-offset: -3px;
+}
+
+.almacen-panel {
+    display: none;
+}
+
+.almacen-panel.active {
+    display: block;
+    animation: almacen-aparecer 0.2s ease-in-out;
+}
+
+@keyframes almacen-aparecer {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 .almacen-intro h2,
 .almacen-seccion h2 {
     margin: 0;
@@ -50,6 +155,69 @@
 
 .almacen-seccion-encabezado p {
     margin-top: 0.4rem;
+}
+
+.almacen-boton-principal {
+    flex: 0 0 auto;
+    background-color: var(--color-primary);
+    color: var(--color-white);
+    font-weight: 700;
+}
+
+.almacen-boton-principal:hover {
+    background-color: var(--color-secondary);
+}
+
+.almacen-barra-filtros {
+    display: flex;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin: 1rem 0;
+    padding: 1rem;
+    border: 1px solid #dce2e8;
+    border-radius: 6px;
+    background-color: #f8fafc;
+}
+
+.almacen-filtro {
+    display: flex;
+    min-width: 150px;
+    flex: 1 1 180px;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.almacen-filtro label {
+    color: var(--color-text);
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.almacen-filtro input,
+.almacen-filtro select {
+    width: 100%;
+    min-height: 42px;
+    padding: 0.6rem 0.7rem;
+    border: 1px solid #c5cdd5;
+    border-radius: 4px;
+    background-color: var(--color-white);
+    color: var(--color-text);
+    font: inherit;
+}
+
+.almacen-filtro input:focus-visible,
+.almacen-filtro select:focus-visible {
+    outline: 3px solid var(--color-secondary);
+}
+
+.almacen-formulario-contenedor {
+    margin-bottom: 1.25rem;
+}
+
+.almacen-formulario-contenedor[hidden],
+.almacen-panel[hidden] {
+    display: none !important;
 }
 
 .almacen-vacio,
@@ -254,5 +422,19 @@
     .almacen-seccion-encabezado {
         align-items: flex-start;
         flex-direction: column;
+    }
+
+    .almacen-boton-principal {
+        width: 100%;
+    }
+
+    .almacen-barra-filtros {
+        align-items: stretch;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .almacen-panel.active {
+        animation: none;
     }
 }
