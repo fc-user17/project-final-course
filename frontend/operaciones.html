@@ -4,170 +4,198 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Operaciones y Mantenimiento - Sistema de Gestión Empresarial</title>
-
+    <title>Operaciones y Mantenimiento | Sistema de Gestión Empresarial</title>
+    <meta name="description" content="Módulo de Operaciones: gestión de órdenes de trabajo, tipos de mantenimiento y programación en serie.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="CSS/variables.css">
     <link rel="stylesheet" href="CSS/base.css">
     <link rel="stylesheet" href="CSS/layout.css">
     <link rel="stylesheet" href="CSS/components.css">
+    <link rel="stylesheet" href="CSS/auth.css">
     <link rel="stylesheet" href="CSS/operaciones.css">
 </head>
 
 <body>
 
-    <header>
-        <h1>Módulo de Operaciones</h1>
-        <p>Gestión de Tipos de Mantenimiento, Órdenes de Trabajo y Asignación de Recursos</p>
+    <header class="ops-header">
+        <div class="ops-header-inner">
+            <div class="ops-header-brand">
+                <div class="ops-header-icon">⚙️</div>
+                <div>
+                    <h1>Módulo de Operaciones</h1>
+                    <p>Gestión de Mantenimiento Industrial</p>
+                </div>
+            </div>
+            <nav class="ops-nav" aria-label="Módulos del sistema">
+                <a href="index.html" class="ops-nav-link">🏠 Inicio</a>
+                <a href="operaciones.html" class="ops-nav-link active">⚙️ Operaciones</a>
+                <a href="RRHH.html" class="ops-nav-link">👥 RRHH</a>
+                <a href="almacen.html" class="ops-nav-link">📦 Almacén</a>
+                <a href="compras.html" class="ops-nav-link">🛒 Compras</a>
+                <a href="ventas.html" class="ops-nav-link">💼 Ventas</a>
+            </nav>
+        </div>
     </header>
 
-    <nav aria-label="Navegación principal">
-        <a href="index.html">Inicio</a>
-        <a href="operaciones.html" style="background-color: var(--color-primary); font-weight: bold;">Operaciones</a>
-        <a href="RRHH.html">RRHH</a>
-        <a href="compras.html">Compras</a>
-        <a href="ventas.html">Ventas</a>
-        <a href="pagos.html">Pagos</a>
-        <a href="proveedores.html">Proveedores</a>
-    </nav>
+    <main class="ops-main">
 
-    <main>
-
-        <!-- Contenedor de notificaciones flotantes -->
+        <!-- Toast container -->
         <div id="toastContainer" class="toast-contenedor" aria-live="polite"></div>
 
-        <!-- Tarjetas de Métricas Rápidas (KPIs) -->
-        <section class="metricas-grid">
-            <div class="metrica-card">
-                <div class="metrica-icono">📋</div>
-                <div class="metrica-info">
-                    <h4>Total OTs</h4>
-                    <div class="metrica-valor" id="kpiTotalOt">0</div>
-                </div>
+        <!-- Hero / KPI Section -->
+        <section class="kpi-section">
+            <div class="kpi-section-title">
+                <span class="kpi-subtitle">Panel de Control</span>
+                <h2>Resumen de Operaciones</h2>
             </div>
-            <div class="metrica-card">
-                <div class="metrica-icono">⏳</div>
-                <div class="metrica-info">
-                    <h4>Pendientes</h4>
-                    <div class="metrica-valor" id="kpiPendientes">0</div>
+            <div class="metricas-grid">
+                <div class="metrica-card card-total">
+                    <div class="metrica-icon-wrap">📋</div>
+                    <div class="metrica-data">
+                        <span class="metrica-label">Total OTs</span>
+                        <span class="metrica-valor" id="kpiTotalOt">—</span>
+                    </div>
+                    <div class="metrica-trend">📈</div>
                 </div>
-            </div>
-            <div class="metrica-card">
-                <div class="metrica-icono">⚡</div>
-                <div class="metrica-info">
-                    <h4>En Proceso</h4>
-                    <div class="metrica-valor" id="kpiEnProceso">0</div>
+                <div class="metrica-card card-pendiente">
+                    <div class="metrica-icon-wrap">⏳</div>
+                    <div class="metrica-data">
+                        <span class="metrica-label">Pendientes</span>
+                        <span class="metrica-valor" id="kpiPendientes">—</span>
+                    </div>
+                    <div class="metrica-trend">🕐</div>
                 </div>
-            </div>
-            <div class="metrica-card">
-                <div class="metrica-icono">✅</div>
-                <div class="metrica-info">
-                    <h4>Finalizadas</h4>
-                    <div class="metrica-valor" id="kpiFinalizadas">0</div>
+                <div class="metrica-card card-proceso">
+                    <div class="metrica-icon-wrap">⚡</div>
+                    <div class="metrica-data">
+                        <span class="metrica-label">En Proceso</span>
+                        <span class="metrica-valor" id="kpiEnProceso">—</span>
+                    </div>
+                    <div class="metrica-trend">🔄</div>
                 </div>
-            </div>
-            <div class="metrica-card">
-                <div class="metrica-icono">🔧</div>
-                <div class="metrica-info">
-                    <h4>Tipos Activos</h4>
-                    <div class="metrica-valor" id="kpiTiposActivos">0</div>
+                <div class="metrica-card card-finalizada">
+                    <div class="metrica-icon-wrap">✅</div>
+                    <div class="metrica-data">
+                        <span class="metrica-label">Finalizadas</span>
+                        <span class="metrica-valor" id="kpiFinalizadas">—</span>
+                    </div>
+                    <div class="metrica-trend">🏆</div>
+                </div>
+                <div class="metrica-card card-tipos">
+                    <div class="metrica-icon-wrap">🔧</div>
+                    <div class="metrica-data">
+                        <span class="metrica-label">Tipos Activos</span>
+                        <span class="metrica-valor" id="kpiTiposActivos">—</span>
+                    </div>
+                    <div class="metrica-trend">📊</div>
                 </div>
             </div>
         </section>
 
-        <!-- Pestañas de Navegación del Módulo -->
-        <div class="tabs-container" role="tablist">
-            <button class="tab-btn active" data-tab="tab-ordenes" role="tab" aria-selected="true">
-                📋 Órdenes de Trabajo (RF-02)
-            </button>
-            <button class="tab-btn" data-tab="tab-programar" role="tab" aria-selected="false">
-                📅 Programación en Serie (RF-03)
-            </button>
-            <button class="tab-btn" data-tab="tab-tipos" role="tab" aria-selected="false">
-                🔧 Tipos de Mantenimiento (CRUD)
-            </button>
+        <!-- Tab Navigation -->
+        <div class="tabs-wrapper">
+            <div class="tabs-container" role="tablist">
+                <button class="tab-btn active" data-tab="tab-ordenes" role="tab" aria-selected="true" id="tab-btn-ordenes">
+                    <span class="tab-icon">📋</span>
+                    <span class="tab-text">Órdenes de Trabajo</span>
+                    <span class="tab-badge" id="tabBadgeOrdenes"></span>
+                </button>
+                <button class="tab-btn" data-tab="tab-programar" role="tab" aria-selected="false" id="tab-btn-programar">
+                    <span class="tab-icon">📅</span>
+                    <span class="tab-text">Programación en Serie</span>
+                    <span class="tab-tag">RF-03</span>
+                </button>
+                <button class="tab-btn" data-tab="tab-tipos" role="tab" aria-selected="false" id="tab-btn-tipos">
+                    <span class="tab-icon">🔧</span>
+                    <span class="tab-text">Tipos de Mantenimiento</span>
+                    <span class="tab-tag">CRUD</span>
+                </button>
+            </div>
         </div>
 
         <!-- ===================================================================
              PESTAÑA 1: ÓRDENES DE TRABAJO (RF-02)
              =================================================================== -->
-        <section id="tab-ordenes" class="seccion-panel active" role="tabpanel">
+        <section id="tab-ordenes" class="seccion-panel active" role="tabpanel" aria-labelledby="tab-btn-ordenes">
 
             <div class="seccion-header">
-                <h2>📋 Listado de Órdenes de Trabajo</h2>
-                <button class="btn btn-primary" id="btnToggleFormOt">
-                    ➕ Nueva Orden de Trabajo
+                <div class="seccion-header-left">
+                    <h2>📋 Órdenes de Trabajo</h2>
+                    <p class="seccion-desc">Gestiona el ciclo de vida completo de las órdenes: creación, asignación de técnico y recursos.</p>
+                </div>
+                <button class="btn btn-primary btn-lg" id="btnToggleFormOt">
+                    ➕ Nueva Orden
                 </button>
             </div>
 
             <!-- Formulario para crear / editar OT -->
-            <div id="contenedorFormOt" style="display: none; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;">
-                <h3 id="formOtTitulo" style="margin-top: 0; color: var(--color-primary);">Registrar Nueva Orden de Trabajo</h3>
-                
+            <div id="contenedorFormOt" class="form-panel" style="display: none;">
+                <div class="form-panel-header">
+                    <h3 id="formOtTitulo">📝 Registrar Nueva Orden de Trabajo</h3>
+                    <p>Complete los datos de la nueva orden. El código OT se genera automáticamente.</p>
+                </div>
                 <form id="formOrdenTrabajo">
                     <input type="hidden" id="otId" name="otId">
-
                     <div class="form-grid">
                         <div class="form-campo">
-                            <label for="otTipoMantenimiento">Tipo de Mantenimiento *</label>
+                            <label for="otTipoMantenimiento">Tipo de Mantenimiento <span class="req">*</span></label>
                             <select id="otTipoMantenimiento" name="tipoMantenimientoId" required>
                                 <option value="">Selecciona un tipo...</option>
                             </select>
-                            <span class="form-ayuda">Solo se muestran tipos de mantenimiento activos</span>
+                            <span class="form-ayuda">Solo se muestran tipos activos</span>
                         </div>
-
                         <div class="form-campo">
-                            <label for="otFechaProgramada">Fecha Programada *</label>
+                            <label for="otFechaProgramada">Fecha Programada <span class="req">*</span></label>
                             <input type="date" id="otFechaProgramada" name="fechaProgramada" required>
                             <span class="form-ayuda">No puede ser una fecha pasada</span>
                         </div>
-
                         <div class="form-campo">
-                            <label for="otPrioridad">Prioridad *</label>
+                            <label for="otPrioridad">Prioridad <span class="req">*</span></label>
                             <select id="otPrioridad" name="prioridad" required>
-                                <option value="BAJA">BAJA</option>
-                                <option value="MEDIA" selected>MEDIA</option>
-                                <option value="ALTA">ALTA</option>
-                                <option value="URGENTE">URGENTE</option>
+                                <option value="BAJA">🟢 BAJA</option>
+                                <option value="MEDIA" selected>🔵 MEDIA</option>
+                                <option value="ALTA">🟠 ALTA</option>
+                                <option value="URGENTE">🔴 URGENTE</option>
                             </select>
                         </div>
-
-                        <div class="form-campo col-span-2">
+                        <div class="form-campo col-span-full">
                             <label for="otDescripcion">Descripción del Trabajo</label>
-                            <textarea id="otDescripcion" name="descripcion" maxlength="500" placeholder="Detalle los trabajos a ejecutar en esta orden..."></textarea>
+                            <textarea id="otDescripcion" name="descripcion" maxlength="500" rows="3"
+                                placeholder="Detalle los trabajos a ejecutar en esta orden de trabajo..."></textarea>
                             <span class="form-ayuda">Máximo 500 caracteres</span>
                         </div>
                     </div>
-
                     <div class="form-acciones">
-                        <button type="button" class="btn btn-outline" id="btnCancelarOt">Cancelar</button>
-                        <button type="submit" class="btn btn-primary" id="btnGuardarOt">Guardar Orden</button>
+                        <button type="button" class="btn btn-ghost" id="btnCancelarOt">✖ Cancelar</button>
+                        <button type="submit" class="btn btn-primary" id="btnGuardarOt">💾 Guardar Orden</button>
                     </div>
                 </form>
             </div>
 
-            <!-- Barra de Filtros -->
+            <!-- Filtros -->
             <div class="barra-herramientas">
                 <div class="filtros-grupo">
-                    <label for="filtroEstadoOt">Filtrar por Estado:</label>
+                    <label for="filtroEstadoOt">Estado:</label>
                     <select id="filtroEstadoOt" class="select-filtro">
-                        <option value="">Todos los Estados</option>
-                        <option value="PENDIENTE">PENDIENTE</option>
-                        <option value="PROGRAMADA">PROGRAMADA</option>
-                        <option value="EN_PROCESO">EN PROCESO</option>
-                        <option value="OBSERVADA">OBSERVADA</option>
-                        <option value="FINALIZADA">FINALIZADA</option>
-                        <option value="CANCELADA">CANCELADA</option>
+                        <option value="">Todos</option>
+                        <option value="PENDIENTE">⏳ PENDIENTE</option>
+                        <option value="PROGRAMADA">📅 PROGRAMADA</option>
+                        <option value="EN_PROCESO">⚡ EN PROCESO</option>
+                        <option value="OBSERVADA">👁 OBSERVADA</option>
+                        <option value="FINALIZADA">✅ FINALIZADA</option>
+                        <option value="CANCELADA">❌ CANCELADA</option>
                     </select>
                 </div>
-
                 <div class="filtros-grupo">
-                    <button class="btn btn-outline btn-sm" id="btnRefrescarOts">🔄 Actualizar Lista</button>
+                    <button class="btn btn-ghost btn-sm" id="btnRefrescarOts">🔄 Actualizar</button>
                 </div>
             </div>
 
-            <!-- Tabla de Órdenes de Trabajo -->
+            <!-- Tabla de OTs -->
             <div class="tabla-contenedor">
-                <table>
+                <table class="tabla-moderna">
                     <thead>
                         <tr>
                             <th>Código</th>
@@ -175,90 +203,105 @@
                             <th>Fecha Prog.</th>
                             <th>Prioridad</th>
                             <th>Estado</th>
-                            <th>Técnico (RF-04)</th>
-                            <th>Recursos (RF-05)</th>
+                            <th>Técnico</th>
+                            <th>Recursos</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody id="listaOrdenesTrabajo">
                         <tr>
-                            <td colspan="8" style="text-align: center; padding: 2rem; color: #64748b;">
+                            <td colspan="8" class="tabla-loading">
+                                <div class="loading-spinner"></div>
                                 Cargando órdenes de trabajo...
                             </td>
                         </tr>
                     </tbody>
                 </table>
             </div>
-
         </section>
 
 
         <!-- ===================================================================
              PESTAÑA 2: PROGRAMACIÓN EN SERIE (RF-03)
              =================================================================== -->
-        <section id="tab-programar" class="seccion-panel" role="tabpanel">
+        <section id="tab-programar" class="seccion-panel" role="tabpanel" aria-labelledby="tab-btn-programar">
 
             <div class="seccion-header">
-                <h2>📅 Programación de Mantenimiento Preventivo en Serie</h2>
+                <div class="seccion-header-left">
+                    <h2>📅 Programación en Serie</h2>
+                    <p class="seccion-desc">Genera múltiples órdenes automáticamente según la periodicidad del tipo de mantenimiento preventivo.</p>
+                </div>
             </div>
 
-            <p style="color: #475569; margin-bottom: 1.5rem; line-height: 1.6;">
-                Permite generar automáticamente múltiples órdenes de trabajo periódicas (ej. mensuales, trimestrales)
-                a partir de la periodicidad definida en el tipo de mantenimiento.
-            </p>
-
-            <form id="formProgramarPreventivo" style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;">
-                <div class="form-grid">
-                    <div class="form-campo">
-                        <label for="progTipoMantenimiento">Tipo de Mantenimiento *</label>
-                        <select id="progTipoMantenimiento" name="tipoMantenimientoId" required>
-                            <option value="">Selecciona un tipo preventivo...</option>
-                        </select>
-                        <span class="form-ayuda" id="ayudaPeriodicidad">Debe tener una periodicidad en días configurada</span>
-                    </div>
-
-                    <div class="form-campo">
-                        <label for="progFechaInicio">Fecha de Inicio *</label>
-                        <input type="date" id="progFechaInicio" name="fechaInicio" required>
-                        <span class="form-ayuda">Fecha de la 1ª orden (debe ser posterior a hoy)</span>
-                    </div>
-
-                    <div class="form-campo">
-                        <label for="progCantidad">Cantidad de Ocurrencias *</label>
-                        <input type="number" id="progCantidad" name="cantidadOcurrencias" min="1" max="52" value="3" required>
-                        <span class="form-ayuda">Número de órdenes de trabajo a generar</span>
-                    </div>
-
-                    <div class="form-campo">
-                        <label for="progPrioridad">Prioridad *</label>
-                        <select id="progPrioridad" name="prioridad" required>
-                            <option value="BAJA">BAJA</option>
-                            <option value="MEDIA" selected>MEDIA</option>
-                            <option value="ALTA">ALTA</option>
-                            <option value="URGENTE">URGENTE</option>
-                        </select>
-                    </div>
-
-                    <div class="form-campo col-span-2">
-                        <label for="progDescripcion">Descripción de la Serie</label>
-                        <textarea id="progDescripcion" name="descripcion" maxlength="500" placeholder="Ej: Mantenimiento preventivo periódico de motores y bombas..."></textarea>
-                    </div>
+            <div class="info-banner">
+                <span class="info-banner-icon">💡</span>
+                <div>
+                    <strong>¿Cómo funciona?</strong> — Selecciona un tipo de mantenimiento con periodicidad definida (días), una fecha de inicio y la cantidad de ocurrencias.
+                    El sistema calculará automáticamente las fechas sucesivas y creará todas las órdenes en estado <em>PROGRAMADA</em>.
                 </div>
+            </div>
 
-                <div class="form-acciones">
-                    <button type="submit" class="btn btn-success" id="btnGenerarSerie">
-                        ⚡ Generar Serie de Órdenes
-                    </button>
+            <div class="form-panel">
+                <div class="form-panel-header">
+                    <h3>⚡ Generar Serie de Órdenes Preventivas</h3>
+                    <p>Solo tipos con periodicidad en días configurada pueden usarse aquí.</p>
                 </div>
-            </form>
+                <form id="formProgramarPreventivo">
+                    <div class="form-grid">
+                        <div class="form-campo">
+                            <label for="progTipoMantenimiento">Tipo de Mantenimiento <span class="req">*</span></label>
+                            <select id="progTipoMantenimiento" name="tipoMantenimientoId" required>
+                                <option value="">Selecciona un tipo preventivo...</option>
+                            </select>
+                            <span class="form-ayuda" id="ayudaPeriodicidad">Debe tener periodicidad en días configurada</span>
+                        </div>
+                        <div class="form-campo">
+                            <label for="progFechaInicio">Fecha de Inicio <span class="req">*</span></label>
+                            <input type="date" id="progFechaInicio" name="fechaInicio" required>
+                            <span class="form-ayuda">Fecha de la 1ª orden generada</span>
+                        </div>
+                        <div class="form-campo">
+                            <label for="progCantidad">Cantidad de Ocurrencias <span class="req">*</span></label>
+                            <input type="number" id="progCantidad" name="cantidadOcurrencias" min="1" max="52" value="3" required>
+                            <span class="form-ayuda">Número de órdenes a generar (máx. 52)</span>
+                        </div>
+                        <div class="form-campo">
+                            <label for="progPrioridad">Prioridad <span class="req">*</span></label>
+                            <select id="progPrioridad" name="prioridad" required>
+                                <option value="BAJA">🟢 BAJA</option>
+                                <option value="MEDIA" selected>🔵 MEDIA</option>
+                                <option value="ALTA">🟠 ALTA</option>
+                                <option value="URGENTE">🔴 URGENTE</option>
+                            </select>
+                        </div>
+                        <div class="form-campo col-span-full">
+                            <label for="progDescripcion">Descripción de la Serie</label>
+                            <textarea id="progDescripcion" name="descripcion" maxlength="500" rows="3"
+                                placeholder="Ej: Mantenimiento preventivo periódico mensual de compresores y bombas hidráulicas..."></textarea>
+                        </div>
+                    </div>
+                    <div class="form-acciones">
+                        <button type="submit" class="btn btn-success btn-lg" id="btnGenerarSerie">
+                            ⚡ Generar Serie de Órdenes
+                        </button>
+                    </div>
+                </form>
+            </div>
 
-            <!-- Resultado de la generación en serie -->
+            <!-- Resultado de la generación -->
             <div id="resultadoSerieContenedor" style="display: none; margin-top: 1.5rem;">
-                <h3 style="color: #15803d;">✅ Órdenes Generadas Exitosamente</h3>
+                <div class="resultado-header">
+                    <span class="resultado-icon">✅</span>
+                    <div>
+                        <h3>Órdenes Generadas Exitosamente</h3>
+                        <p id="resultadoSerieResumen"></p>
+                    </div>
+                </div>
                 <div class="tabla-contenedor">
-                    <table>
+                    <table class="tabla-moderna">
                         <thead>
                             <tr>
+                                <th>#</th>
                                 <th>Código</th>
                                 <th>Tipo Mantenimiento</th>
                                 <th>Fecha Programada</th>
@@ -270,71 +313,76 @@
                     </table>
                 </div>
             </div>
-
         </section>
 
 
         <!-- ===================================================================
              PESTAÑA 3: TIPOS DE MANTENIMIENTO (CRUD)
              =================================================================== -->
-        <section id="tab-tipos" class="seccion-panel" role="tabpanel">
+        <section id="tab-tipos" class="seccion-panel" role="tabpanel" aria-labelledby="tab-btn-tipos">
 
             <div class="seccion-header">
-                <h2>🔧 Gestión de Tipos de Mantenimiento</h2>
-                <button class="btn btn-primary" id="btnToggleFormTipo">
+                <div class="seccion-header-left">
+                    <h2>🔧 Tipos de Mantenimiento</h2>
+                    <p class="seccion-desc">Define y administra los distintos tipos de mantenimiento del sistema. Los tipos activos están disponibles para crear órdenes.</p>
+                </div>
+                <button class="btn btn-primary btn-lg" id="btnToggleFormTipo">
                     ➕ Nuevo Tipo
                 </button>
             </div>
 
             <!-- Formulario Tipo Mantenimiento -->
-            <div id="contenedorFormTipo" style="display: none; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;">
-                <h3 id="formTipoTitulo" style="margin-top: 0; color: var(--color-primary);">Registrar Tipo de Mantenimiento</h3>
-
+            <div id="contenedorFormTipo" class="form-panel" style="display: none;">
+                <div class="form-panel-header">
+                    <h3 id="formTipoTitulo">📝 Registrar Tipo de Mantenimiento</h3>
+                    <p>Define el nombre, descripción y periodicidad (opcional, solo para tipos preventivos).</p>
+                </div>
                 <form id="formTipoMantenimiento">
                     <input type="hidden" id="tipoId" name="tipoId">
-
                     <div class="form-grid">
                         <div class="form-campo">
-                            <label for="tipoNombre">Nombre del Mantenimiento *</label>
-                            <input type="text" id="tipoNombre" name="nombre" maxlength="100" placeholder="Ej: Preventivo Compresores" required>
-                            <span class="form-ayuda">Máximo 100 caracteres</span>
+                            <label for="tipoNombre">Nombre <span class="req">*</span></label>
+                            <input type="text" id="tipoNombre" name="nombre" maxlength="100"
+                                placeholder="Ej: Preventivo Compresores" required>
+                            <span class="form-ayuda">Máximo 100 caracteres · Debe ser único</span>
                         </div>
-
                         <div class="form-campo">
-                            <label for="tipoPeriodicidad">Periodicidad (en días)</label>
-                            <input type="number" id="tipoPeriodicidad" name="periodicidadDias" min="1" placeholder="Ej: 30, 90, 180">
-                            <span class="form-ayuda">Días entre mantenimientos para programación preventiva</span>
+                            <label for="tipoPeriodicidad">Periodicidad (días)</label>
+                            <input type="number" id="tipoPeriodicidad" name="periodicidadDias" min="1"
+                                placeholder="Ej: 30, 90, 180">
+                            <span class="form-ayuda">Solo para tipos preventivos — habilita la programación en serie</span>
                         </div>
-
-                        <div class="form-campo col-span-2">
+                        <div class="form-campo col-span-full">
                             <label for="tipoDescripcion">Descripción</label>
-                            <input type="text" id="tipoDescripcion" name="descripcion" maxlength="255" placeholder="Descripción breve del alcance del mantenimiento...">
+                            <input type="text" id="tipoDescripcion" name="descripcion" maxlength="255"
+                                placeholder="Descripción breve del alcance del mantenimiento...">
                             <span class="form-ayuda">Máximo 255 caracteres</span>
                         </div>
                     </div>
-
                     <div class="form-acciones">
-                        <button type="button" class="btn btn-outline" id="btnCancelarTipo">Cancelar</button>
-                        <button type="submit" class="btn btn-primary" id="btnGuardarTipo">Guardar Tipo</button>
+                        <button type="button" class="btn btn-ghost" id="btnCancelarTipo">✖ Cancelar</button>
+                        <button type="submit" class="btn btn-primary" id="btnGuardarTipo">💾 Guardar Tipo</button>
                     </div>
                 </form>
             </div>
 
-            <!-- Filtros de Tipos -->
+            <!-- Filtros -->
             <div class="barra-herramientas">
                 <div class="filtros-grupo">
-                    <label>
-                        <input type="checkbox" id="checkSoloActivos"> Mostrar solo activos
+                    <label class="check-label">
+                        <input type="checkbox" id="checkSoloActivos" class="check-input">
+                        <span class="check-custom"></span>
+                        Mostrar solo activos
                     </label>
                 </div>
                 <div class="filtros-grupo">
-                    <button class="btn btn-outline btn-sm" id="btnRefrescarTipos">🔄 Actualizar Lista</button>
+                    <button class="btn btn-ghost btn-sm" id="btnRefrescarTipos">🔄 Actualizar</button>
                 </div>
             </div>
 
             <!-- Tabla de Tipos -->
             <div class="tabla-contenedor">
-                <table>
+                <table class="tabla-moderna">
                     <thead>
                         <tr>
                             <th>ID</th>
@@ -347,14 +395,14 @@
                     </thead>
                     <tbody id="listaTiposMantenimiento">
                         <tr>
-                            <td colspan="6" style="text-align: center; padding: 2rem; color: #64748b;">
+                            <td colspan="6" class="tabla-loading">
+                                <div class="loading-spinner"></div>
                                 Cargando tipos de mantenimiento...
                             </td>
                         </tr>
                     </tbody>
                 </table>
             </div>
-
         </section>
 
     </main>
@@ -366,112 +414,111 @@
     <div id="modalTecnico" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modalTecnicoTitulo">
         <div class="modal-caja">
             <div class="modal-header">
-                <h3 id="modalTecnicoTitulo">👷 Asignar Técnico a Orden de Trabajo</h3>
+                <div class="modal-header-icon">👷</div>
+                <div>
+                    <h3 id="modalTecnicoTitulo">Asignar Técnico</h3>
+                    <p>Orden: <span id="tecnicoOtCodigo" class="codigo-ot"></span> &nbsp;·&nbsp; Fecha: <span id="tecnicoOtFecha"></span></p>
+                </div>
                 <button type="button" class="modal-cerrar" data-cerrar="modalTecnico" aria-label="Cerrar">&times;</button>
             </div>
             <div class="modal-body">
-                <p>
-                    <strong>Orden:</strong> <span id="tecnicoOtCodigo" class="codigo-ot"></span><br>
-                    <strong>Fecha Programada:</strong> <span id="tecnicoOtFecha"></span>
-                </p>
-
                 <div class="form-campo">
-                    <label for="inputTecnicoId">ID del Técnico (Trabajador de RRHH) *</label>
-                    <input type="number" id="inputTecnicoId" min="1" placeholder="Ej: 1, 2, 7" required>
-                    <span class="form-ayuda">El sistema validará que el técnico no tenga otra orden "EN PROCESO" en la misma fecha.</span>
+                    <label for="inputTecnicoId">ID del Técnico <span class="req">*</span></label>
+                    <input type="number" id="inputTecnicoId" min="1" placeholder="Ej: 1, 2, 7">
+                    <span class="form-ayuda">El sistema valida que el técnico no tenga otra OT <strong>EN_PROCESO</strong> la misma fecha.</span>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline" data-cerrar="modalTecnico">Cancelar</button>
-                <button type="button" class="btn btn-primary" id="btnGuardarTecnico">Asignar Técnico</button>
+                <button type="button" class="btn btn-ghost" data-cerrar="modalTecnico">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="btnGuardarTecnico">👷 Asignar Técnico</button>
             </div>
         </div>
     </div>
 
 
     <!-- =======================================================================
-         MODAL 2: ASIGNAR Y CONSULTAR RECURSOS (RF-05)
+         MODAL 2: ASIGNAR RECURSOS (RF-05)
          ======================================================================= -->
     <div id="modalRecursos" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modalRecursosTitulo">
         <div class="modal-caja">
             <div class="modal-header">
-                <h3 id="modalRecursosTitulo">🛠️ Equipos y Herramientas Asignados</h3>
+                <div class="modal-header-icon">🛠️</div>
+                <div>
+                    <h3 id="modalRecursosTitulo">Equipos y Herramientas</h3>
+                    <p>Orden: <span id="recursosOtCodigo" class="codigo-ot"></span></p>
+                </div>
                 <button type="button" class="modal-cerrar" data-cerrar="modalRecursos" aria-label="Cerrar">&times;</button>
             </div>
             <div class="modal-body">
-                <p>
-                    <strong>Orden:</strong> <span id="recursosOtCodigo" class="codigo-ot"></span>
-                </p>
-
-                <h4 style="margin: 0.5rem 0 0.2rem; color: #334155;">Recursos Actualmente Asignados:</h4>
-                <ul id="listaRecursosAsignados" class="recursos-asignados-lista">
-                    <li>Consultando recursos...</li>
-                </ul>
-
-                <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 1rem 0;">
-
-                <h4 style="margin: 0 0 0.5rem; color: var(--color-primary);">Actualizar Recursos Asignados</h4>
-                
-                <div class="form-campo">
-                    <label for="inputEquipoIds">IDs de Equipos (separados por coma)</label>
-                    <input type="text" id="inputEquipoIds" placeholder="Ej: 1, 3, 5">
-                    <span class="form-ayuda">IDs de equipos del módulo de Almacén</span>
+                <div class="recursos-seccion">
+                    <h4>📌 Recursos actualmente asignados</h4>
+                    <ul id="listaRecursosAsignados" class="recursos-asignados-lista">
+                        <li class="recursos-loading">Consultando recursos...</li>
+                    </ul>
                 </div>
-
-                <div class="form-campo">
-                    <label for="inputHerramientaIds">IDs de Herramientas (separados por coma)</label>
-                    <input type="text" id="inputHerramientaIds" placeholder="Ej: 10, 12">
-                    <span class="form-ayuda">IDs de herramientas del módulo de Almacén</span>
+                <hr class="modal-divider">
+                <div class="recursos-seccion">
+                    <h4>✏️ Actualizar recursos</h4>
+                    <div class="form-grid form-grid-2">
+                        <div class="form-campo">
+                            <label for="inputEquipoIds">IDs de Equipos (separados por coma)</label>
+                            <input type="text" id="inputEquipoIds" placeholder="Ej: 1, 3, 5">
+                            <span class="form-ayuda">IDs de equipos del módulo de Almacén</span>
+                        </div>
+                        <div class="form-campo">
+                            <label for="inputHerramientaIds">IDs de Herramientas (separados por coma)</label>
+                            <input type="text" id="inputHerramientaIds" placeholder="Ej: 10, 12">
+                            <span class="form-ayuda">IDs de herramientas del módulo de Almacén</span>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline" data-cerrar="modalRecursos">Cerrar</button>
-                <button type="button" class="btn btn-primary" id="btnGuardarRecursos">Guardar Recursos</button>
+                <button type="button" class="btn btn-ghost" data-cerrar="modalRecursos">Cerrar</button>
+                <button type="button" class="btn btn-primary" id="btnGuardarRecursos">🛠️ Guardar Recursos</button>
             </div>
         </div>
     </div>
 
 
     <!-- =======================================================================
-         MODAL 3: CAMBIAR ESTADO DE LA ORDEN
+         MODAL 3: CAMBIAR ESTADO
          ======================================================================= -->
     <div id="modalEstado" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modalEstadoTitulo">
-        <div class="modal-caja" style="max-width: 450px;">
+        <div class="modal-caja modal-sm">
             <div class="modal-header">
-                <h3 id="modalEstadoTitulo">🔄 Cambiar Estado de Orden</h3>
+                <div class="modal-header-icon">🔄</div>
+                <div>
+                    <h3 id="modalEstadoTitulo">Cambiar Estado</h3>
+                    <p>Orden: <span id="estadoOtCodigo" class="codigo-ot"></span></p>
+                </div>
                 <button type="button" class="modal-cerrar" data-cerrar="modalEstado" aria-label="Cerrar">&times;</button>
             </div>
             <div class="modal-body">
-                <p>
-                    <strong>Orden:</strong> <span id="estadoOtCodigo" class="codigo-ot"></span>
-                </p>
-
                 <div class="form-campo">
-                    <label for="selectNuevoEstado">Nuevo Estado *</label>
+                    <label for="selectNuevoEstado">Nuevo Estado <span class="req">*</span></label>
                     <select id="selectNuevoEstado" required>
-                        <option value="PENDIENTE">PENDIENTE</option>
-                        <option value="PROGRAMADA">PROGRAMADA</option>
-                        <option value="EN_PROCESO">EN PROCESO</option>
-                        <option value="OBSERVADA">OBSERVADA</option>
-                        <option value="FINALIZADA">FINALIZADA</option>
-                        <option value="CANCELADA">CANCELADA</option>
+                        <option value="PENDIENTE">⏳ PENDIENTE</option>
+                        <option value="PROGRAMADA">📅 PROGRAMADA</option>
+                        <option value="EN_PROCESO">⚡ EN PROCESO</option>
+                        <option value="OBSERVADA">👁 OBSERVADA</option>
+                        <option value="FINALIZADA">✅ FINALIZADA</option>
+                        <option value="CANCELADA">❌ CANCELADA</option>
                     </select>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline" data-cerrar="modalEstado">Cancelar</button>
-                <button type="button" class="btn btn-primary" id="btnGuardarEstado">Actualizar Estado</button>
+                <button type="button" class="btn btn-ghost" data-cerrar="modalEstado">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="btnGuardarEstado">🔄 Actualizar Estado</button>
             </div>
         </div>
     </div>
 
-    <footer>
-        <p>Sistema de Gestión Empresarial &copy; 2026 - Módulo de Operaciones</p>
+    <footer class="ops-footer">
+        <p>Sistema de Gestión Empresarial &copy; 2026 · Módulo de Operaciones y Mantenimiento</p>
     </footer>
 
-    <!-- Script de lógica y conexión de endpoints -->
+    <script src="js/auth.js"></script>
     <script src="js/operaciones.js"></script>
-
 </body>
-
 </html>

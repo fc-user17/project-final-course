@@ -10,9 +10,9 @@
  * =============================================================================
  */
 
-const API_BASE = (window.location.protocol === 'file:' || (window.location.port && window.location.port !== '8080'))
-    ? 'http://localhost:8080'
-    : '';
+const API_BASE = window.API_URL || ((window.location.protocol === 'file:' || (window.location.port && window.location.port !== '8081'))
+    ? 'http://localhost:8081'
+    : '');
 
 const ENDPOINTS = {
     tipos: `${API_BASE}/api/v1/tipos-mantenimiento`,
@@ -33,15 +33,10 @@ function showToast(mensaje, tipo = 'info', duracion = 4500) {
     const toast = document.createElement('div');
     toast.className = `toast toast-${tipo}`;
 
-    const iconos = {
-        success: '✅',
-        error: '❌',
-        warning: '⚠️',
-        info: 'ℹ️'
-    };
+    const iconos = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
 
     toast.innerHTML = `
-        <span style="font-size: 1.2rem;">${iconos[tipo] || 'ℹ️'}</span>
+        <span class="toast-icon">${iconos[tipo] || 'ℹ️'}</span>
         <div style="flex: 1; word-break: break-word;">${mensaje}</div>
     `;
 
@@ -164,13 +159,7 @@ async function cargarTiposMantenimiento() {
         // Renderizar tabla
         lista.innerHTML = '';
         if (tipos.length === 0) {
-            lista.innerHTML = `
-                <tr>
-                    <td colspan="6" style="text-align: center; padding: 2rem; color: #64748b;">
-                        No se encontraron tipos de mantenimiento registrados.
-                    </td>
-                </tr>
-            `;
+            lista.innerHTML = `<tr><td colspan="6" class="tabla-vacia">No se encontraron tipos de mantenimiento registrados.</td></tr>`;
             return;
         }
 
@@ -415,15 +404,19 @@ async function cargarOrdenesTrabajo() {
         // Actualizar KPIs
         actualizarKpis(ordenes);
 
+        // Actualizar badge del tab
+        const tabBadge = document.getElementById('tabBadgeOrdenes');
+        if (tabBadge) {
+            const pendientes = ordenes.filter(o => o.estado === 'PENDIENTE' || o.estado === 'EN_PROCESO').length;
+            tabBadge.textContent = ordenes.length;
+            tabBadge.classList.toggle('visible', ordenes.length > 0);
+        }
+
         // Renderizar tabla
         lista.innerHTML = '';
         if (ordenes.length === 0) {
             lista.innerHTML = `
-                <tr>
-                    <td colspan="8" style="text-align: center; padding: 2.5rem; color: #64748b;">
-                        No se encontraron órdenes de trabajo registradas ${estado ? `con estado "${estado}"` : ''}.
-                    </td>
-                </tr>
+                <tr><td colspan="8" class="tabla-vacia">No se encontraron órdenes de trabajo${estado ? ` con estado "${estado}"` : ''}.</td></tr>
             `;
             return;
         }
@@ -476,13 +469,7 @@ async function cargarOrdenesTrabajo() {
 
     } catch (error) {
         console.error(error);
-        lista.innerHTML = `
-            <tr>
-                <td colspan="8" style="text-align: center; padding: 2rem; color: #dc2626;">
-                    Error al conectar con el servidor (${error.message}).
-                </td>
-            </tr>
-        `;
+        lista.innerHTML = `<tr><td colspan="8" class="tabla-vacia" style="color:#dc2626;">⚠️ Error al conectar con el servidor: ${error.message}</td></tr>`;
     }
 }
 
@@ -643,12 +630,15 @@ if (formProgramarPreventivo) {
             // Mostrar tabla de resultados
             const resultadoContenedor = document.getElementById('resultadoSerieContenedor');
             const listaResultado = document.getElementById('listaResultadoSerie');
+            const resumenEl = document.getElementById('resultadoSerieResumen');
 
             if (resultadoContenedor && listaResultado) {
+                if (resumenEl) resumenEl.textContent = `Se generaron ${seriesGeneradas.length} órdenes en estado PROGRAMADA automáticamente.`;
                 listaResultado.innerHTML = '';
-                seriesGeneradas.forEach(s => {
+                seriesGeneradas.forEach((s, idx) => {
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
+                        <td><strong>${idx + 1}</strong></td>
                         <td><span class="codigo-ot">${escapeHtml(s.codigo)}</span></td>
                         <td>${escapeHtml(s.tipoMantenimientoNombre || '')}</td>
                         <td><strong>${formatearFecha(s.fechaProgramada)}</strong></td>

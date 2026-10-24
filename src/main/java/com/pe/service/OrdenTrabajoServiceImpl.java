@@ -62,7 +62,7 @@ public class OrdenTrabajoServiceImpl implements OrdenTrabajoService {
     @Override
     public OrdenTrabajoResponse update(Long id, OrdenTrabajoRequest request) {
         OrdenTrabajo entidad = buscarOFallar(id);
-        TipoMantenimiento tipo = buscarTipoOFallar(request.getTipoMantenimientoId());
+        //TipoMantenimiento tipo = buscarTipoOFallar(request.getTipoMantenimientoId());
 
         TipoMantenimiento tipo = tipoMantenimientoRepository.findById(request.getTipoMantenimientoId())
                 .orElseThrow(() -> new ResourceNotFoundException(
