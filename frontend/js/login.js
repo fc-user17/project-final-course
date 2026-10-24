@@ -42,7 +42,9 @@ formulario.addEventListener("submit", async function (evento) {
         sessionStorage.setItem("usuario", datos.email);
         sessionStorage.setItem("rol", datos.rol);
 
-        window.location.href = "index.html";
+        window.location.href = datos.rol === "RRHH"
+            ? "RRHH.html#inicio"
+            : "index.html";
 
     } catch (error) {
         mensaje.textContent =

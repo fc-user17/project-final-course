@@ -19,14 +19,16 @@ import java.util.Map;
  *
  * Se encarga de:
  * 1. Insertar los 4 roles del sistema si aun no existen en la BD.
- * 2. Crear un usuario administrador de prueba si no existe.
+ * 2. Crear usuarios de prueba para los cuatro roles si no existen.
  *
  * Esto garantiza que la app siempre tenga los datos minimos necesarios
  * para funcionar sin tener que correr scripts SQL manualmente.
  *
- * Credenciales del admin de prueba:
- *   Email:    admin@empresa.pe
- *   Password: Admin123!
+ * Credenciales de prueba:
+ *   ADMIN:    admin@empresa.pe / Admin123!
+ *   TECNICO:  tecnico@empresa.pe / Tecnico123!
+ *   RRHH:     rrhh@empresa.pe / Rrhh123!
+ *   FINANZAS: finanzas@empresa.pe / Finanzas123!
  */
 @Component
 @RequiredArgsConstructor
@@ -42,7 +44,7 @@ public class DataSeeder implements CommandLineRunner {
     public void run(String... args) {
         log.info("Iniciando seeder de datos base...");
         seedRoles();
-        seedAdminUser();
+        seedUsers();
         log.info("Seeder finalizado correctamente.");
     }
 
@@ -67,23 +69,30 @@ public class DataSeeder implements CommandLineRunner {
         }
     }
 
-    /** Crea el usuario administrador inicial si no existe. */
-    private void seedAdminUser() {
-        String adminEmail = "admin@empresa.pe";
+    /** Crea las cuentas de prueba para cada rol si todavía no existen. */
+    private void seedUsers() {
+        seedUser("admin@empresa.pe", "Admin123!", NombreRol.ADMIN);
+        seedUser("tecnico@empresa.pe", "Tecnico123!", NombreRol.TECNICO);
+        seedUser("rrhh@empresa.pe", "Rrhh123!", NombreRol.RRHH);
+        seedUser("finanzas@empresa.pe", "Finanzas123!", NombreRol.FINANZAS);
+    }
 
-        if (!usuarioRepository.existsByEmail(adminEmail)) {
-            Rol rolAdmin = rolRepository.findByNombreRol(NombreRol.ADMIN)
-                    .orElseThrow(() -> new RuntimeException("El rol ADMIN no fue encontrado. Verifica el seeder de roles."));
-
-            Usuario admin = Usuario.builder()
-                    .email(adminEmail)
-                    .passwordHash(passwordEncoder.encode("Admin123!"))
-                    .rol(rolAdmin)
-                    .activo(true)
-                    .build();
-
-            usuarioRepository.save(admin);
-            log.info("Usuario admin creado: {}", adminEmail);
+    private void seedUser(String email, String password, NombreRol nombreRol) {
+        if (usuarioRepository.existsByEmail(email)) {
+            return;
         }
+
+        Rol rol = rolRepository.findByNombreRol(nombreRol)
+                .orElseThrow(() -> new RuntimeException("El rol " + nombreRol + " no fue encontrado. Verifica el seeder de roles."));
+
+        Usuario usuario = Usuario.builder()
+                .email(email)
+                .passwordHash(passwordEncoder.encode(password))
+                .rol(rol)
+                .activo(true)
+                .build();
+
+        usuarioRepository.save(usuario);
+        log.info("Usuario de prueba creado para {}: {}", nombreRol, email);
     }
 }

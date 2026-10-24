@@ -12,6 +12,53 @@
     <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/components.css">
 
+    <style>
+        .demo-credentials {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border: 1px dashed #94a3b8;
+            border-radius: 8px;
+            background: #f8fafc;
+        }
+
+        .demo-credentials h2 {
+            margin: 0 0 0.35rem;
+            font-size: 1rem;
+        }
+
+        .demo-credentials p {
+            margin: 0 0 0.75rem;
+            font-size: 0.85rem;
+        }
+
+        .demo-credentials ul {
+            display: grid;
+            gap: 0.5rem;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .demo-credentials button {
+            width: 100%;
+            padding: 0.5rem;
+            border: 0;
+            border-radius: 5px;
+            background: #e2e8f0;
+            color: #1e293b;
+            cursor: pointer;
+            font: 0.8rem monospace;
+            text-align: left;
+        }
+
+        .demo-credentials button:hover,
+        .demo-credentials button:focus-visible {
+            background: #cbd5e1;
+            outline: 2px solid #2e75b6;
+            outline-offset: 2px;
+        }
+    </style>
+
 </head>
 
 <body>
@@ -54,10 +101,27 @@
 
             </form>
 
+            <aside class="demo-credentials" aria-label="Credenciales de prueba">
+                <h2>Credenciales de prueba</h2>
+                <p>Haz clic en una cuenta para completar el formulario.</p>
+                <ul>
+                    <li><button type="button" onclick="rellenarDemo('admin@empresa.pe', 'Admin123!')">Administrador: admin@empresa.pe / Admin123!</button></li>
+                    <li><button type="button" onclick="rellenarDemo('tecnico@empresa.pe', 'Tecnico123!')">Técnico: tecnico@empresa.pe / Tecnico123!</button></li>
+                    <li><button type="button" onclick="rellenarDemo('rrhh@empresa.pe', 'Rrhh123!')">RRHH: rrhh@empresa.pe / Rrhh123!</button></li>
+                    <li><button type="button" onclick="rellenarDemo('finanzas@empresa.pe', 'Finanzas123!')">Finanzas: finanzas@empresa.pe / Finanzas123!</button></li>
+                </ul>
+            </aside>
+
         </section>
 
     </main>
 
+    <script>
+        function rellenarDemo(email, password) {
+            document.getElementById("usuario").value = email;
+            document.getElementById("contrasena").value = password;
+        }
+    </script>
     <script src="js/login.js"></script>
 
 </body>
