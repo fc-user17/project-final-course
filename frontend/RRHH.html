@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Sistema de gestión de Recursos Humanos RR. HH.">
+    <title>RR. HH. | Gestión de Personal</title>
+
+    <!-- Estilos generales del proyecto -->
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+
+</head>
+
+<body>
+    <div class="rrhh-layout">
+
+        <!-- MENÚ LATERAL -->
+        <aside class="sidebar">
+            <a class="brand" href="index.html">
+                <span class="brand-logo">S</span>
+                <span class="brand-text">
+                    <strong>RECURSOS HUMANOS</strong>
+                    
+                </span>
+            </a>
+
+            <div class="sidebar-section">
+                <p class="sidebar-label">MENÚ PRINCIPAL</p>
+
+                <nav class="sidebar-nav" aria-label="Navegación de Recursos Humanos">
+                    <a href="#inicio" class="nav-link active">
+                        <span class="nav-icon">▦</span>
+                        <span>Panel principal</span>
+                    </a>
+
+                    <a href="#trabajadores" class="nav-link">
+                        <span class="nav-icon">♙</span>
+                        <span>Trabajadores</span>
+                    </a>
+
+                    <a href="#asistencia" class="nav-link">
+                        <span class="nav-icon">◷</span>
+                        <span>Asistencia</span>
+                    </a>
+
+                    <a href="#documentos" class="nav-link">
+                        <span class="nav-icon">▤</span>
+                        <span>Documentos</span>
+                    </a>
+                </nav>
+            </div>
+
+            <div class="sidebar-bottom">
+                <div class="sidebar-help">
+                    <span class="help-icon">?</span>
+                    <div>
+                        <strong>¿Necesitas ayuda?</strong>
+                        <p>Revisa la información del personal.</p>
+                    </div>
+                </div>
+
+                <a href="index.html" class="back-link">
+                    <span>←</span>
+                    Volver al sistema
+                </a>
+            </div>
+        </aside>
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <main class="main-content">
+
+            <!-- BARRA SUPERIOR -->
+            <header class="topbar">
+                <div class="breadcrumb">
+                    <span>Sistema empresarial</span>
+                    <span class="breadcrumb-separator">/</span>
+                    <strong>Recursos Humanos</strong>
+                </div>
+
+                <div class="topbar-right">
+                    <span class="system-status">
+                        <span class="status-dot"></span>
+                        Sistema de personal
+                    </span>
+
+                    <div class="user-avatar" aria-label="Usuario">RR</div>
+                </div>
+            </header>
+
+            <!-- PANEL PRINCIPAL -->
+            <section id="inicio" class="page-section">
+                <div class="welcome-section">
+                    <div>
+                        <p class="eyebrow">GESTIÓN DEL TALENTO HUMANO</p>
+                        <h1>Recursos Humanos</h1>
+                        <p class="welcome-description">
+                            Administra a tus trabajadores, controla la asistencia
+                            y mantén los documentos organizados desde un solo lugar.
+                        </p>
+                    </div>
+
+                    <a href="#registrar-trabajador" class="button button-primary">
+                        <span>＋</span>
+                        Nuevo trabajador
+                    </a>
+                </div>
+
+                <!-- TARJETAS DE RESUMEN -->
+                <div class="stats-grid">
+                    <article class="stat-card">
+                        <div class="stat-icon stat-icon-blue">♙</div>
+                        <div class="stat-information">
+                            <p>Total de trabajadores</p>
+                            <h2 id="totalTrabajadores">—</h2>
+                            <span class="stat-note">Personal registrado</span>
+                        </div>
+                    </article>
+
+                    <article class="stat-card">
+                        <div class="stat-icon stat-icon-green">✓</div>
+                        <div class="stat-information">
+                            <p>Personal activo</p>
+                            <h2 id="trabajadoresActivos">—</h2>
+                            <span class="stat-note">Trabajadores habilitados</span>
+                        </div>
+                    </article>
+
+                    <article class="stat-card">
+                        <div class="stat-icon stat-icon-purple">◷</div>
+                        <div class="stat-information">
+                            <p>Control de asistencia</p>
+                            <h2>Asistencia</h2>
+                            <a href="#asistencia" class="stat-link">Gestionar asistencia →</a>
+                        </div>
+                    </article>
+
+                    <article class="stat-card">
+                        <div class="stat-icon stat-icon-orange">▤</div>
+                        <div class="stat-information">
+                            <p>Documentos</p>
+                            <h2>Archivos</h2>
+                            <a href="#documentos" class="stat-link">Gestionar documentos →</a>
+                        </div>
+                    </article>
+                </div>
+
+                <!-- ACCESOS RÁPIDOS -->
+                <div class="section-heading">
+                    <div>
+                        <h2>Accesos rápidos</h2>
+                        <p>Entra directamente a la sección que necesitas.</p>
+                    </div>
+                </div>
+
+                <div class="quick-access-grid">
+                    <a href="#trabajadores" class="quick-access-card">
+                        <span class="quick-icon quick-blue">♙</span>
+                        <span class="quick-text">
+                            <strong>Trabajadores</strong>
+                            <small>Registrar y consultar personal</small>
+                        </span>
+                        <span class="quick-arrow">→</span>
+                    </a>
+
+                    <a href="#asistencia" class="quick-access-card">
+                        <span class="quick-icon quick-green">◷</span>
+                        <span class="quick-text">
+                            <strong>Asistencia</strong>
+                            <small>Registrar entradas y salidas</small>
+                        </span>
+                        <span class="quick-arrow">→</span>
+                    </a>
+
+                    <a href="#documentos" class="quick-access-card">
+                        <span class="quick-icon quick-orange">▤</span>
+                        <span class="quick-text">
+                            <strong>Documentos</strong>
+                            <small>Gestionar archivos del personal</small>
+                        </span>
+                        <span class="quick-arrow">→</span>
+                    </a>
+                </div>
+            </section>
+
+            <!-- SECCIÓN DE TRABAJADORES -->
+            <section id="trabajadores" class="page-section">
+                <div class="section-heading section-heading-spaced">
+                    <div>
+                        <p class="eyebrow">PERSONAL DE LA EMPRESA</p>
+                        <h2>Gestión de trabajadores</h2>
+                        <p>Registra, consulta y organiza la información de tu equipo.</p>
+                    </div>
+                </div>
+
+                <div class="content-card" id="registrar-trabajador">
+                    <div class="card-heading">
+                        <div class="card-heading-icon">＋</div>
+                        <div>
+                            <h3>Registrar trabajador</h3>
+                            <p>Completa los datos para agregar un trabajador.</p>
+                        </div>
+                    </div>
+
+                    <form id="formTrabajador" class="form-grid">
+                        <div class="form-group">
+                            <label for="nombres">Nombres y apellidos</label>
+                            <input
+                                type="text"
+                                id="nombres"
+                                name="nombres"
+                                placeholder="Ej. María Pérez García"
+                                required
+                                maxlength="120"
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label for="documentoIdentidad">Documento de identidad</label>
+                            <input
+                                type="text"
+                                id="documentoIdentidad"
+                                name="documentoIdentidad"
+                                placeholder="Número de documento"
+                                required
+                                maxlength="20"
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label for="cargo">Cargo</label>
+                            <input
+                                type="text"
+                                id="cargo"
+                                name="cargo"
+                                placeholder="Ej. Asistente administrativo"
+                                required
+                                maxlength="100"
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label for="areaTrabajador">Área</label>
+                            <select id="areaTrabajador" name="area" required>
+                                <option value="">Selecciona un área</option>
+                                <option value="Recursos Humanos">Recursos Humanos</option>
+                                <option value="Administración">Administración</option>
+                                <option value="Ventas">Ventas</option>
+                                <option value="Compras">Compras</option>
+                                <option value="Contabilidad">Contabilidad</option>
+                                <option value="Sistemas">Sistemas</option>
+                                <option value="Logística">Logística</option>
+                            </select>
+                        </div>
+
+                        <div class="form-actions form-actions-full">
+                            <button type="reset" class="button button-secondary">
+                                Limpiar
+                            </button>
+                            <button type="submit" class="button button-primary">
+                                <span>＋</span>
+                                Registrar trabajador
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+
+<!-- LISTADO DEL PERSONAL -->
+<div class="content-card">
+    <div class="card-heading card-heading-between">
+        <div>
+            <h3>Equipo de trabajo</h3>
+            <p>Listado del personal registrado en el sistema.</p>
+        </div>
+
+        <span class="section-tag">Personal</span>
+    </div>
+
+    <div class="table-toolbar">
+        <div class="search-box">
+            <span>⌕</span>
+            <input
+                type="search"
+                id="buscarTrabajador"
+                placeholder="Buscar por nombre o documento..."
+                aria-label="Buscar trabajador"
+            >
+        </div>
+
+        <label class="filter-control" for="filtroArea">
+            Área:
+            <select id="filtroArea">
+                <option value="">Todas las áreas</option>
+                <option value="Recursos Humanos">Recursos Humanos</option>
+                <option value="Administración">Administración</option>
+                <option value="Ventas">Ventas</option>
+                <option value="Compras">Compras</option>
+                <option value="Contabilidad">Contabilidad</option>
+                <option value="Sistemas">Sistemas</option>
+                <option value="Logística">Logística</option>
+                <option value="Legal">Legal</option>
+                <option value="Personal">Personal</option>
+            </select>
+        </label>
+    </div>
+
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Trabajador</th>
+                    <th>Documento</th>
+                    <th>Cargo</th>
+                    <th>Área</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+
+            <tbody id="listaTrabajadores">
+                <tr>
+                    <td colspan="7" class="empty-state">
+                        Los trabajadores aparecerán aquí cuando se carguen los datos.
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="table-footer">
+        <span id="cantidadTrabajadoresListado">Listado de trabajadores</span>
+        <span>SEA RR. HH.</span>
+    </div>
+</div>
+</section>
+
+<!-- SECCIÓN DE ASISTENCIA -->
+<section id="asistencia" class="page-section">
+
+    <div class="section-heading section-heading-spaced">
+        <div>
+            <p class="eyebrow">CONTROL DE JORNADA</p>
+            <h2>Asistencia del personal</h2>
+            <p>
+                Consulta y revisa las asistencias registradas
+                de los trabajadores.
+            </p>
+        </div>
+    </div>
+
+    <!-- RESUMEN DE ASISTENCIAS -->
+    <div class="stats-grid">
+
+        <article class="stat-card">
+            <div class="stat-icon stat-icon-blue">▤</div>
+            <div class="stat-information">
+                <p>Total de registros</p>
+                <h2 id="totalAsistencias">0</h2>
+                <span class="stat-note">Registros encontrados</span>
+            </div>
+        </article>
+
+        <article class="stat-card">
+            <div class="stat-icon stat-icon-green">✓</div>
+            <div class="stat-information">
+                <p>Entradas</p>
+                <h2 id="totalEntradas">0</h2>
+                <span class="stat-note">Marcaciones de entrada</span>
+            </div>
+        </article>
+
+        <article class="stat-card">
+            <div class="stat-icon stat-icon-purple">◷</div>
+            <div class="stat-information">
+                <p>Salidas</p>
+                <h2 id="totalSalidas">0</h2>
+                <span class="stat-note">Marcaciones de salida</span>
+            </div>
+        </article>
+
+    </div>
+
+    <!-- FILTROS DE ASISTENCIA -->
+    <div class="content-card">
+
+        <div class="card-heading">
+            <div class="card-heading-icon card-icon-purple">⌕</div>
+            <div>
+                <h3>Filtrar asistencias</h3>
+                <p>
+                    Busca por nombre, DNI, movimiento
+                    o rango de fechas.
+                </p>
+            </div>
+        </div>
+
+        <form id="formFiltrosAsistencia" class="form-grid">
+
+            <div class="form-group">
+                <label for="filtroTrabajadorAsistencia">
+                    Trabajador o DNI
+                </label>
+                <input
+                    type="search"
+                    id="filtroTrabajadorAsistencia"
+                    placeholder="Ingresa nombre o DNI"
+                    autocomplete="off"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="filtroTipoAsistencia">
+                    Tipo de movimiento
+                </label>
+                <select id="filtroTipoAsistencia">
+                    <option value="">Todos los movimientos</option>
+                    <option value="ENTRADA">Entrada</option>
+                    <option value="SALIDA">Salida</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="filtroFechaDesde">Fecha desde</label>
+                <input type="date" id="filtroFechaDesde">
+            </div>
+
+            <div class="form-group">
+                <label for="filtroFechaHasta">Fecha hasta</label>
+                <input type="date" id="filtroFechaHasta">
+            </div>
+
+            <div class="form-actions form-actions-full">
+
+                <button
+                    type="reset"
+                    class="button button-secondary"
+                    id="btnLimpiarFiltrosAsistencia">
+                    Limpiar filtros
+                </button>
+
+                <button
+                    type="submit"
+                    class="button button-primary"
+                    id="btnConsultarAsistencias">
+                    Consultar asistencias
+                </button>
+
+            </div>
+
+        </form>
+    </div>
+
+    <!-- HISTORIAL: VACÍO HASTA CONSULTAR -->
+    <div class="content-card">
+
+        <div class="card-heading card-heading-between">
+            <div>
+                <h3>Historial de asistencias</h3>
+                <p>Los resultados aparecerán al realizar una consulta.</p>
+            </div>
+            <span class="section-tag">Solo consulta</span>
+        </div>
+
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Trabajador</th>
+                        <th>Documento</th>
+                        <th>Fecha</th>
+                        <th>Hora</th>
+                        <th>Movimiento</th>
+                    </tr>
+                </thead>
+
+                <tbody id="listaAsistencias">
+                    <tr>
+                        <td colspan="6" class="empty-state">
+                            Ingresa los filtros y pulsa
+                            «Consultar asistencias».
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="table-footer">
+            <span id="cantidadAsistencias">0 registros</span>
+            <span>SEA RR. HH.</span>
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- SECCIÓN DE DOCUMENTOS -->
+<section id="documentos" class="page-section">
+
+    <div class="section-heading section-heading-spaced">
+        <div>
+            <p class="eyebrow">ARCHIVO DEL PERSONAL</p>
+            <h2>Documentos de trabajadores</h2>
+            <p>Organiza los documentos y revisa sus fechas de vencimiento.</p>
+        </div>
+    </div>
+
+    <!-- FORMULARIO DE DOCUMENTOS -->
+    <div class="content-card">
+        <div class="card-heading">
+            <div class="card-heading-icon card-icon-orange">▤</div>
+            <div>
+                <h3>Registrar documento</h3>
+                <p>Asocia un documento con el trabajador correspondiente.</p>
+            </div>
+        </div>
+
+        <form id="formDocumento" class="form-grid">
+
+            <div class="form-group">
+                <label for="documentoIdentidadDocumento">
+                    DNI del trabajador
+                </label>
+                <input
+                    type="text"
+                    id="documentoIdentidadDocumento"
+                    name="documentoIdentidad"
+                    placeholder="Número de documento"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="tipoDocumento">Tipo de documento</label>
+                <select id="tipoDocumento" name="tipoDocumento" required>
+                    <option value="">Selecciona un tipo</option>
+                    <option value="Contrato">Contrato</option>
+                    <option value="DNI">DNI</option>
+                    <option value="CV">Currículum vitae</option>
+                    <option value="Certificado">Certificado</option>
+                    <option value="Constancia">Constancia</option>
+                    <option value="Otro">Otro</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="fechaVencimientoDocumento">
+                    Fecha de vencimiento
+                </label>
+                <input
+                    type="date"
+                    id="fechaVencimientoDocumento"
+                    name="fechaVencimiento"
+                >
+                <small class="field-help">
+                    Si el documento no vence, deja este campo vacío.
+                </small>
+            </div>
+
+            <div class="form-group">
+                <label for="archivoDocumento">Archivo del documento</label>
+                <input
+                    type="file"
+                    id="archivoDocumento"
+                    name="archivoDocumento"
+                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                    required
+                >
+                <small class="field-help">
+                    Formatos permitidos: PDF, Word e imágenes. Máximo 10 MB.
+                </small>
+            </div>
+
+            <div class="form-actions form-actions-full">
+                <button type="reset" class="button button-secondary">
+                    Limpiar
+                </button>
+
+                <button
+                    type="submit"
+                    id="btnRegistrarDocumento"
+                    class="button button-primary"
+                >
+                    <span>＋</span>
+                    Registrar documento
+                </button>
+            </div>
+
+            <div
+                id="mensajeDocumento"
+                class="form-message form-actions-full"
+                aria-live="polite"
+            ></div>
+        </form>
+    </div>
+
+    <!-- DOCUMENTOS REGISTRADOS Y BUSCADOR -->
+    <div class="content-card">
+
+        <div class="card-heading card-heading-between">
+            <div>
+                <h3>Documentos registrados</h3>
+                <p>Busca los documentos de un trabajador mediante su DNI.</p>
+            </div>
+
+            <span class="section-tag">Archivo digital</span>
+        </div>
+
+        <!-- BUSCADOR POR DNI -->
+        <div class="form-group">
+            <label for="dniBuscarDocumentos">
+                Buscar por DNI del trabajador
+            </label>
+
+            <div class="busqueda-documentos">
+                <input
+                    type="text"
+                    id="dniBuscarDocumentos"
+                    placeholder="Ingresa el DNI"
+                    maxlength="15"
+                >
+
+                <button
+                    type="button"
+                    id="btnBuscarDocumentos"
+                    class="button button-primary"
+                >
+                    Buscar
+                </button>
+
+                <button
+                    type="button"
+                    id="btnLimpiarBusquedaDocumentos"
+                    class="button button-secondary"
+                >
+                    Limpiar búsqueda
+                </button>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Tipo de documento</th>
+                        <th>ID trabajador</th>
+                        <th>Fecha de vencimiento</th>
+                        <th>Estado</th>
+                        <th>Archivo</th>
+                    </tr>
+                </thead>
+
+                <tbody id="listaDocumentos">
+                    <tr>
+                        <td colspan="6" class="empty-state">
+                            Ingresa el DNI para consultar sus documentos.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- DOCUMENTOS POR VENCER -->
+    <div class="content-card expiration-card">
+
+        <div class="card-heading">
+            <div class="card-heading-icon card-icon-orange">!</div>
+            <div>
+                <h3>Documentos por vencer</h3>
+                <p>Documentos cuya fecha de vencimiento está dentro de los próximos 30 días.</p>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Documento</th>
+                        <th>ID trabajador</th>
+                        <th>Fecha de vencimiento</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+
+                <tbody id="listaDocumentosPorVencer">
+                    <tr>
+                        <td colspan="5" class="empty-state">
+                            Cargando documentos por vencer...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</section>
+
+<!-- PIE DE PÁGINA -->
+<footer class="page-footer">
+    <span><strong>SEA RR. HH.</strong> · Sistema de Gestión Empresarial</span>
+    <span>Gestión organizada del talento humano</span>
+</footer>
+
+</main>
+</div>
+
+<!-- JavaScript del proyecto -->
+<script src="js/app.js"></script>
+<script src="js/navegacion-personal.js"></script>
+
+</body>
+</html>

@@ -1,3 +1,4 @@
+
 package com.pe.security;
 
 import com.pe.service.UserDetailsServiceImpl;
@@ -6,70 +7,113 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-/**
- * Filtro JWT que intercepta cada peticion HTTP exactamente una vez.
- *
- * Lo que hace:
- * 1. Busca el header "Authorization: Bearer {token}".
- * 2. Si lo encuentra, extrae y valida el token JWT.
- * 3. Si el token es valido, carga al usuario y establece su autenticacion
- *    en el SecurityContext para que Spring Security lo reconozca en esta peticion.
- *
- * RF-503: Garantiza que solo peticiones con token valido accedan a rutas protegidas.
- */
 @Component
-@RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final UserDetailsServiceImpl userDetailsService;
 
+    public JwtAuthFilter(
+            JwtUtil jwtUtil,
+            UserDetailsServiceImpl userDetailsService) {
+        this.jwtUtil = jwtUtil;
+        this.userDetailsService = userDetailsService;
+    }
+
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain)
+            throws ServletException, IOException {
 
-        final String authHeader = request.getHeader("Authorization");
+        String authHeader = request.getHeader("Authorization");
 
-        // Si no hay header o no empieza con "Bearer ", dejo pasar la peticion sin autenticar
+        // Si no hay token, Spring Security decidirá si la ruta
+        // permite el acceso o requiere autenticación.
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        final String jwt = authHeader.substring(7);
-        String email = null;
+        String jwt = authHeader.substring(7).trim();
 
-        try {
-            email = jwtUtil.extraerEmail(jwt);
-        } catch (JwtException | IllegalArgumentException e) {
-            // Token malformado o expirado: dejo que el siguiente filtro maneje el 401
+        if (jwt.isEmpty()) {
+            System.out.println("JWT rechazado: token vacío.");
+            SecurityContextHolder.clearContext();
             filterChain.doFilter(request, response);
             return;
         }
 
-        // Solo autentico si el contexto de seguridad aun no tiene una autenticacion activa
-        if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+        try {
+            String email = jwtUtil.extraerEmail(jwt);
 
-            if (jwtUtil.esTokenValido(jwt, userDetails)) {
-                UsernamePasswordAuthenticationToken authToken =
-                        new UsernamePasswordAuthenticationToken(
-                                userDetails, null, userDetails.getAuthorities()
-                        );
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+            if (email == null || email.isBlank()) {
+                System.out.println("JWT rechazado: no contiene usuario.");
+                SecurityContextHolder.clearContext();
+                filterChain.doFilter(request, response);
+                return;
             }
+
+            if (SecurityContextHolder.getContext().getAuthentication() == null) {
+
+                UserDetails userDetails =
+                        userDetailsService.loadUserByUsername(email);
+
+                if (jwtUtil.esTokenValido(jwt, userDetails)) {
+
+                    UsernamePasswordAuthenticationToken authentication =
+                            new UsernamePasswordAuthenticationToken(
+                                    userDetails,
+                                    null,
+                                    userDetails.getAuthorities()
+                            );
+
+                    authentication.setDetails(
+                            new WebAuthenticationDetailsSource()
+                                    .buildDetails(request)
+                    );
+
+                    SecurityContextHolder.getContext()
+                            .setAuthentication(authentication);
+
+                    System.out.println(
+                            "JWT validado. Usuario: " + email
+                    );
+
+                    System.out.println(
+                            "Autoridades: " + userDetails.getAuthorities()
+                    );
+
+                } else {
+                    System.out.println(
+                            "JWT no válido para el usuario: " + email
+                    );
+                    SecurityContextHolder.clearContext();
+                }
+            }
+
+        } catch (JwtException | IllegalArgumentException e) {
+            System.out.println(
+                    "JWT inválido o expirado: " + e.getClass().getSimpleName()
+            );
+            SecurityContextHolder.clearContext();
+
+        } catch (UsernameNotFoundException e) {
+            System.out.println(
+                    "JWT rechazado: el usuario no existe."
+            );
+            SecurityContextHolder.clearContext();
         }
 
         filterChain.doFilter(request, response);
