@@ -337,284 +337,384 @@
     </div>
 </div>
 </section>
-            <!-- SECCIÓN DE ASISTENCIA -->
-            <section id="asistencia" class="page-section">
-                <div class="section-heading section-heading-spaced">
-                    <div>
-                        <p class="eyebrow">CONTROL DE JORNADA</p>
-                        <h2>Asistencia del personal</h2>
-                        <p>Registra los movimientos de asistencia y consulta los registros.</p>
-                    </div>
-                </div>
 
-                <div class="two-column-grid">
-                    <!-- REGISTRAR ASISTENCIA -->
-                    <div class="content-card">
-                        <div class="card-heading">
-                            <div class="card-heading-icon card-icon-green">◷</div>
-                            <div>
-                                <h3>Registrar asistencia</h3>
-                                <p>Ingresa los datos del movimiento.</p>
-                            </div>
-                        </div>
+<!-- SECCIÓN DE ASISTENCIA -->
+<section id="asistencia" class="page-section">
 
-                        <form id="formAsistencia" class="form-stack">
-                            <div class="form-group">
-                                <label for="documentoAsistencia">Documento del trabajador</label>
-                                <input
-                                    type="text"
-                                    id="documentoAsistencia"
-                                    name="documentoIdentidad"
-                                    placeholder="Ingresa el documento"
-                                    required
-                                >
-                            </div>
-
-                            <div class="form-group">
-                                <label for="tipoAsistencia">Tipo de movimiento</label>
-                                <select id="tipoAsistencia" name="tipoAsistencia" required>
-                                    <option value="">Selecciona el movimiento</option>
-                                    <option value="ENTRADA">Entrada</option>
-                                    <option value="SALIDA">Salida</option>
-                                </select>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="horaAsistencia">Fecha y hora</label>
-                                <input
-                                    type="datetime-local"
-                                    id="horaAsistencia"
-                                    name="horaAsistencia"
-                                    required
-                                >
-                            </div>
-
-                            <div class="form-actions">
-                                <button type="submit" class="button button-primary button-full">
-                                    Registrar asistencia
-                                </button>
-                            </div>
-
-                            <div id="resultadoAsistencia" class="form-message" aria-live="polite"></div>
-                        </form>
-                    </div>
-
-                    <!-- CONSULTAR ASISTENCIA -->
-                    <div class="content-card">
-                        <div class="card-heading">
-                            <div class="card-heading-icon card-icon-purple">⌕</div>
-                            <div>
-                                <h3>Consultar asistencia</h3>
-                                <p>Busca los registros de un trabajador.</p>
-                            </div>
-                        </div>
-
-                        <form id="formConsultaAsistencia" class="form-stack">
-                            <div class="form-group">
-                                <label for="consultaTrabajadorId">ID del trabajador</label>
-                                <input
-                                    type="number"
-                                    id="consultaTrabajadorId"
-                                    name="trabajadorId"
-                                    placeholder="Ej. 1"
-                                    min="1"
-                                    required
-                                >
-                            </div>
-
-                            <div class="form-actions">
-                                <button type="submit" class="button button-primary button-full">
-                                    Consultar registros
-                                </button>
-                            </div>
-
-                            <div
-                                id="resultadoConsultaAsistencia"
-                                class="result-panel"
-                                aria-live="polite"
-                            >
-                                <div class="result-placeholder">
-                                    <span class="placeholder-icon">▤</span>
-                                    <p>Los resultados de la consulta aparecerán aquí.</p>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </section>
-
-            <!-- SECCIÓN DE DOCUMENTOS -->
-            <section id="documentos" class="page-section">
-                <div class="section-heading section-heading-spaced">
-                    <div>
-                        <p class="eyebrow">ARCHIVO DEL PERSONAL</p>
-                        <h2>Documentos de trabajadores</h2>
-                        <p>Organiza los documentos y revisa sus fechas de vencimiento.</p>
-                    </div>
-                </div>
-
-                <!-- FORMULARIO DE DOCUMENTOS -->
-                <div class="content-card">
-                    <div class="card-heading">
-                        <div class="card-heading-icon card-icon-orange">▤</div>
-                        <div>
-                            <h3>Registrar documento</h3>
-                            <p>Asocia un documento con el trabajador correspondiente.</p>
-                        </div>
-                    </div>
-
-                    <form id="formDocumento" class="form-grid">
-                        <div class="form-group">
-                            <label for="documentoIdentidadDocumento">
-                                Documento de identidad del trabajador
-                            </label>
-                            <input
-                                type="text"
-                                id="documentoIdentidadDocumento"
-                                name="documentoIdentidad"
-                                placeholder="Número de documento"
-                                required
-                            >
-                        </div>
-
-                        <div class="form-group">
-                            <label for="tipoDocumento">Tipo de documento</label>
-                            <select id="tipoDocumento" name="tipoDocumento" required>
-                                <option value="">Selecciona un tipo</option>
-                                <option value="Contrato">Contrato</option>
-                                <option value="DNI">DNI</option>
-                                <option value="CV">Currículum vitae</option>
-                                <option value="Certificado">Certificado</option>
-                                <option value="Constancia">Constancia</option>
-                                <option value="Otro">Otro</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="fechaVencimientoDocumento">Fecha de vencimiento</label>
-                            <input
-                                type="date"
-                                id="fechaVencimientoDocumento"
-                                name="fechaVencimiento"
-                            >
-                            <small class="field-help">
-                                Si el documento no vence, puedes dejar este campo vacío.
-                            </small>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="archivoDocumento">Archivo del documento</label>
-                            <input
-                                type="file"
-                                id="archivoDocumento"
-                                name="archivoDocumento"
-                                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                            >
-                            <small class="field-help">
-                                Formatos permitidos: PDF, Word e imágenes.
-                            </small>
-                        </div>
-
-                        <div class="form-actions form-actions-full">
-                            <button type="reset" class="button button-secondary">
-                                Limpiar
-                            </button>
-
-                            <button
-                                type="submit"
-                                id="btnRegistrarDocumento"
-                                class="button button-primary"
-                            >
-                                <span>＋</span>
-                                Registrar documento
-                            </button>
-                        </div>
-
-                        <div
-                            id="mensajeDocumento"
-                            class="form-message form-actions-full"
-                            aria-live="polite"
-                        ></div>
-                    </form>
-                </div>
-
-                <!-- DOCUMENTOS REGISTRADOS -->
-                <div class="content-card">
-                    <div class="card-heading card-heading-between">
-                        <div>
-                            <h3>Documentos registrados</h3>
-                            <p>Documentación asociada al personal de la empresa.</p>
-                        </div>
-
-                        <span class="section-tag">Archivo digital</span>
-                    </div>
-
-                    <div class="table-responsive">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Trabajador</th>
-                                    <th>Tipo de documento</th>
-                                    <th>Fecha de vencimiento</th>
-                                    <th>Archivo</th>
-                                    <th>Estado</th>
-                                </tr>
-                            </thead>
-
-                            <tbody id="listaDocumentos">
-                                <tr>
-                                    <td colspan="5" class="empty-state">
-                                        Los documentos registrados aparecerán aquí.
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- DOCUMENTOS POR VENCER -->
-                <div class="content-card expiration-card">
-                    <div class="card-heading">
-                        <div class="card-heading-icon card-icon-orange">!</div>
-                        <div>
-                            <h3>Documentos por vencer</h3>
-                            <p>Consulta los documentos que requieren atención.</p>
-                        </div>
-                    </div>
-
-                    <div class="table-responsive">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Trabajador</th>
-                                    <th>Documento</th>
-                                    <th>Fecha de vencimiento</th>
-                                    <th>Estado</th>
-                                </tr>
-                            </thead>
-
-                            <tbody id="listaDocumentosPorVencer">
-                                <tr>
-                                    <td colspan="4" class="empty-state">
-                                        No hay información de vencimientos para mostrar todavía.
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </section>
-
-            <!-- PIE DE PÁGINA -->
-            <footer class="page-footer">
-                <span><strong>SEA RR. HH.</strong> · Sistema de Gestión Empresarial</span>
-                <span>Gestión organizada del talento humano</span>
-            </footer>
-        </main>
+    <div class="section-heading section-heading-spaced">
+        <div>
+            <p class="eyebrow">CONTROL DE JORNADA</p>
+            <h2>Asistencia del personal</h2>
+            <p>
+                Consulta y revisa las asistencias registradas
+                de los trabajadores.
+            </p>
+        </div>
     </div>
 
-    <!-- JavaScript existente del proyecto -->
-    <script src="js/app.js"></script>
-    <script src="js/navegacion-personal.js"></script>
+    <!-- RESUMEN DE ASISTENCIAS -->
+    <div class="stats-grid">
+
+        <article class="stat-card">
+            <div class="stat-icon stat-icon-blue">▤</div>
+            <div class="stat-information">
+                <p>Total de registros</p>
+                <h2 id="totalAsistencias">0</h2>
+                <span class="stat-note">Registros encontrados</span>
+            </div>
+        </article>
+
+        <article class="stat-card">
+            <div class="stat-icon stat-icon-green">✓</div>
+            <div class="stat-information">
+                <p>Entradas</p>
+                <h2 id="totalEntradas">0</h2>
+                <span class="stat-note">Marcaciones de entrada</span>
+            </div>
+        </article>
+
+        <article class="stat-card">
+            <div class="stat-icon stat-icon-purple">◷</div>
+            <div class="stat-information">
+                <p>Salidas</p>
+                <h2 id="totalSalidas">0</h2>
+                <span class="stat-note">Marcaciones de salida</span>
+            </div>
+        </article>
+
+    </div>
+
+    <!-- FILTROS DE ASISTENCIA -->
+    <div class="content-card">
+
+        <div class="card-heading">
+            <div class="card-heading-icon card-icon-purple">⌕</div>
+            <div>
+                <h3>Filtrar asistencias</h3>
+                <p>
+                    Busca por nombre, DNI, movimiento
+                    o rango de fechas.
+                </p>
+            </div>
+        </div>
+
+        <form id="formFiltrosAsistencia" class="form-grid">
+
+            <div class="form-group">
+                <label for="filtroTrabajadorAsistencia">
+                    Trabajador o DNI
+                </label>
+                <input
+                    type="search"
+                    id="filtroTrabajadorAsistencia"
+                    placeholder="Ingresa nombre o DNI"
+                    autocomplete="off"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="filtroTipoAsistencia">
+                    Tipo de movimiento
+                </label>
+                <select id="filtroTipoAsistencia">
+                    <option value="">Todos los movimientos</option>
+                    <option value="ENTRADA">Entrada</option>
+                    <option value="SALIDA">Salida</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="filtroFechaDesde">Fecha desde</label>
+                <input type="date" id="filtroFechaDesde">
+            </div>
+
+            <div class="form-group">
+                <label for="filtroFechaHasta">Fecha hasta</label>
+                <input type="date" id="filtroFechaHasta">
+            </div>
+
+            <div class="form-actions form-actions-full">
+
+                <button
+                    type="reset"
+                    class="button button-secondary"
+                    id="btnLimpiarFiltrosAsistencia">
+                    Limpiar filtros
+                </button>
+
+                <button
+                    type="submit"
+                    class="button button-primary"
+                    id="btnConsultarAsistencias">
+                    Consultar asistencias
+                </button>
+
+            </div>
+
+        </form>
+    </div>
+
+    <!-- HISTORIAL: VACÍO HASTA CONSULTAR -->
+    <div class="content-card">
+
+        <div class="card-heading card-heading-between">
+            <div>
+                <h3>Historial de asistencias</h3>
+                <p>Los resultados aparecerán al realizar una consulta.</p>
+            </div>
+            <span class="section-tag">Solo consulta</span>
+        </div>
+
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Trabajador</th>
+                        <th>Documento</th>
+                        <th>Fecha</th>
+                        <th>Hora</th>
+                        <th>Movimiento</th>
+                    </tr>
+                </thead>
+
+                <tbody id="listaAsistencias">
+                    <tr>
+                        <td colspan="6" class="empty-state">
+                            Ingresa los filtros y pulsa
+                            «Consultar asistencias».
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="table-footer">
+            <span id="cantidadAsistencias">0 registros</span>
+            <span>SEA RR. HH.</span>
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- SECCIÓN DE DOCUMENTOS -->
+<section id="documentos" class="page-section">
+
+    <div class="section-heading section-heading-spaced">
+        <div>
+            <p class="eyebrow">ARCHIVO DEL PERSONAL</p>
+            <h2>Documentos de trabajadores</h2>
+            <p>Organiza los documentos y revisa sus fechas de vencimiento.</p>
+        </div>
+    </div>
+
+    <!-- FORMULARIO DE DOCUMENTOS -->
+    <div class="content-card">
+        <div class="card-heading">
+            <div class="card-heading-icon card-icon-orange">▤</div>
+            <div>
+                <h3>Registrar documento</h3>
+                <p>Asocia un documento con el trabajador correspondiente.</p>
+            </div>
+        </div>
+
+        <form id="formDocumento" class="form-grid">
+
+            <div class="form-group">
+                <label for="documentoIdentidadDocumento">
+                    DNI del trabajador
+                </label>
+                <input
+                    type="text"
+                    id="documentoIdentidadDocumento"
+                    name="documentoIdentidad"
+                    placeholder="Número de documento"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="tipoDocumento">Tipo de documento</label>
+                <select id="tipoDocumento" name="tipoDocumento" required>
+                    <option value="">Selecciona un tipo</option>
+                    <option value="Contrato">Contrato</option>
+                    <option value="DNI">DNI</option>
+                    <option value="CV">Currículum vitae</option>
+                    <option value="Certificado">Certificado</option>
+                    <option value="Constancia">Constancia</option>
+                    <option value="Otro">Otro</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="fechaVencimientoDocumento">
+                    Fecha de vencimiento
+                </label>
+                <input
+                    type="date"
+                    id="fechaVencimientoDocumento"
+                    name="fechaVencimiento"
+                >
+                <small class="field-help">
+                    Si el documento no vence, deja este campo vacío.
+                </small>
+            </div>
+
+            <div class="form-group">
+                <label for="archivoDocumento">Archivo del documento</label>
+                <input
+                    type="file"
+                    id="archivoDocumento"
+                    name="archivoDocumento"
+                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                    required
+                >
+                <small class="field-help">
+                    Formatos permitidos: PDF, Word e imágenes. Máximo 10 MB.
+                </small>
+            </div>
+
+            <div class="form-actions form-actions-full">
+                <button type="reset" class="button button-secondary">
+                    Limpiar
+                </button>
+
+                <button
+                    type="submit"
+                    id="btnRegistrarDocumento"
+                    class="button button-primary"
+                >
+                    <span>＋</span>
+                    Registrar documento
+                </button>
+            </div>
+
+            <div
+                id="mensajeDocumento"
+                class="form-message form-actions-full"
+                aria-live="polite"
+            ></div>
+        </form>
+    </div>
+
+    <!-- DOCUMENTOS REGISTRADOS Y BUSCADOR -->
+    <div class="content-card">
+
+        <div class="card-heading card-heading-between">
+            <div>
+                <h3>Documentos registrados</h3>
+                <p>Busca los documentos de un trabajador mediante su DNI.</p>
+            </div>
+
+            <span class="section-tag">Archivo digital</span>
+        </div>
+
+        <!-- BUSCADOR POR DNI -->
+        <div class="form-group">
+            <label for="dniBuscarDocumentos">
+                Buscar por DNI del trabajador
+            </label>
+
+            <div class="busqueda-documentos">
+                <input
+                    type="text"
+                    id="dniBuscarDocumentos"
+                    placeholder="Ingresa el DNI"
+                    maxlength="15"
+                >
+
+                <button
+                    type="button"
+                    id="btnBuscarDocumentos"
+                    class="button button-primary"
+                >
+                    Buscar
+                </button>
+
+                <button
+                    type="button"
+                    id="btnLimpiarBusquedaDocumentos"
+                    class="button button-secondary"
+                >
+                    Limpiar búsqueda
+                </button>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Tipo de documento</th>
+                        <th>ID trabajador</th>
+                        <th>Fecha de vencimiento</th>
+                        <th>Estado</th>
+                        <th>Archivo</th>
+                    </tr>
+                </thead>
+
+                <tbody id="listaDocumentos">
+                    <tr>
+                        <td colspan="6" class="empty-state">
+                            Ingresa el DNI para consultar sus documentos.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- DOCUMENTOS POR VENCER -->
+    <div class="content-card expiration-card">
+
+        <div class="card-heading">
+            <div class="card-heading-icon card-icon-orange">!</div>
+            <div>
+                <h3>Documentos por vencer</h3>
+                <p>Documentos cuya fecha de vencimiento está dentro de los próximos 30 días.</p>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Documento</th>
+                        <th>ID trabajador</th>
+                        <th>Fecha de vencimiento</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+
+                <tbody id="listaDocumentosPorVencer">
+                    <tr>
+                        <td colspan="5" class="empty-state">
+                            Cargando documentos por vencer...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</section>
+
+<!-- PIE DE PÁGINA -->
+<footer class="page-footer">
+    <span><strong>SEA RR. HH.</strong> · Sistema de Gestión Empresarial</span>
+    <span>Gestión organizada del talento humano</span>
+</footer>
+
+</main>
+</div>
+
+<!-- JavaScript del proyecto -->
+<script src="js/app.js"></script>
+<script src="js/navegacion-personal.js"></script>
+
 </body>
 </html>
