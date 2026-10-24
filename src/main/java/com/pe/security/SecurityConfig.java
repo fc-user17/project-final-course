@@ -25,16 +25,18 @@ import java.util.List;
 
 /**
  * Autor: VLM
- * Configuracion central de Spring Security para el modulo de autenticacion y control de acceso (RBAC).
+ * Configuracion central de Spring Security para el modulo de autenticacion y
+ * control de acceso (RBAC).
  *
  * Decisiones de diseno:
- * - La API es stateless: no se usan sesiones HTTP, cada peticion se autentica con JWT.
+ * - La API es stateless: no se usan sesiones HTTP, cada peticion se autentica
+ * con JWT.
  * - Soporte CORS completo para comunicacion con el frontend.
  * - Se deshabilita CSRF porque no hay formularios web, solo endpoints REST.
  * - Las rutas /api/auth/** son publicas (login y registro no requieren token).
  * - El resto de rutas requiere autenticacion valida.
  * - Se habilita @PreAuthorize con @EnableMethodSecurity para proteger
- *   metodos individuales por rol en otros modulos.
+ * metodos individuales por rol en otros modulos.
  *
  * RF-503: Control de acceso basado en roles (RBAC).
  */
@@ -60,8 +62,7 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider provider =
-                new DaoAuthenticationProvider(userDetailsService);
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
 
         provider.setPasswordEncoder(passwordEncoder());
         return provider;
@@ -87,8 +88,7 @@ public class SecurityConfig {
                 "http://127.0.0.1:5500",
                 "http://localhost:5500",
                 "http://localhost:8080",
-                "http://localhost:3000"
-        ));
+                "http://localhost:3000"));
 
         configuracion.setAllowedMethods(List.of(
                 "GET",
@@ -96,20 +96,17 @@ public class SecurityConfig {
                 "PUT",
                 "DELETE",
                 "PATCH",
-                "OPTIONS"
-        ));
+                "OPTIONS"));
 
         configuracion.setAllowedHeaders(List.of(
                 "Authorization",
                 "Content-Type",
                 "Accept",
-                "X-Requested-With"
-        ));
+                "X-Requested-With"));
 
-        configuracion.setAllowCredentials(false);
+        configuracion.setAllowCredentials(true);
 
-        UrlBasedCorsConfigurationSource origen =
-                new UrlBasedCorsConfigurationSource();
+        UrlBasedCorsConfigurationSource origen = new UrlBasedCorsConfigurationSource();
 
         origen.registerCorsConfiguration("/**", configuracion);
 
@@ -121,28 +118,21 @@ public class SecurityConfig {
             HttpSecurity http) throws Exception {
 
         http
-            .cors(cors ->
-                cors.configurationSource(corsConfigurationSource())
-            )
-            .csrf(AbstractHttpConfigurer::disable)
-            .sessionManagement(session ->
-                session.sessionCreationPolicy(
-                    SessionCreationPolicy.STATELESS
-                )
-            )
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                .requestMatchers("/api/personal/**").hasAnyRole("ADMIN", "RRHH")
-                .requestMatchers("/api/asistencia/**").authenticated()
-                .anyRequest().authenticated()
-            )
-            .authenticationProvider(authenticationProvider())
-            .addFilterBefore(
-                jwtAuthFilter,
-                UsernamePasswordAuthenticationFilter.class
-            );
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(session -> session.sessionCreationPolicy(
+                        SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/personal/**").hasAnyRole("ADMIN", "RRHH")
+                        .requestMatchers("/api/asistencia/**").authenticated()
+                        .anyRequest().authenticated())
+                .authenticationProvider(authenticationProvider())
+                .addFilterBefore(
+                        jwtAuthFilter,
+                        UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

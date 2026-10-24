@@ -2,7 +2,7 @@
  * ============================================================================
  * Autor: VLM
  * Descripción: Módulo central de Autenticación y Control de Acceso Basado en Roles (RBAC).
- * 
+ *
  * Funcionalidades:
  * - Comunicación con el endpoint POST /api/auth/login de Spring Boot.
  * - Almacenamiento seguro del token JWT, rol y datos de usuario en localStorage.
@@ -14,8 +14,8 @@
  */
 
 (function () {
-    // Configuración de la URL del backend
-    window.API_URL = window.API_URL || "http://localhost:8080";
+    // Configuración de la URL del backend (por defecto server.port=8081)
+    window.API_URL = window.API_URL || (window.location.port === "8081" ? "" : "http://localhost:8081");
 
     // Constantes de almacenamiento
     const STORAGE_KEYS = {
@@ -36,9 +36,7 @@
         "proveedores.html": ["ADMIN", "FINANZAS"],
         "compras.html": ["ADMIN", "FINANZAS"],
         "ventas.html": ["ADMIN", "FINANZAS"],
-        "operaciones.html": ["ADMIN", "TECNICO"],
-        "almacen.html": ["ADMIN", "TECNICO"],
-        "asistencia-trabajador.html": ["ADMIN", "RRHH", "TECNICO", "FINANZAS"]
+        "operaciones.html": ["ADMIN", "TECNICO"]
     };
 
     // Mapeo de tarjetas de módulos en index.html con sus roles permitidos
@@ -48,9 +46,7 @@
         "ventas": ["ADMIN", "FINANZAS"],
         "pagos": ["ADMIN", "FINANZAS"],
         "proveedores": ["ADMIN", "FINANZAS"],
-        "operaciones": ["ADMIN", "TECNICO"],
-        "almacen": ["ADMIN", "TECNICO"],
-        "asistencia": ["ADMIN", "RRHH", "TECNICO", "FINANZAS"]
+        "operaciones": ["ADMIN", "TECNICO"]
     };
 
     /**
@@ -59,8 +55,8 @@
     window.auth = {
         /**
          * Envía las credenciales al backend para autenticar al usuario.
-         * @param {string} email 
-         * @param {string} password 
+         * @param {string} email
+         * @param {string} password
          * @returns {Promise<{success: boolean, message?: string, user?: object}>}
          */
         async login(email, password) {
@@ -95,11 +91,6 @@
                 localStorage.setItem(STORAGE_KEYS.ROLE, data.rol);
                 localStorage.setItem(STORAGE_KEYS.TYPE, data.tipo || "Bearer");
 
-                // Compatibilidad con sessionStorage usado en develop
-                sessionStorage.setItem("autenticacion", data.token);
-                sessionStorage.setItem("usuario", data.email);
-                sessionStorage.setItem("rol", data.rol);
-
                 return {
                     success: true,
                     user: {
@@ -122,11 +113,6 @@
             localStorage.removeItem(STORAGE_KEYS.EMAIL);
             localStorage.removeItem(STORAGE_KEYS.ROLE);
             localStorage.removeItem(STORAGE_KEYS.TYPE);
-
-            sessionStorage.removeItem("autenticacion");
-            sessionStorage.removeItem("usuario");
-            sessionStorage.removeItem("rol");
-
             window.location.href = "login.html";
         },
 
@@ -134,7 +120,9 @@
          * Retorna el token JWT actual o null.
          */
         getToken() {
-            return localStorage.getItem(STORAGE_KEYS.TOKEN);
+            return localStorage.getItem(STORAGE_KEYS.TOKEN) 
+                || sessionStorage.getItem("autenticacion")
+                || sessionStorage.getItem(STORAGE_KEYS.TOKEN);
         },
 
         /**
@@ -185,7 +173,7 @@
 
         // Si la petición va dirigida a nuestra API y no es el endpoint de login/registro
         const urlStr = typeof resource === "string" ? resource : (resource && resource.url ? resource.url : "");
-        const isBackendCall = urlStr.includes(window.API_URL) || urlStr.startsWith("/api/");
+        const isBackendCall = urlStr.includes(window.API_URL) || urlStr.includes(":8081") || urlStr.includes(":8080") || urlStr.startsWith("/api/") || urlStr.includes("/api/v1/");
         const isAuthEndpoint = urlStr.includes("/api/auth/login") || urlStr.includes("/api/auth/registro");
 
         if (token && isBackendCall && !isAuthEndpoint) {
