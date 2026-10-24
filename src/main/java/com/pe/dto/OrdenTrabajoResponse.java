@@ -14,10 +14,6 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 public class OrdenTrabajoResponse {
-
-    public static Object builder() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
     private Long id;
     private String codigo;
     private Long tipoMantenimientoId;
