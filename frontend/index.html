@@ -1,0 +1,136 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Sistema de Gestión Empresarial</title>
+
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+</head>
+
+<body>
+
+    <header>
+        <h1>Sistema de Gestión Empresarial</h1>
+        <p>Plataforma de administración empresarial</p>
+    </header>
+
+    <nav aria-label="Navegación principal">
+        <a href="#inicio">Inicio</a>
+        <a href="asistencia-trabajador.html">Asistencia</a>
+        <a href="operaciones.html">Operaciones</a>
+        <a href="RRHH.html">RRHH</a>
+        <a href="almacen.html">Almacén</a>
+    </nav>
+
+    <main>
+
+        <!-- Bienvenida -->
+        <section id="inicio" class="bienvenida">
+
+            <div class="imagen-empresa">
+                <img
+                    src="images/empresa.jpg"
+                    alt="Imagen representativa del sistema de gestión empresarial">
+            </div>
+
+            <div class="bienvenida-contenido">
+                <h2>Bienvenido al sistema</h2>
+
+                <p>
+                    Administra las principales áreas de la empresa
+                    desde una sola plataforma.
+                </p>
+
+                <p>
+                    Gestiona el personal, las operaciones, las asistencias
+                    y el inventario de manera organizada.
+                </p>
+            </div>
+
+        </section>
+
+        <!-- Módulos principales -->
+        <section id="modulos">
+
+            <h2>Módulos del sistema</h2>
+
+            <div class="tarjetas">
+
+                <!-- Operaciones -->
+                <article class="tarjeta" id="operaciones">
+                    <div class="icono-modulo" aria-hidden="true">⚙️</div>
+
+                    <h3>Operaciones</h3>
+
+                    <p>
+                        Gestión de mantenimiento, órdenes de trabajo
+                        y asignación de recursos.
+                    </p>
+
+                    <a href="operaciones.html">Ingresar</a>
+                </article>
+
+                <!-- Recursos Humanos -->
+                <article class="tarjeta" id="personal">
+                    <div class="icono-modulo" aria-hidden="true">👥</div>
+
+                    <h3>Recursos Humanos</h3>
+
+                    <p>
+                        Administración de trabajadores y documentos
+                        del personal.
+                    </p>
+
+                    <a href="RRHH.html">Ingresar</a>
+                </article>
+
+                <!-- Asistencia -->
+                <article class="tarjeta" id="asistencia">
+                    <div class="icono-modulo" aria-hidden="true">📸</div>
+
+                    <h3>Asistencia de trabajadores</h3>
+
+                    <p>
+                        Registra entradas y salidas con fotografía
+                        y confirmación antes de marcar.
+                    </p>
+
+                    <a href="asistencia-trabajador.html">
+                        Registrar asistencia
+                    </a>
+                </article>
+
+                <!-- Almacén -->
+                <article class="tarjeta" id="almacen">
+                    <div class="icono-modulo" aria-hidden="true">📦</div>
+
+                    <h3>Almacén</h3>
+
+                    <p>
+                        Consulta productos, existencias
+                        y movimientos de inventario.
+                    </p>
+
+                    <a href="almacen.html">Ingresar</a>
+                </article>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <footer>
+        <p>Sistema de Gestión Empresarial</p>
+    </footer>
+
+    <script src="js/app.js"></script>
+
+</body>
+</html>
