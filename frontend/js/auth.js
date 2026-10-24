@@ -36,7 +36,9 @@
         "proveedores.html": ["ADMIN", "FINANZAS"],
         "compras.html": ["ADMIN", "FINANZAS"],
         "ventas.html": ["ADMIN", "FINANZAS"],
-        "operaciones.html": ["ADMIN", "TECNICO"]
+        "operaciones.html": ["ADMIN", "TECNICO"],
+        "almacen.html": ["ADMIN", "TECNICO"],
+        "asistencia-trabajador.html": ["ADMIN", "RRHH", "TECNICO", "FINANZAS"]
     };
 
     // Mapeo de tarjetas de módulos en index.html con sus roles permitidos
@@ -46,7 +48,9 @@
         "ventas": ["ADMIN", "FINANZAS"],
         "pagos": ["ADMIN", "FINANZAS"],
         "proveedores": ["ADMIN", "FINANZAS"],
-        "operaciones": ["ADMIN", "TECNICO"]
+        "operaciones": ["ADMIN", "TECNICO"],
+        "almacen": ["ADMIN", "TECNICO"],
+        "asistencia": ["ADMIN", "RRHH", "TECNICO", "FINANZAS"]
     };
 
     /**
@@ -91,6 +95,11 @@
                 localStorage.setItem(STORAGE_KEYS.ROLE, data.rol);
                 localStorage.setItem(STORAGE_KEYS.TYPE, data.tipo || "Bearer");
 
+                // Compatibilidad con sessionStorage usado en develop
+                sessionStorage.setItem("autenticacion", data.token);
+                sessionStorage.setItem("usuario", data.email);
+                sessionStorage.setItem("rol", data.rol);
+
                 return {
                     success: true,
                     user: {
@@ -113,6 +122,11 @@
             localStorage.removeItem(STORAGE_KEYS.EMAIL);
             localStorage.removeItem(STORAGE_KEYS.ROLE);
             localStorage.removeItem(STORAGE_KEYS.TYPE);
+
+            sessionStorage.removeItem("autenticacion");
+            sessionStorage.removeItem("usuario");
+            sessionStorage.removeItem("rol");
+
             window.location.href = "login.html";
         },
 

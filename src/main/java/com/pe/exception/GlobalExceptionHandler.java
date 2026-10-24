@@ -28,6 +28,12 @@ public class GlobalExceptionHandler {
         return buildResponse(HttpStatus.CONFLICT, ex.getMessage());
     }
 
+    /** RF-04: técnico ya ocupado en esa fecha. */
+    @ExceptionHandler(TecnicoNoDisponibleException.class)
+    public ResponseEntity<Map<String, Object>> handleTecnicoNoDisponible(TecnicoNoDisponibleException ex) {
+        return buildResponse(HttpStatus.CONFLICT, ex.getMessage());
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidation(MethodArgumentNotValidException ex) {
         Map<String, String> errores = new HashMap<>();
