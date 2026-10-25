@@ -16,8 +16,10 @@ function obtenerHeadersAutenticados(headersAdicionales = {}) {
     return headers;
 }
 
+
 async function fetchAutenticado(url, opciones = {}) {
     const headers = obtenerHeadersAutenticados(opciones.headers || {});
+    const token = sessionStorage.getItem("autenticacion");
 
     if (
         opciones.body &&
@@ -27,17 +29,26 @@ async function fetchAutenticado(url, opciones = {}) {
         headers.set("Content-Type", "application/json");
     }
 
+    console.log("URL solicitada:", url);
+    console.log("Método:", opciones.method || "GET");
+    console.log("Token disponible:", Boolean(token));
+    console.log("Authorization enviado:", headers.has("Authorization"));
+
     const respuesta = await fetch(url, {
         ...opciones,
         headers
     });
 
+    console.log("Estado de respuesta:", respuesta.status);
+
     if (respuesta.status === 401 || respuesta.status === 403) {
-        console.error("Acceso rechazado:", respuesta.status, url);
+        const detalle = await respuesta.clone().text();
+        console.error("Acceso rechazado:", respuesta.status, detalle);
     }
 
     return respuesta;
 }
+
 
 
 /* =========================================
@@ -108,7 +119,7 @@ async function cargarTrabajadores() {
                 editarTrabajador(trabajador);
             });
 
-      
+
             const botonEstado = document.createElement("button");
             botonEstado.type = "button";
             botonEstado.className = "accion-estado";
@@ -493,392 +504,745 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 
-/* ASISTENCIA - CONSULTAR */
+/* ASISTENCIA - CONSULTA Y FILTROS DE RR. HH. */
 
-const formularioConsultaAsistencia =
-    document.querySelector("#formConsultaAsistencia");
+const filtroTrabajador = document.querySelector(
+    "#filtroTrabajadorAsistencia"
+);
 
-if (formularioConsultaAsistencia) {
+const filtroTipo = document.querySelector(
+    "#filtroTipoAsistencia"
+);
 
-    formularioConsultaAsistencia.addEventListener(
-        "submit",
-        async function (event) {
+const filtroFechaDesde = document.querySelector(
+    "#filtroFechaDesde"
+);
 
-            event.preventDefault();
+const filtroFechaHasta = document.querySelector(
+    "#filtroFechaHasta"
+);
 
-            const trabajadorId =
-                document.querySelector(
-                    "#consultaTrabajadorId"
-                ).value;
+const formularioFiltros = document.querySelector(
+    "#formFiltrosAsistencia"
+);
 
-            const resultado =
-                document.querySelector(
-                    "#resultadoConsultaAsistencia"
-                );
+const listaAsistencias = document.querySelector(
+    "#listaAsistencias"
+);
 
-            try {
+const totalAsistencias = document.querySelector(
+    "#totalAsistencias"
+);
 
-                const respuesta = await fetchAutenticado(
-                    `${API_URL}/api/asistencia/trabajador/${trabajadorId}`
-                );
+const totalEntradas = document.querySelector(
+    "#totalEntradas"
+);
 
-                if (!respuesta.ok) {
+const totalSalidas = document.querySelector(
+    "#totalSalidas"
+);
 
-                    throw new Error(
-                        "Error al consultar la asistencia"
-                    );
-                }
+const cantidadAsistencias = document.querySelector(
+    "#cantidadAsistencias"
+);
 
-                const asistencias =
-                    await respuesta.json();
+let todasLasAsistencias = [];
 
-                if (asistencias.length === 0) {
 
-                    resultado.innerHTML = `
-                        <article>
-                            <p>
-                                No hay registros de asistencia
-                                para este trabajador.
-                            </p>
-                        </article>
-                    `;
+/* CARGAR TODAS LAS ASISTENCIAS */
 
-                    return;
-                }
+async function cargarTodasLasAsistencias() {
 
-                let contenido = `
-                    <article>
+    if (!listaAsistencias) return;
 
-                        <h3>
-                            Registros de asistencia
-                        </h3>
-
-                        <table>
-
-                            <thead>
-
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Tipo</th>
-                                    <th>Fecha y hora</th>
-                                </tr>
-
-                            </thead>
-
-                            <tbody>
-                `;
-
-                asistencias.forEach(function (asistencia) {
-
-                    contenido += `
-                        <tr>
-                            <td>${asistencia.id}</td>
-
-                            <td>
-                                ${asistencia.tipo}
-                            </td>
-
-                            <td>
-                                ${new Date(
-                                    asistencia.fechaHora
-                                ).toLocaleString("es-PE")}
-                            </td>
-                        </tr>
-                    `;
-
-                });
-
-                contenido += `
-                            </tbody>
-
-                        </table>
-
-                    </article>
-                `;
-
-                resultado.innerHTML = contenido;
-
-            } catch (error) {
-
-                console.error(error);
-
-                resultado.innerHTML = `
-                    <article>
-                        <p>
-                            No se pudo consultar
-                            la asistencia.
-                        </p>
-                    </article>
-                `;
-            }
-
-        }
-    );
-}
-
-/* DOCUMENTOS - REGISTRAR */
-
-const formularioDocumento =
-    document.querySelector("#formDocumento");
-
-if (formularioDocumento) {
-
-    formularioDocumento.addEventListener(
-        "submit",
-        async function (event) {
-
-            event.preventDefault();
-
-            const mensaje =
-                document.querySelector("#mensajeDocumento");
-
-            const boton =
-                document.querySelector("#btnRegistrarDocumento");
-
-            const archivo =
-                document.querySelector("#archivoDocumento").files[0];
-
-            if (!archivo) {
-                alert("Selecciona el archivo del documento.");
-                return;
-            }
-
-            const datos = new FormData();
-
-            datos.append(
-                "documentoIdentidad",
-                document.querySelector(
-                    "#documentoIdentidadDocumento"
-                ).value.trim()
-            );
-
-            datos.append(
-                "tipo",
-                document.querySelector("#tipoDocumento").value
-            );
-
-            datos.append(
-                "fechaVencimiento",
-                document.querySelector(
-                    "#fechaVencimientoDocumento"
-                ).value
-            );
-
-            datos.append("archivoDocumento", archivo);
-
-            try {
-
-                if (boton) {
-                    boton.disabled = true;
-                    boton.textContent = "Registrando...";
-                }
-
-                if (mensaje) {
-                    mensaje.textContent =
-                        "Registrando documento...";
-                }
-
-                const respuesta = await fetchAutenticado(
-                    `${API_URL}/api/documentos`,
-                    {
-                        method: "POST",
-                        body: datos
-                    }
-                );
-
-                if (!respuesta.ok) {
-
-                    const detalle = await respuesta.text();
-
-                    console.error("Error de API:", detalle);
-
-                    throw new Error(
-                        detalle || "No se pudo registrar el documento."
-                    );
-                }
-
-                const documentoCreado =
-                    await respuesta.json();
-
-                console.log(
-                    "Documento creado:",
-                    documentoCreado
-                );
-
-                alert("Documento y archivo registrados correctamente.");
-
-                formularioDocumento.reset();
-
-                await cargarDocumentos();
-                await cargarDocumentosPorVencer();
-
-                if (mensaje) {
-                    mensaje.textContent =
-                        "Documento registrado correctamente.";
-                }
-
-            } catch (error) {
-
-                console.error(error);
-
-                if (mensaje) {
-                    mensaje.textContent =
-                        "Error: no se pudo registrar el documento.";
-                }
-
-                alert(
-                    "No se pudo registrar el documento. " +
-                    "Revisa la consola para conocer el error."
-                );
-
-            } finally {
-
-                if (boton) {
-                    boton.disabled = false;
-                    boton.textContent = "Registrar documento";
-                }
-            }
-        }
-    );
-}
-
-
-/*  DOCUMENTOS - LISTAR */
-
-async function cargarDocumentos() {
-
-    const lista =
-        document.querySelector("#listaDocumentos");
-
-    if (!lista) {
-        return;
-    }
+    listaAsistencias.innerHTML = `
+        <tr>
+            <td colspan="6" class="empty-state">
+                Cargando asistencias...
+            </td>
+        </tr>
+    `;
 
     try {
 
-        const respuesta =
-            await fetchAutenticado(
-                `${API_URL}/api/documentos`
-            );
+        /*
+         * IMPORTANTE:
+         * Este endpoint debe existir en tu backend.
+         * Si tienes otro endpoint para listar todas las
+         * asistencias, reemplaza esta URL.
+         */
+        const respuesta = await fetchAutenticado(
+            `${API_URL}/api/asistencia`
+        );
 
         if (!respuesta.ok) {
-
             throw new Error(
-                "Error al obtener los documentos"
+                "No se pudieron cargar las asistencias."
             );
         }
+        const datos = await respuesta.json();
 
-        const documentos =
-            await respuesta.json();
+        const asistencias = Array.isArray(datos)
+            ? datos
+            : Array.isArray(datos.content)
+                ? datos.content
+                : [];
 
-        lista.innerHTML = "";
+        const respuestaPersonal = await fetchAutenticado(
+            `${API_URL}/api/personal`
+        );
 
-        if (documentos.length === 0) {
-
-            lista.innerHTML = `
-                <tr>
-                    <td colspan="5">
-                        No hay documentos registrados.
-                    </td>
-                </tr>
-            `;
-
-            return;
+        if (!respuestaPersonal.ok) {
+            throw new Error("No se pudo obtener la información del personal.");
         }
 
-        documentos.forEach(function (documento) {
+        const trabajadores = await respuestaPersonal.json();
 
-            const fila =
-                document.createElement("tr");
+        todasLasAsistencias = asistencias.map(asistencia => {
+            const trabajador = trabajadores.find(
+                t => Number(t.id) === Number(asistencia.trabajadorId)
+            );
 
-            const fechaVencimiento =
-                new Date(
-                    documento.fechaVencimiento +
-                    "T00:00:00"
-                );
-
-            const fechaActual =
-                new Date();
-
-            let estado = "Vigente";
-
-            if (fechaVencimiento < fechaActual) {
-
-                estado = "Vencido";
-
-            } else {
-
-                const diferencia =
-                    fechaVencimiento - fechaActual;
-
-                const dias =
-                    Math.ceil(
-                        diferencia /
-                        (1000 * 60 * 60 * 24)
-                    );
-
-                if (dias <= 30) {
-                    estado = "Próximo a vencer";
-                }
-            }
-
-            const fechaFormateada =
-                fechaVencimiento.toLocaleDateString(
-                    "es-PE"
-                );
-
-            fila.innerHTML = `
-                <td>${documento.id}</td>
-                <td>${documento.tipo}</td>
-                <td>${documento.trabajadorId}</td>
-                <td>${fechaFormateada}</td>
-                <td>${estado}</td>
-            `;
-
-            lista.appendChild(fila);
+            return {
+                ...asistencia,
+                trabajadorNombre: trabajador?.nombres || "No disponible",
+                documentoIdentidad:
+                    trabajador?.documentoIdentidad || "No disponible"
+            };
         });
+
+        aplicarFiltrosAsistencia();
 
     } catch (error) {
 
         console.error(error);
 
-        lista.innerHTML = `
+        listaAsistencias.innerHTML = `
             <tr>
-                <td colspan="5">
-                    No se pudieron cargar
-                    los documentos.
+                <td colspan="6" class="empty-state">
+                    No se pudieron cargar las asistencias.
+                    Verifica el endpoint del backend.
                 </td>
             </tr>
         `;
+
+        actualizarResumenAsistencia([]);
+
     }
 }
-/* OCUMENTOS - PRÓXIMOS A VENCER*/
+
+
+/* APLICAR FILTROS */
+
+function aplicarFiltrosAsistencia() {
+
+    const busqueda = (
+        filtroTrabajador?.value || ""
+    ).trim().toLowerCase();
+
+    const tipo = filtroTipo?.value || "";
+    const fechaDesde = filtroFechaDesde?.value || "";
+    const fechaHasta = filtroFechaHasta?.value || "";
+
+    const filtradas = todasLasAsistencias.filter(
+        function (asistencia) {
+
+            /*
+             * Ajusta estas propiedades si tu DTO utiliza
+             * otros nombres para el trabajador.
+             */
+            const trabajador = asistencia.trabajador || {};
+
+            const nombre = String(
+                asistencia.trabajadorNombre ||
+                trabajador.nombres ||
+                trabajador.nombreCompleto ||
+                trabajador.nombre ||
+                ""
+            ).toLowerCase();
+
+            const documento = String(
+                asistencia.documentoIdentidad ||
+                trabajador.documentoIdentidad ||
+                trabajador.documento ||
+                ""
+            ).toLowerCase();
+
+            const movimiento = String(
+                asistencia.tipo || ""
+            ).toUpperCase();
+
+            const fechaHora = asistencia.fechaHora;
+
+            const fecha = fechaHora
+                ? String(fechaHora).slice(0, 10)
+                : "";
+
+            const coincideTrabajador =
+                !busqueda ||
+                nombre.includes(busqueda) ||
+                documento.includes(busqueda);
+
+            const coincideTipo =
+                !tipo || movimiento === tipo;
+
+            const coincideDesde =
+                !fechaDesde ||
+                (fecha && fecha >= fechaDesde);
+
+            const coincideHasta =
+                !fechaHasta ||
+                (fecha && fecha <= fechaHasta);
+
+            return (
+                coincideTrabajador &&
+                coincideTipo &&
+                coincideDesde &&
+                coincideHasta
+            );
+        }
+    );
+
+    mostrarAsistencias(filtradas);
+    actualizarResumenAsistencia(filtradas);
+}
+
+
+/* MOSTRAR RESULTADOS */
+
+function mostrarAsistencias(asistencias) {
+
+    if (!listaAsistencias) return;
+
+    if (asistencias.length === 0) {
+
+        listaAsistencias.innerHTML = `
+            <tr>
+                <td colspan="6" class="empty-state">
+                    No se encontraron asistencias
+                    con los filtros seleccionados.
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+    listaAsistencias.innerHTML = asistencias.map(
+        function (asistencia) {
+
+            const trabajador = asistencia.trabajador || {};
+
+            const nombre =
+                asistencia.trabajadorNombre ||
+                trabajador.nombres ||
+                trabajador.nombreCompleto ||
+                trabajador.nombre ||
+                "No disponible";
+
+            const documento =
+                asistencia.documentoIdentidad ||
+                trabajador.documentoIdentidad ||
+                trabajador.documento ||
+                "No disponible";
+
+            const fechaHora = asistencia.fechaHora
+                ? new Date(asistencia.fechaHora)
+                : null;
+
+            const fechaValida =
+                fechaHora &&
+                !Number.isNaN(fechaHora.getTime());
+
+            const fecha = fechaValida
+                ? fechaHora.toLocaleDateString("es-PE")
+                : "No disponible";
+
+            const hora = fechaValida
+                ? fechaHora.toLocaleTimeString(
+                    "es-PE",
+                    {
+                        hour: "2-digit",
+                        minute: "2-digit"
+                    }
+                )
+                : "No disponible";
+
+            const tipo = String(
+                asistencia.tipo || "No disponible"
+            ).toUpperCase();
+
+            return `
+                <tr>
+                    <td>${escaparHTML(asistencia.id ?? "")}</td>
+                    <td>${escaparHTML(nombre)}</td>
+                    <td>${escaparHTML(documento)}</td>
+                    <td>${escaparHTML(fecha)}</td>
+                    <td>${escaparHTML(hora)}</td>
+                    <td>${escaparHTML(tipo)}</td>
+                </tr>
+            `;
+
+        }
+    ).join("");
+}
+
+
+/* ACTUALIZAR CONTADORES */
+
+function actualizarResumenAsistencia(asistencias) {
+
+    if (totalAsistencias) {
+        totalAsistencias.textContent = asistencias.length;
+    }
+
+    if (totalEntradas) {
+        totalEntradas.textContent =
+            asistencias.filter(
+                a => String(a.tipo).toUpperCase() === "ENTRADA"
+            ).length;
+    }
+
+    if (totalSalidas) {
+        totalSalidas.textContent =
+            asistencias.filter(
+                a => String(a.tipo).toUpperCase() === "SALIDA"
+            ).length;
+    }
+
+    if (cantidadAsistencias) {
+        cantidadAsistencias.textContent =
+            `${asistencias.length} registros`;
+    }
+}
+
+
+/* PROTEGER TEXTO MOSTRADO EN LA TABLA */
+
+function escaparHTML(valor) {
+
+    return String(valor).replace(/[&<>"']/g, function (caracter) {
+
+        const entidades = {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;"
+        };
+
+        return entidades[caracter];
+    });
+}
+
+
+/* =========================================
+   EVENTOS DE FILTRADO DE ASISTENCIA
+========================================= */
+
+if (formularioFiltros) {
+
+    // Consultar únicamente al pulsar el botón
+    formularioFiltros.addEventListener("submit", async function (event) {
+        event.preventDefault();
+
+        await cargarTodasLasAsistencias();
+    });
+
+    // Limpiar filtros y ocultar los resultados
+    formularioFiltros.addEventListener("reset", function () {
+
+        setTimeout(function () {
+
+            todasLasAsistencias = [];
+
+            if (listaAsistencias) {
+                listaAsistencias.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="empty-state">
+                            Ingresa los filtros y pulsa
+                            "Consultar asistencias".
+                        </td>
+                    </tr>
+                `;
+            }
+
+            actualizarResumenAsistencia([]);
+
+        }, 0);
+    });
+
+}
+
+
+
+
+/* =========================================
+   DOCUMENTOS - REGISTRAR
+========================================= */
+
+const formularioDocumento =
+    document.querySelector("#formDocumento");
+
+let dniDocumentosBuscado = "";
+
+if (formularioDocumento) {
+    formularioDocumento.addEventListener("submit", async function (event) {
+        event.preventDefault();
+
+        const mensaje = document.querySelector("#mensajeDocumento");
+        const boton = document.querySelector("#btnRegistrarDocumento");
+
+        const dni = document.querySelector(
+            "#documentoIdentidadDocumento"
+        ).value.trim();
+
+        const tipo = document.querySelector("#tipoDocumento").value;
+
+        const fecha = document.querySelector(
+            "#fechaVencimientoDocumento"
+        ).value;
+
+        const archivo = document.querySelector(
+            "#archivoDocumento"
+        ).files[0];
+
+        if (!dni) {
+            alert("Ingresa el DNI del trabajador.");
+            return;
+        }
+
+        if (!tipo) {
+            alert("Selecciona el tipo de documento.");
+            return;
+        }
+
+        if (!archivo) {
+            alert("Selecciona el archivo del documento.");
+            return;
+        }
+
+        const datos = new FormData();
+        datos.append("documentoIdentidad", dni);
+        datos.append("tipo", tipo);
+
+        // La fecha es opcional.
+        if (fecha) {
+            datos.append("fechaVencimiento", fecha);
+        }
+
+        datos.append("archivoDocumento", archivo);
+
+        try {
+            if (boton) {
+                boton.disabled = true;
+                boton.textContent = "Registrando...";
+            }
+
+            if (mensaje) {
+                mensaje.textContent = "Registrando documento...";
+            }
+
+            const respuesta = await fetchAutenticado(
+                `${API_URL}/api/documentos`,
+                {
+                    method: "POST",
+                    body: datos
+                }
+            );
+
+            if (!respuesta.ok) {
+                const detalle = await respuesta.text();
+                throw new Error(
+                    detalle || "No se pudo registrar el documento."
+                );
+            }
+
+            await respuesta.json();
+
+            alert("Documento registrado correctamente.");
+
+            formularioDocumento.reset();
+
+            // Mostrar los documentos del DNI registrado.
+            const campoDniBusqueda = document.querySelector(
+                "#dniBuscarDocumentos"
+            );
+
+            if (campoDniBusqueda) {
+                campoDniBusqueda.value = dni;
+            }
+
+            await buscarDocumentosPorDNI(dni);
+
+            // Actualizar el resumen de documentos próximos a vencer.
+            await cargarDocumentosPorVencer();
+
+            if (mensaje) {
+                mensaje.textContent =
+                    "Documento registrado correctamente.";
+            }
+
+        } catch (error) {
+            console.error("Error al registrar documento:", error);
+
+            if (mensaje) {
+                mensaje.textContent = error.message;
+            }
+
+            alert("No se pudo registrar el documento: " + error.message);
+
+        } finally {
+            if (boton) {
+                boton.disabled = false;
+                boton.textContent = "Registrar documento";
+            }
+        }
+    });
+}
+
+
+/* =========================================
+   DOCUMENTOS - BUSCAR POR DNI
+========================================= */
+
+async function buscarDocumentosPorDNI(dni) {
+    const lista = document.querySelector("#listaDocumentos");
+
+    if (!lista) {
+        console.error("No se encontró la tabla #listaDocumentos");
+        return;
+    }
+
+    dni = dni.trim();
+
+    if (!dni) {
+        lista.innerHTML = `
+            <tr>
+                <td colspan="6">Ingresa el DNI del trabajador.</td>
+            </tr>`;
+        return;
+    }
+
+    lista.innerHTML = `
+        <tr>
+            <td colspan="6">Buscando documentos...</td>
+        </tr>`;
+
+    try {
+        const url = `${API_URL}/api/documentos/buscar?documentoIdentidad=${encodeURIComponent(dni)}`;
+
+        console.log("Buscando documentos en:", url);
+
+        const respuesta = await fetchAutenticado(url);
+        const documentos = await respuesta.json();
+
+        console.log("Documentos recibidos:", documentos);
+
+        if (!respuesta.ok) {
+            throw new Error(documentos.message || "Error al buscar documentos");
+        }
+
+        if (!Array.isArray(documentos) || documentos.length === 0) {
+            lista.innerHTML = `
+                <tr>
+                    <td colspan="6">
+                        No se encontraron documentos para el DNI ${escaparHTML(dni)}.
+                    </td>
+                </tr>`;
+            return;
+        }
+
+        lista.innerHTML = documentos.map(doc => `
+            <tr>
+                <td>${doc.id ?? ""}</td>
+                <td>${escaparHTML(doc.tipo ?? "")}</td>
+                <td>${doc.trabajadorId ?? doc.trabajador?.id ?? ""}</td>
+                <td>${formatearFecha(doc.fechaVencimiento)}</td>
+                <td>${obtenerEstadoDocumento(doc.fechaVencimiento)}</td>
+                <td>
+                    <button
+                        type="button"
+                        class="btn-ver-documento"
+                        onclick="abrirArchivoDocumento(${doc.id})">
+                        Ver archivo
+                    </button>
+                </td>
+            </tr>
+        `).join("");
+
+    } catch (error) {
+        console.error("Error al buscar documentos:", error);
+        lista.innerHTML = `
+            <tr>
+                <td colspan="6">No se pudieron cargar los documentos.</td>
+            </tr>`;
+    }
+}
+/* =========================================
+   DOCUMENTOS - EVENTOS DE BÚSQUEDA
+========================================= */
+
+const botonBuscarDocumentos = document.querySelector(
+    "#btnBuscarDocumentos"
+);
+
+if (botonBuscarDocumentos) {
+    botonBuscarDocumentos.addEventListener("click", function () {
+        const campoDni = document.querySelector("#dniBuscarDocumentos");
+        const dni = campoDni ? campoDni.value.trim() : "";
+
+        console.log("DNI ingresado:", dni);
+
+        buscarDocumentosPorDNI(dni);
+    });
+}
+
+const botonLimpiarBusquedaDocumentos = document.querySelector(
+    "#btnLimpiarBusquedaDocumentos"
+);
+
+if (botonLimpiarBusquedaDocumentos) {
+    botonLimpiarBusquedaDocumentos.addEventListener("click", function () {
+        const campoDni = document.querySelector("#dniBuscarDocumentos");
+        const lista = document.querySelector("#listaDocumentos");
+
+        if (campoDni) {
+            campoDni.value = "";
+        }
+
+        if (lista) {
+            lista.innerHTML = `
+                <tr>
+                    <td colspan="6">
+                        Ingresa el DNI para consultar los documentos del trabajador.
+                    </td>
+                </tr>
+            `;
+        }
+    });
+}
+/* =========================================
+   DOCUMENTOS - ABRIR ARCHIVO
+========================================= */
+
+
+async function abrirArchivoDocumento(id) {
+    // Abrir la ventana inmediatamente para evitar bloqueos del navegador.
+    const ventana = window.open("about:blank", "_blank");
+
+    try {
+        const respuesta = await fetchAutenticado(
+            `${API_URL}/api/documentos/${id}/archivo`
+        );
+
+        if (!respuesta.ok) {
+            throw new Error("No se pudo abrir el archivo.");
+        }
+
+        const archivo = await respuesta.blob();
+        const urlTemporal = URL.createObjectURL(archivo);
+
+        if (ventana) {
+            ventana.location.href = urlTemporal;
+        } else {
+            const enlace = document.createElement("a");
+            enlace.href = urlTemporal;
+            enlace.download = `documento-${id}`;
+            enlace.click();
+        }
+
+        setTimeout(() => URL.revokeObjectURL(urlTemporal), 60000);
+
+    } catch (error) {
+        if (ventana) {
+            ventana.close();
+        }
+
+        console.error("Error al abrir el archivo:", error);
+        alert(error.message);
+    }
+}
+
+
+
+/* =========================================
+   DOCUMENTOS - ESTADO Y FORMATO
+========================================= */
+
+function obtenerEstadoDocumento(fechaVencimiento) {
+    if (!fechaVencimiento) {
+        return "Sin fecha de vencimiento";
+    }
+
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+
+    const fecha = new Date(`${fechaVencimiento}T00:00:00`);
+
+    if (Number.isNaN(fecha.getTime())) {
+        return "Fecha no válida";
+    }
+
+    if (fecha < hoy) {
+        return "Vencido";
+    }
+
+    const limite = new Date(hoy);
+    limite.setDate(limite.getDate() + 30);
+
+    if (fecha <= limite) {
+        return "Próximo a vencer";
+    }
+
+    return "Vigente";
+}
+
+function formatearFecha(fecha) {
+    const valor = new Date(`${fecha}T00:00:00`);
+
+    if (Number.isNaN(valor.getTime())) {
+        return "Fecha no válida";
+    }
+
+    return valor.toLocaleDateString("es-PE");
+}
+
+function escaparHTML(valor) {
+    return String(valor)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+
+/* =========================================
+   DOCUMENTOS - PRÓXIMOS A VENCER
+========================================= */
 
 async function cargarDocumentosPorVencer() {
-
-    const lista =
-        document.querySelector("#listaDocumentosPorVencer");
+    const lista = document.querySelector(
+        "#listaDocumentosPorVencer"
+    );
 
     if (!lista) return;
 
     try {
-
         const respuesta = await fetchAutenticado(
             `${API_URL}/api/documentos/proximos-a-vencer?dias=30`
         );
 
         if (!respuesta.ok) {
-            throw new Error(
-                "Error al obtener documentos por vencer"
-            );
+            throw new Error("Error al obtener documentos por vencer.");
         }
 
         const documentos = await respuesta.json();
 
         lista.innerHTML = "";
 
-        if (documentos.length === 0) {
-
+        if (!documentos.length) {
             lista.innerHTML = `
                 <tr>
                     <td colspan="5">
@@ -886,27 +1250,17 @@ async function cargarDocumentosPorVencer() {
                     </td>
                 </tr>
             `;
-
             return;
         }
 
-        documentos.forEach(function (documento) {
-
-            const fila =
-                document.createElement("tr");
-
-            const fecha =
-                new Date(
-                    documento.fechaVencimiento + "T00:00:00"
-                );
+        documentos.forEach(documento => {
+            const fila = document.createElement("tr");
 
             fila.innerHTML = `
                 <td>${documento.id}</td>
-                <td>${documento.tipo}</td>
-                <td>${documento.trabajadorId}</td>
-                <td>
-                    ${fecha.toLocaleDateString("es-PE")}
-                </td>
+                <td>${escaparHTML(documento.tipo || "")}</td>
+                <td>${escaparHTML(String(documento.trabajadorId ?? ""))}</td>
+                <td>${formatearFecha(documento.fechaVencimiento)}</td>
                 <td>Próximo a vencer</td>
             `;
 
@@ -914,992 +1268,37 @@ async function cargarDocumentosPorVencer() {
         });
 
     } catch (error) {
-
         console.error(error);
 
         lista.innerHTML = `
             <tr>
                 <td colspan="5">
-                    No se pudieron cargar los documentos
-                    por vencer.
+                    No se pudieron cargar los documentos por vencer.
                 </td>
             </tr>
         `;
     }
 }
 
+
 /* =========================================
-   COMPRAS - SELECT DE PROVEEDORES
-   ========================================= */
+   DOCUMENTOS - INICIALIZACIÓN
+========================================= */
 
-const rucCompraSelect =
-    document.querySelector("#rucCompra");
+// Al abrir la página, no listar todos los documentos.
+const listaInicialDocumentos = document.querySelector("#listaDocumentos");
 
-function llenarSelectProveedores(proveedores) {
-
-    if (!rucCompraSelect) {
-        return;
-    }
-
-    rucCompraSelect.innerHTML = `
-        <option value="">Selecciona un proveedor...</option>
+if (listaInicialDocumentos) {
+    listaInicialDocumentos.innerHTML = `
+        <tr>
+            <td colspan="6">
+                Ingresa el DNI para consultar los documentos del trabajador.
+            </td>
+        </tr>
     `;
-
-    if (proveedores.length === 0) {
-        rucCompraSelect.innerHTML = `
-            <option value="">No hay proveedores registrados</option>
-        `;
-        return;
-    }
-
-    proveedores.forEach(function (proveedor) {
-
-        const opcion =
-            document.createElement("option");
-
-        opcion.value = proveedor.ruc;
-        opcion.textContent =
-            `${proveedor.razonSocial} (${proveedor.ruc})`;
-
-        rucCompraSelect.appendChild(opcion);
-    });
 }
 
-async function cargarProveedoresParaCompras() {
-
-    if (!rucCompraSelect) {
-        return;
-    }
-
-    try {
-
-        const respuesta =
-            await fetchAutenticado(`${API_URL}/api/proveedores`);
-
-        if (!respuesta.ok) {
-            throw new Error("Error al obtener proveedores");
-        }
-
-        const proveedores =
-            await respuesta.json();
-
-        llenarSelectProveedores(proveedores);
-
-    } catch (error) {
-
-        console.error(error);
-
-        rucCompraSelect.innerHTML = `
-            <option value="">No se pudieron cargar proveedores. Revisa el backend.</option>
-        `;
-    }
-}
-
-
-/* =========================================
-   COMPRAS - REGISTRAR
-   ========================================= */
-
-const formularioCompra =
-    document.querySelector("#formCompra");
-
-if (formularioCompra) {
-
-    formularioCompra.addEventListener("submit", async function (event) {
-
-        event.preventDefault();
-
-        const compra = {
-            ruc: document.querySelector("#rucCompra").value,
-            numeroComprobante: document.querySelector("#numeroComprobante").value,
-            montoSinIgv: parseFloat(document.querySelector("#montoSinIgv").value),
-            fecha: document.querySelector("#fechaCompra").value
-        };
-
-        try {
-
-            const respuesta = await fetchAutenticado(
-                `${API_URL}/api/compras`,
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify(compra)
-                }
-            );
-
-            if (!respuesta.ok) {
-
-                const mensaje = await respuesta.text();
-
-                console.error("Error de API:", mensaje);
-
-                throw new Error("No se pudo registrar la compra");
-            }
-
-            const compraCreada = await respuesta.json();
-
-            alert("Compra registrada correctamente");
-
-            formularioCompra.reset();
-
-            cargarCompras();
-
-            console.log("Compra creada:", compraCreada);
-
-        } catch (error) {
-
-            console.error(error);
-
-            alert(
-                "No se pudo registrar la compra. " +
-                "Verifica que el RUC del proveedor exista."
-            );
-        }
-    });
-}
-
-
-/* =========================================
-   COMPRAS - LISTAR
-   ========================================= */
-
-async function cargarCompras() {
-
-    const lista =
-        document.querySelector("#listaCompras");
-
-    if (!lista) {
-        return;
-    }
-
-    try {
-
-        const respuesta =
-            await fetchAutenticado(`${API_URL}/api/compras`);
-
-        if (!respuesta.ok) {
-            throw new Error("Error al obtener las compras");
-        }
-
-        const compras =
-            await respuesta.json();
-
-        lista.innerHTML = "";
-
-        if (compras.length === 0) {
-
-            lista.innerHTML = `
-                <tr>
-                    <td colspan="7">
-                        No hay compras registradas.
-                    </td>
-                </tr>
-            `;
-
-            return;
-        }
-
-        compras.forEach(function (compra) {
-
-            const fila =
-                document.createElement("tr");
-
-            fila.innerHTML = `
-                <td>${compra.id}</td>
-                <td>${compra.proveedorId}</td>
-                <td>${compra.numeroComprobante}</td>
-                <td>S/ ${compra.montoSinIgv.toFixed(2)}</td>
-                <td>S/ ${compra.igv.toFixed(2)}</td>
-                <td>S/ ${compra.montoTotal.toFixed(2)}</td>
-                <td>${compra.fecha}</td>
-            `;
-
-            lista.appendChild(fila);
-        });
-
-    } catch (error) {
-
-        console.error(error);
-
-        lista.innerHTML = `
-            <tr>
-                <td colspan="7">
-                    No se pudieron cargar las compras.
-                </td>
-            </tr>
-        `;
-    }
-}
-
-
-/* =========================================
-   COMPRAS - RESUMEN DE IGV POR PERIODO
-   ========================================= */
-
-const formularioIgvPeriodo =
-    document.querySelector("#formIgvPeriodo");
-
-if (formularioIgvPeriodo) {
-
-    formularioIgvPeriodo.addEventListener("submit", async function (event) {
-
-        event.preventDefault();
-
-        const desde = document.querySelector("#desdeIgv").value;
-        const hasta = document.querySelector("#hastaIgv").value;
-
-        const resultado =
-            document.querySelector("#resultadoIgv");
-
-        try {
-
-            const respuesta = await fetchAutenticado(
-                `${API_URL}/api/compras/igv-periodo?desde=${desde}&hasta=${hasta}`
-            );
-
-            if (!respuesta.ok) {
-                throw new Error("Error al calcular el IGV del periodo");
-            }
-
-            const totalIgv = await respuesta.json();
-
-            resultado.innerHTML = `
-                <article>
-                    <h3>
-                        Total de IGV pagado: S/ ${totalIgv.toFixed(2)}
-                    </h3>
-                </article>
-            `;
-
-        } catch (error) {
-
-            console.error(error);
-
-            resultado.innerHTML = `
-                <article>
-                    <p>No se pudo calcular el IGV del periodo.</p>
-                </article>
-            `;
-        }
-    });
-}
-
-
-/* =========================================
-   VENTAS - REGISTRAR
-   ========================================= */
-
-const formularioVenta =
-    document.querySelector("#formVenta");
-
-if (formularioVenta) {
-
-    formularioVenta.addEventListener("submit", async function (event) {
-
-        event.preventDefault();
-
-        const venta = {
-            documentoCliente: document.querySelector("#documentoCliente").value,
-            numeroComprobante: document.querySelector("#numeroComprobanteVenta").value,
-            montoSinIgv: parseFloat(document.querySelector("#montoSinIgvVenta").value),
-            fecha: document.querySelector("#fechaVenta").value
-        };
-
-        try {
-
-            const respuesta = await fetchAutenticado(
-                `${API_URL}/api/ventas`,
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify(venta)
-                }
-            );
-
-            if (!respuesta.ok) {
-
-                const mensaje = await respuesta.text();
-
-                console.error("Error de API:", mensaje);
-
-                throw new Error("No se pudo registrar la venta");
-            }
-
-            const ventaCreada = await respuesta.json();
-
-            alert("Venta registrada correctamente");
-
-            formularioVenta.reset();
-
-            cargarVentas();
-
-            console.log("Venta creada:", ventaCreada);
-
-        } catch (error) {
-
-            console.error(error);
-
-            alert(
-                "No se pudo registrar la venta. " +
-                "Verifica que el documento del cliente exista."
-            );
-        }
-    });
-}
-
-
-/* =========================================
-   VENTAS - LISTAR
-   ========================================= */
-
-async function cargarVentas() {
-
-    const lista =
-        document.querySelector("#listaVentas");
-
-    if (!lista) {
-        return;
-    }
-
-    try {
-
-        const respuesta =
-            await fetchAutenticado(`${API_URL}/api/ventas`);
-
-        if (!respuesta.ok) {
-            throw new Error("Error al obtener las ventas");
-        }
-
-        const ventas =
-            await respuesta.json();
-
-        lista.innerHTML = "";
-
-        if (ventas.length === 0) {
-
-            lista.innerHTML = `
-                <tr>
-                    <td colspan="7">
-                        No hay ventas registradas.
-                    </td>
-                </tr>
-            `;
-
-            return;
-        }
-
-        ventas.forEach(function (venta) {
-
-            const fila =
-                document.createElement("tr");
-
-            fila.innerHTML = `
-                <td>${venta.id}</td>
-                <td>${venta.clienteId}</td>
-                <td>${venta.numeroComprobante}</td>
-                <td>S/ ${venta.montoSinIgv.toFixed(2)}</td>
-                <td>S/ ${venta.igv.toFixed(2)}</td>
-                <td>S/ ${venta.montoTotal.toFixed(2)}</td>
-                <td>${venta.fecha}</td>
-            `;
-
-            lista.appendChild(fila);
-        });
-
-    } catch (error) {
-
-        console.error(error);
-
-        lista.innerHTML = `
-            <tr>
-                <td colspan="7">
-                    No se pudieron cargar las ventas.
-                </td>
-            </tr>
-        `;
-    }
-}
-
-
-/* =========================================
-   VENTAS - RESUMEN DE IGV POR PERIODO
-   ========================================= */
-
-const formularioIgvPeriodoVenta =
-    document.querySelector("#formIgvPeriodoVenta");
-
-if (formularioIgvPeriodoVenta) {
-
-    formularioIgvPeriodoVenta.addEventListener("submit", async function (event) {
-
-        event.preventDefault();
-
-        const desde = document.querySelector("#desdeIgvVenta").value;
-        const hasta = document.querySelector("#hastaIgvVenta").value;
-
-        const resultado =
-            document.querySelector("#resultadoIgvVenta");
-
-        try {
-
-            const respuesta = await fetchAutenticado(
-                `${API_URL}/api/ventas/igv-periodo?desde=${desde}&hasta=${hasta}`
-            );
-
-            if (!respuesta.ok) {
-                throw new Error("Error al calcular el IGV del periodo");
-            }
-
-            const totalIgv = await respuesta.json();
-
-            resultado.innerHTML = `
-                <article>
-                    <h3>
-                        Total de IGV cobrado: S/ ${totalIgv.toFixed(2)}
-                    </h3>
-                </article>
-            `;
-
-        } catch (error) {
-
-            console.error(error);
-
-            resultado.innerHTML = `
-                <article>
-                    <p>No se pudo calcular el IGV del periodo.</p>
-                </article>
-            `;
-        }
-    });
-}
-
-
-/* =========================================
-   PROVEEDORES - REGISTRAR
-   ========================================= */
-
-const formularioProveedor =
-    document.querySelector("#formProveedor");
-
-if (formularioProveedor) {
-
-    formularioProveedor.addEventListener("submit", async function (event) {
-
-        event.preventDefault();
-
-        const proveedor = {
-            ruc: document.querySelector("#rucProveedor").value,
-            razonSocial: document.querySelector("#razonSocial").value
-        };
-
-        try {
-
-            const respuesta = await fetchAutenticado(
-                `${API_URL}/api/proveedores`,
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify(proveedor)
-                }
-            );
-
-            if (!respuesta.ok) {
-
-                const mensaje = await respuesta.text();
-
-                console.error("Error de API:", mensaje);
-
-                throw new Error("No se pudo registrar el proveedor");
-            }
-
-            const proveedorCreado = await respuesta.json();
-
-            alert("Proveedor registrado correctamente");
-
-            formularioProveedor.reset();
-
-            cargarProveedores();
-            cargarProveedoresParaCompras();
-
-            console.log("Proveedor creado:", proveedorCreado);
-
-        } catch (error) {
-
-            console.error(error);
-
-            alert(
-                "No se pudo registrar el proveedor. " +
-                "Verifica que el RUC no esté repetido."
-            );
-        }
-    });
-}
-
-
-/* =========================================
-   PROVEEDORES - LISTAR
-   ========================================= */
-
-async function cargarProveedores() {
-
-    const lista =
-        document.querySelector("#listaProveedores");
-
-    if (!lista) {
-        return;
-    }
-
-    try {
-
-        const respuesta =
-            await fetchAutenticado(`${API_URL}/api/proveedores`);
-
-        if (!respuesta.ok) {
-            throw new Error("Error al obtener los proveedores");
-        }
-
-        const proveedores =
-            await respuesta.json();
-
-        lista.innerHTML = "";
-
-        if (proveedores.length === 0) {
-
-            lista.innerHTML = `
-                <tr>
-                    <td colspan="3">
-                        No hay proveedores registrados.
-                    </td>
-                </tr>
-            `;
-
-            return;
-        }
-
-        proveedores.forEach(function (proveedor) {
-
-            const fila =
-                document.createElement("tr");
-
-            fila.innerHTML = `
-                <td>${proveedor.id}</td>
-                <td>${proveedor.ruc}</td>
-                <td>${proveedor.razonSocial}</td>
-            `;
-
-            lista.appendChild(fila);
-        });
-
-    } catch (error) {
-
-        console.error(error);
-
-        lista.innerHTML = `
-            <tr>
-                <td colspan="3">
-                    No se pudieron cargar los proveedores.
-                </td>
-            </tr>
-        `;
-    }
-}
-
-
-/* =========================================
-   PAGOS
-   ========================================= */
-
-const formularioPago =
-    document.querySelector("#pagoForm");
-
-const trabajadorSelect =
-    document.querySelector("#trabajadorSelect");
-
-const tbodyPagos =
-    document.querySelector("#tbody");
-
-let pagosActuales = [];
-
-function llenarSelectTrabajadores(trabajadores) {
-
-    trabajadorSelect.innerHTML = `
-        <option value="">Selecciona un trabajador...</option>
-    `;
-
-    if (trabajadores.length === 0) {
-        trabajadorSelect.innerHTML = `
-            <option value="">No hay trabajadores registrados</option>
-        `;
-        return;
-    }
-
-    trabajadores.forEach(function (trabajador) {
-
-        const opcion =
-            document.createElement("option");
-
-        opcion.value = trabajador.documentoIdentidad;
-        opcion.dataset.trabajadorId = trabajador.id;
-        opcion.textContent =
-            `${trabajador.nombres} (${trabajador.documentoIdentidad})`;
-
-        trabajadorSelect.appendChild(opcion);
-    });
-}
-
-async function cargarTrabajadoresParaPagos() {
-
-    if (!trabajadorSelect) {
-        return;
-    }
-
-    try {
-
-        const respuesta =
-            await fetchAutenticado(`${API_URL}/api/personal`);
-
-        if (!respuesta.ok) {
-            throw new Error("Error al obtener trabajadores");
-        }
-
-        const trabajadores =
-            await respuesta.json();
-
-
-        llenarSelectTrabajadores(trabajadores);
-
-    } catch (error) {
-
-        console.error(error);
-
-        const trabajadoresGuardados =
-            JSON.parse(localStorage.getItem("trabajadores") || "[]");
-
-        if (trabajadoresGuardados.length > 0) {
-            llenarSelectTrabajadores(trabajadoresGuardados);
-            return;
-        }
-
-        trabajadorSelect.innerHTML = `
-            <option value="">No se pudieron cargar trabajadores. Revisa el backend.</option>
-        `;
-    }
-}
-
-async function cargarProveedoresParaPagos() {
-
-    if (!tbodyPagos) {
-        return;
-    }
-
-    try {
-
-        const respuesta =
-            await fetchAutenticado(`${API_URL}/api/proveedores`);
-
-        if (!respuesta.ok) {
-            throw new Error("Error al obtener proveedores");
-        }
-
-        const proveedores =
-            await respuesta.json();
-
-        localStorage.setItem(
-            "proveedores",
-            JSON.stringify(proveedores)
-        );
-
-    } catch (error) {
-        console.error(error);
-    }
-}
-
-async function cargarPagos(url = `${API_URL}/api/pagos`) {
-
-    if (!tbodyPagos) {
-        return;
-    }
-
-    try {
-
-        const respuesta =
-            await fetchAutenticado(url);
-
-        if (!respuesta.ok) {
-            throw new Error("Error al obtener pagos");
-        }
-
-        const pagos =
-            await respuesta.json();
-
-        pagosActuales = pagos;
-        mostrarPagos(pagos);
-        actualizarResumenPagos();
-
-    } catch (error) {
-
-        console.error(error);
-
-        tbodyPagos.innerHTML = `
-            <tr>
-                <td colspan="6">
-                    No se pudieron cargar los pagos.
-                </td>
-            </tr>
-        `;
-    }
-}
-
-function obtenerNombreBeneficiario(pago) {
-
-    if (pago.tipoBeneficiario === "PROVEEDOR") {
-
-        const proveedores =
-            JSON.parse(localStorage.getItem("proveedores") || "[]");
-
-        const proveedor =
-            proveedores.find(p => p.id === pago.proveedorId);
-
-        return proveedor
-            ? `${proveedor.razonSocial} (Proveedor)`
-            : `Proveedor #${pago.proveedorId}`;
-    }
-
-    const trabajadores =
-        JSON.parse(localStorage.getItem("trabajadores") || "[]");
-
-    const trabajador =
-        trabajadores.find(t => t.id === pago.trabajadorId);
-
-    return trabajador
-        ? trabajador.nombres
-        : `Trabajador #${pago.trabajadorId}`;
-}
-
-function mostrarPagos(pagos) {
-
-    if (!tbodyPagos) {
-        return;
-    }
-
-    const emptyState =
-        document.querySelector("#emptyState");
-
-    tbodyPagos.innerHTML = "";
-
-    if (emptyState) {
-        emptyState.style.display =
-            pagos.length === 0 ? "block" : "none";
-    }
-
-    pagos.forEach(function (pago) {
-
-        const fila =
-            document.createElement("tr");
-
-        const botonPagar =
-            pago.estado === "PAGADO"
-                ? ""
-                : `<button type="button" data-pago-id="${pago.id}">Pagar</button>`;
-
-        fila.innerHTML = `
-            <td>${obtenerNombreBeneficiario(pago)}</td>
-            <td>${pago.concepto}</td>
-            <td>S/ ${Number(pago.monto).toFixed(2)}</td>
-            <td>${pago.fechaProgramada}</td>
-            <td>${pago.estado}</td>
-            <td>${botonPagar}</td>
-        `;
-
-        tbodyPagos.appendChild(fila);
-    });
-}
-
-function actualizarResumenPagos() {
-
-    const totalPendiente =
-        document.querySelector("#totalPendiente");
-    const totalPagado =
-        document.querySelector("#totalPagado");
-    const countPendiente =
-        document.querySelector("#countPendiente");
-
-    if (!totalPendiente || !totalPagado || !countPendiente) {
-        return;
-    }
-
-    const pendientes =
-        pagosActuales.filter(pago => pago.estado === "PENDIENTE");
-    const pagados =
-        pagosActuales.filter(pago => pago.estado === "PAGADO");
-
-    const montoPendiente =
-        pendientes.reduce((total, pago) => total + Number(pago.monto), 0);
-    const montoPagado =
-        pagados.reduce((total, pago) => total + Number(pago.monto), 0);
-
-    totalPendiente.textContent =
-        `S/ ${montoPendiente.toFixed(2)}`;
-    totalPagado.textContent =
-        `S/ ${montoPagado.toFixed(2)}`;
-    countPendiente.textContent =
-        pendientes.length;
-}
-
-if (formularioPago) {
-
-    formularioPago.addEventListener("submit", async function (event) {
-
-        event.preventDefault();
-
-        const pago = {
-            documentoIdentidad: document.querySelector("#trabajadorSelect").value,
-            concepto: document.querySelector("#concepto").value,
-            monto: parseFloat(document.querySelector("#monto").value),
-            fechaProgramada: document.querySelector("#fecha").value
-        };
-
-        try {
-
-            const respuesta = await fetchAutenticado(
-                `${API_URL}/api/pagos`,
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify(pago)
-                }
-            );
-
-            if (!respuesta.ok) {
-                const mensaje = await respuesta.text();
-                throw new Error(mensaje);
-            }
-
-            formularioPago.reset();
-            cargarPagos();
-
-            const formError =
-                document.querySelector("#formError");
-
-            if (formError) {
-                formError.textContent = "";
-            }
-
-            alert("Pago registrado correctamente");
-
-        } catch (error) {
-
-            console.error(error);
-
-            const formError =
-                document.querySelector("#formError");
-
-            if (formError) {
-                formError.textContent =
-                    "No se pudo registrar el pago.";
-            }
-        }
-    });
-}
-
-if (tbodyPagos) {
-
-    tbodyPagos.addEventListener("click", async function (event) {
-
-        const boton =
-            event.target.closest("button[data-pago-id]");
-
-        if (!boton) {
-            return;
-        }
-
-        try {
-
-            const respuesta = await fetchAutenticado(
-                `${API_URL}/api/pagos/${boton.dataset.pagoId}/pagar`,
-                {
-                    method: "PUT"
-                }
-            );
-
-            if (!respuesta.ok) {
-                throw new Error("No se pudo marcar como pagado");
-            }
-
-            cargarPagos();
-
-        } catch (error) {
-            console.error(error);
-            alert("No se pudo marcar el pago como pagado.");
-        }
-    });
-}
-
-const tabTodos =
-    document.querySelector("#tabTodos");
-const tabPendientes =
-    document.querySelector("#tabPendientes");
-const tabTrabajador =
-    document.querySelector("#tabTrabajador");
-const btnBuscarPorId =
-    document.querySelector("#btnBuscarPorId");
-
-if (tabTodos) {
-    tabTodos.addEventListener("click", function () {
-        document.querySelector("#trabajadorFilterBox").style.display = "none";
-        cargarPagos();
-    });
-}
-
-if (tabPendientes) {
-    tabPendientes.addEventListener("click", function () {
-        document.querySelector("#trabajadorFilterBox").style.display = "none";
-        cargarPagos(`${API_URL}/api/pagos/pendientes`);
-    });
-}
-
-if (tabTrabajador) {
-    tabTrabajador.addEventListener("click", function () {
-        document.querySelector("#trabajadorFilterBox").style.display = "block";
-    });
-}
-
-if (btnBuscarPorId) {
-    btnBuscarPorId.addEventListener("click", function () {
-
-        const trabajadorId =
-            document.querySelector("#trabajadorIdInput").value;
-
-        if (!trabajadorId) {
-            return;
-        }
-
-        cargarPagos(`${API_URL}/api/pagos/trabajador/${trabajadorId}`);
-    });
-}
-
-
-/* =========================================
-   INICIAR APLICACIÓN
-   ========================================= */
+// Se mantiene el resumen general de próximos a vencer.
 
 cargarTrabajadores();
-cargarDocumentos();
-cargarDocumentosPorVencer();
-cargarCompras();
-cargarVentas();
-cargarProveedores();
-cargarProveedoresParaCompras();
-cargarTrabajadoresParaPagos();
-cargarProveedoresParaPagos();
-cargarPagos();
-
 

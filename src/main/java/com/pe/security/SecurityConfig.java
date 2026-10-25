@@ -63,15 +63,21 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuracion = new CorsConfiguration();
 
-        configuracion.setAllowedOriginPatterns(List.of("*"));
+        configuracion.setAllowedOrigins(List.of(
+                "http://127.0.0.1:5500",
+                "http://localhost:5500"
+        ));
 
         configuracion.setAllowedMethods(List.of(
                 "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"
         ));
 
-        configuracion.setAllowedHeaders(List.of("*"));
+        configuracion.setAllowedHeaders(List.of(
+                "Authorization",
+                "Content-Type"
+        ));
 
-        configuracion.setAllowCredentials(true);
+        configuracion.setAllowCredentials(false);
 
         UrlBasedCorsConfigurationSource origen =
                 new UrlBasedCorsConfigurationSource();
@@ -102,9 +108,6 @@ public SecurityFilterChain filterChain(HttpSecurity http)
             ).permitAll()
             .requestMatchers("/api/auth/**").permitAll()
             .requestMatchers("/api/admin/**").hasRole("ADMIN")
-            // Lectura de personal permitida a cualquier autenticado (para combobox de técnicos en Operaciones)
-            .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/personal").authenticated()
-            .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/personal/**").authenticated()
             .requestMatchers("/api/personal/**").hasRole("ADMIN")
             .anyRequest().authenticated()
         )

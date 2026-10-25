@@ -14,6 +14,8 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 public class OrdenTrabajoResponse {
+
+
     private Long id;
     private String codigo;
     private Long tipoMantenimientoId;
