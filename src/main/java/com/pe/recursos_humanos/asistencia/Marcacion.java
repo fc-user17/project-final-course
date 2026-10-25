@@ -9,6 +9,10 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Column;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.EnumType;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "asistencia")
@@ -21,11 +25,16 @@ public class Marcacion {
     @Column(name = "trabajador_id", nullable = false)
     private Long trabajadorId;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "tipo", nullable = false)
     private TipoMarcacion tipo;
 
     @Column(name = "fecha_hora", nullable = false)
     private LocalDateTime fechaHora;
+
+    @JsonIgnore
+    @Column(name = "foto", columnDefinition = "bytea")
+    private byte[] foto;
 
     public Long getId() {
         return id;
@@ -57,5 +66,13 @@ public class Marcacion {
 
     public void setFechaHora(LocalDateTime fechaHora) {
         this.fechaHora = fechaHora;
+    }
+
+    public byte[] getFoto() {
+        return foto;
+    }
+
+    public void setFoto(byte[] foto) {
+        this.foto = foto;
     }
 }

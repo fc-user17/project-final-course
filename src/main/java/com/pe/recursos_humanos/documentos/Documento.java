@@ -24,7 +24,7 @@ public class Documento {
     @Column(name = "tipo", nullable = false)
     private String tipo;
 
-    @Column(name = "fecha_vencimiento", nullable = false)
+    @Column(name = "fecha_vencimiento", nullable = true)
     private LocalDate fechaVencimiento;
 
     @Column(name = "nombre_archivo")

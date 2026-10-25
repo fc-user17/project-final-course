@@ -1,0 +1,143 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Asistencia de trabajadores</title>
+
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/asistencia-trabajador.css">
+</head>
+<body>
+
+    <main class="contenedor-asistencia">
+        <section class="tarjeta-asistencia">
+
+            <header class="encabezado-asistencia">
+                <h1>Registro de asistencia</h1>
+                <p>Ingresa tu documento y confirma tu fotografía antes de marcar.</p>
+            </header>
+
+            <form id="formAsistencia" autocomplete="off">
+
+                <div class="grupo-formulario">
+                    <label for="documentoTrabajador">
+                        Documento de identidad
+                    </label>
+
+                    <input
+                        type="text"
+                        id="documentoTrabajador"
+                        name="documentoIdentidad"
+                        placeholder="Ingresa tu documento"
+                        maxlength="20"
+                        required
+                    >
+                </div>
+
+                <section class="seccion-camara">
+                    <h2>Fotografía de verificación</h2>
+
+                    <div class="marco-camara">
+                        <video
+                            id="videoCamara"
+                            autoplay
+                            playsinline
+                            muted
+                        ></video>
+
+                        <canvas id="canvasFoto" hidden></canvas>
+
+                        <img
+                            id="fotoCapturada"
+                            alt="Vista previa de la fotografía"
+                            hidden
+                        >
+                    </div>
+
+                    <p id="estadoCamara" role="status">
+                        Activa la cámara para comenzar.
+                    </p>
+
+                    <div class="botones-camara">
+                        <button
+                            type="button"
+                            id="btnActivarCamara"
+                        >
+                            Activar cámara
+                        </button>
+
+                        <button
+                            type="button"
+                            id="btnTomarFoto"
+                            disabled
+                        >
+                            Tomar fotografía
+                        </button>
+
+                        <button
+                            type="button"
+                            id="btnRepetirFoto"
+                            hidden
+                        >
+                            Repetir fotografía
+                        </button>
+                    </div>
+                </section>
+
+                <div
+                    id="confirmacionFoto"
+                    class="confirmacion-foto"
+                    hidden
+                >
+                    <p>
+                        Revisa la fotografía. Si es correcta, confirma
+                        para registrar tu asistencia.
+                    </p>
+                </div>
+
+                <div class="botones-marcacion">
+                    <button
+                        type="button"
+                        id="btnEntrada"
+                        disabled
+                    >
+                        Marcar entrada
+                    </button>
+
+                    <button
+                        type="button"
+                        id="btnSalida"
+                        disabled
+                    >
+                        Marcar salida
+                    </button>
+                </div>
+
+                <div
+                    id="mensajeMarcacion"
+                    role="status"
+                    aria-live="polite"
+                ></div>
+
+            </form>
+
+            <!-- BOTÓN PARA VOLVER -->
+            <div class="volver-container">
+                <a href="index.html" class="btn-volver">
+                    <span aria-hidden="true">←</span>
+                    Volver al inicio
+                </a>
+            </div>
+
+        </section>
+    </main>
+
+    <script src="js/app.js" defer></script>
+    <script src="js/asistencia-trabajador.js" defer></script>
+
+</body>
+</html>

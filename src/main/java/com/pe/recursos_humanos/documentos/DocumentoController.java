@@ -12,13 +12,14 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 @RestController
 @CrossOrigin(origins = {
-    "http://127.0.0.1:5500",
-    "http://localhost:5500"
+        "http://127.0.0.1:5500",
+        "http://localhost:5500"
 })
 @RequestMapping("/api/documentos")
 public class DocumentoController {
@@ -29,11 +30,12 @@ public class DocumentoController {
         this.documentoService = documentoService;
     }
 
+    // Registrar un documento del trabajador.
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> registrar(
             @RequestParam String documentoIdentidad,
             @RequestParam String tipo,
-            @RequestParam java.time.LocalDate fechaVencimiento,
+            @RequestParam(required = false) LocalDate fechaVencimiento,
             @RequestParam MultipartFile archivoDocumento) {
 
         try {
@@ -58,52 +60,108 @@ public class DocumentoController {
         }
     }
 
+    // Listar todos los documentos.
     @GetMapping
     public ResponseEntity<List<Documento>> listar() {
         return ResponseEntity.ok(documentoService.listarTodos());
     }
 
+    // Listar documentos por ID del trabajador.
     @GetMapping("/trabajador/{trabajadorId}")
     public ResponseEntity<List<Documento>> listarPorTrabajador(
             @PathVariable Long trabajadorId) {
+
         return ResponseEntity.ok(
-                documentoService.listarPorTrabajador(trabajadorId));
+                documentoService.listarPorTrabajador(trabajadorId)
+        );
     }
 
+    // Buscar documentos por DNI del trabajador.
+    @GetMapping("/buscar")
+    public ResponseEntity<?> buscarPorDocumentoIdentidad(
+            @RequestParam String documentoIdentidad) {
+
+        try {
+            List<Documento> documentos =
+                    documentoService.listarPorDocumentoIdentidad(
+                            documentoIdentidad
+                    );
+
+            return ResponseEntity.ok(documentos);
+
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    // Listar documentos que vencen dentro del período indicado.
     @GetMapping("/proximos-a-vencer")
     public ResponseEntity<List<Documento>> listarProximosAVencer(
             @RequestParam(defaultValue = "30") int dias) {
+
         return ResponseEntity.ok(
-                documentoService.listarProximosAVencer(dias));
+                documentoService.listarProximosAVencer(dias)
+        );
     }
 
+    // Listar documentos vencidos.
     @GetMapping("/vencidos")
     public ResponseEntity<List<Documento>> listarVencidos() {
-        return ResponseEntity.ok(documentoService.listarVencidos());
+        return ResponseEntity.ok(
+                documentoService.listarVencidos()
+        );
     }
 
+    // Abrir el archivo asociado al documento.
     @GetMapping("/{id}/archivo")
-    public ResponseEntity<?> descargarArchivo(@PathVariable Long id) {
+    public ResponseEntity<?> descargarArchivo(
+            @PathVariable Long id) {
+
         try {
             Path ruta = documentoService.obtenerRutaArchivo(id);
             Resource recurso = new UrlResource(ruta.toUri());
 
-            String tipoContenido = Files.probeContentType(ruta);
+            if (!recurso.exists() || !recurso.isReadable()) {
+                return ResponseEntity.notFound().build();
+            }
+
+            String nombre = ruta.getFileName().toString();
+            String nombreMinusculas = nombre.toLowerCase(
+                    java.util.Locale.ROOT
+            );
+
             MediaType mediaType = MediaType.APPLICATION_OCTET_STREAM;
 
-            if ("application/pdf".equals(tipoContenido)) {
+            if (nombreMinusculas.endsWith(".pdf")) {
                 mediaType = MediaType.APPLICATION_PDF;
-            } else if ("image/jpeg".equals(tipoContenido)) {
+
+            } else if (nombreMinusculas.endsWith(".jpg")
+                    || nombreMinusculas.endsWith(".jpeg")) {
                 mediaType = MediaType.IMAGE_JPEG;
-            } else if ("image/png".equals(tipoContenido)) {
+
+            } else if (nombreMinusculas.endsWith(".png")) {
                 mediaType = MediaType.IMAGE_PNG;
+
+            } else if (nombreMinusculas.endsWith(".doc")) {
+                mediaType = MediaType.parseMediaType(
+                        "application/msword"
+                );
+
+            } else if (nombreMinusculas.endsWith(".docx")) {
+                mediaType = MediaType.parseMediaType(
+                        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                );
             }
 
             return ResponseEntity.ok()
                     .contentType(mediaType)
                     .header(
                             HttpHeaders.CONTENT_DISPOSITION,
-                            "inline; filename=\"" + ruta.getFileName() + "\"")
+                            "inline; filename=\"" + nombre + "\""
+                    )
                     .body(recurso);
 
         } catch (NoSuchElementException e) {

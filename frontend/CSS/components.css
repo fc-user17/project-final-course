@@ -1073,3 +1073,261 @@
     }
 }
 
+
+.busqueda-documentos {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+}
+
+.busqueda-documentos input {
+    flex: 1;
+    min-width: 200px;
+}
+
+.busqueda-documentos button {
+    white-space: nowrap;
+}
+
+.btn-ver-documento {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    background-color: #1d4ed8;
+    color: white;
+    cursor: pointer;
+}
+
+.btn-ver-documento:hover {
+    background-color: #1e40af;
+}
+
+@media (max-width: 600px) {
+    .busqueda-documentos {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .busqueda-documentos input,
+    .busqueda-documentos button {
+        width: 100%;
+    }
+}
+
+/* ========================================
+   LOGIN - SISTEMA DE GESTIÓN EMPRESARIAL
+======================================== */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: linear-gradient(135deg, #101827, #172c46 55%, #0f766e);
+    color: #1e293b;
+}
+
+/* Contenedor principal */
+
+.login-container {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Círculos decorativos */
+
+.login-container::before,
+.login-container::after {
+    content: "";
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.login-container::before {
+    width: 300px;
+    height: 300px;
+    background: rgba(45, 212, 191, 0.10);
+    top: -100px;
+    right: -70px;
+}
+
+.login-container::after {
+    width: 240px;
+    height: 240px;
+    background: rgba(96, 165, 250, 0.10);
+    bottom: -80px;
+    left: -60px;
+}
+
+/* Tarjeta del login */
+
+.login-card {
+    width: 100%;
+    max-width: 430px;
+    padding: 42px 36px;
+    background: #ffffff;
+    border-radius: 18px;
+    box-shadow: 0 25px 70px rgba(0, 0, 0, 0.30);
+    position: relative;
+    z-index: 1;
+    border-top: 5px solid #14b8a6;
+    animation: aparecer 0.5s ease;
+}
+
+/* Encabezado */
+
+.login-card h1 {
+    margin: 0 0 12px;
+    color: #172c46;
+    font-size: 27px;
+    line-height: 1.3;
+    font-weight: 750;
+    text-align: center;
+}
+
+.login-card > p {
+    margin: 0 0 32px;
+    text-align: center;
+    color: #64748b;
+    font-size: 14px;
+}
+
+/* Formulario */
+
+#loginForm {
+    display: flex;
+    flex-direction: column;
+}
+
+#loginForm label {
+    margin-bottom: 8px;
+    color: #334155;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+#loginForm input {
+    width: 100%;
+    height: 48px;
+    margin-bottom: 22px;
+    padding: 0 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 9px;
+    background: #f8fafc;
+    color: #0f172a;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s,
+                background-color 0.2s;
+}
+
+#loginForm input:hover {
+    border-color: #94a3b8;
+}
+
+#loginForm input:focus {
+    border-color: #0d9488;
+    background: #ffffff;
+    box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.13);
+}
+
+/* Botón de ingreso */
+
+#loginForm button {
+    width: 100%;
+    min-height: 49px;
+    margin-top: 5px;
+    border: none;
+    border-radius: 9px;
+    background: linear-gradient(135deg, #0f766e, #14b8a6);
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s,
+                filter 0.2s;
+}
+
+#loginForm button:hover {
+    filter: brightness(1.07);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(15, 118, 110, 0.25);
+}
+
+#loginForm button:active {
+    transform: translateY(0);
+}
+
+#loginForm button:focus-visible {
+    outline: 3px solid #5eead4;
+    outline-offset: 3px;
+}
+
+/* Mensajes de error o respuesta */
+
+#mensaje {
+    min-height: 20px;
+    margin: 16px 0 0;
+    color: #dc2626;
+    font-size: 13px;
+    line-height: 1.5;
+    text-align: center;
+    overflow-wrap: anywhere;
+}
+
+/* Animación de entrada */
+
+@keyframes aparecer {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Adaptación para celulares */
+
+@media (max-width: 480px) {
+    .login-container {
+        padding: 18px;
+    }
+
+    .login-card {
+        padding: 34px 23px;
+        border-radius: 15px;
+    }
+
+    .login-card h1 {
+        font-size: 23px;
+    }
+
+    .login-card > p {
+        margin-bottom: 27px;
+    }
+}
+
+/* Accesibilidad: reducir animaciones */
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation: none !important;
+        transition: none !important;
+    }
+}
