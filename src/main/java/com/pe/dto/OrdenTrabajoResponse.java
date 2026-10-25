@@ -15,16 +15,16 @@ import java.util.List;
 @AllArgsConstructor
 public class OrdenTrabajoResponse {
 
-    public static Object builder() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
+
     private Long id;
     private String codigo;
     private Long tipoMantenimientoId;
     private String tipoMantenimientoNombre;
     private Long equipoId;
     private String equipoCodigoPatrimonial;
+    private String equipoDescripcion;
     private Long tecnicoId;
+    private String tecnicoNombre;
     private LocalDate fechaProgramada;
     private Prioridad prioridad;
     private EstadoOrden estado;
