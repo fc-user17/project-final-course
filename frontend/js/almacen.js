@@ -29,6 +29,13 @@ const listaHerramientas = document.querySelector("#listaHerramientas");
 const estadoHerramientas = document.querySelector("#estadoHerramientas");
 const filtroBuscarHerramienta = document.querySelector("#filtroBuscarHerramienta");
 const filtroEstadoHerramienta = document.querySelector("#filtroEstadoHerramienta");
+const formularioAsignacionHerramienta = document.querySelector("#formAsignacionHerramienta");
+const herramientaParaAsignar = document.querySelector("#herramientaParaAsignar");
+const tecnicoHerramienta = document.querySelector("#tecnicoHerramienta");
+const botonGuardarAsignacionHerramienta = document.querySelector("#guardarAsignacionHerramienta");
+const estadoAsignacionHerramienta = document.querySelector("#estadoAsignacionHerramienta");
+const estadoAsignacionesHerramienta = document.querySelector("#estadoAsignacionesHerramienta");
+const listaAsignacionesHerramienta = document.querySelector("#listaAsignacionesHerramienta");
 const seccionHistorialEquipo = document.querySelector("#historialEquipo");
 const tituloHistorialEquipo = document.querySelector("#tituloHistorialEquipo");
 const estadoHistorialEquipo = document.querySelector("#estadoHistorialEquipo");
@@ -53,12 +60,15 @@ const contenedorFormEquipo = document.querySelector("#contenedorFormEquipo");
 const btnToggleFormEquipo = document.querySelector("#btnToggleFormEquipo");
 const contenedorFormHerramienta = document.querySelector("#contenedorFormHerramienta");
 const btnToggleFormHerramienta = document.querySelector("#btnToggleFormHerramienta");
+const contenedorFormAsignacionHerramienta = document.querySelector("#contenedorFormAsignacionHerramienta");
+const btnToggleAsignacionHerramienta = document.querySelector("#btnToggleAsignacionHerramienta");
 
 let productosAlmacen = [];
 let movimientosAlmacen = [];
 let alertasStockAlmacen = [];
 let equiposAlmacen = [];
 let herramientasAlmacen = [];
+let tecnicosAlmacen = [];
 
 async function obtenerMensajeError(respuesta, mensajePredeterminado) {
     try {
@@ -715,6 +725,53 @@ function formatearFechaRegistroHerramienta(fecha) {
     }).format(fechaConvertida);
 }
 
+function actualizarOpcionesAsignacionHerramienta() {
+    const seleccionHerramienta = herramientaParaAsignar.value;
+    const disponibles = herramientasAlmacen.filter(
+        (herramienta) => herramienta.estado === "DISPONIBLE"
+    );
+    const opcionesHerramientas = [
+        new Option(
+            disponibles.length > 0
+                ? "Selecciona una herramienta..."
+                : "No hay herramientas disponibles.",
+            ""
+        )
+    ];
+
+    disponibles.forEach((herramienta) => {
+        opcionesHerramientas.push(new Option(
+            `${herramienta.codigo} - ${herramienta.nombre}`,
+            String(herramienta.id)
+        ));
+    });
+    herramientaParaAsignar.replaceChildren(...opcionesHerramientas);
+    if (disponibles.some((herramienta) => String(herramienta.id) === seleccionHerramienta)) {
+        herramientaParaAsignar.value = seleccionHerramienta;
+    }
+
+    const seleccionTecnico = tecnicoHerramienta.value;
+    const opcionesTecnicos = [
+        new Option(
+            tecnicosAlmacen.length > 0 ? "Selecciona un técnico..." : "No hay técnicos activos.",
+            ""
+        )
+    ];
+    tecnicosAlmacen.forEach((tecnico) => {
+        opcionesTecnicos.push(new Option(
+            `${tecnico.nombres}${tecnico.cargo ? ` - ${tecnico.cargo}` : ""}`,
+            String(tecnico.id)
+        ));
+    });
+    tecnicoHerramienta.replaceChildren(...opcionesTecnicos);
+    if (tecnicosAlmacen.some((tecnico) => String(tecnico.id) === seleccionTecnico)) {
+        tecnicoHerramienta.value = seleccionTecnico;
+    }
+
+    botonGuardarAsignacionHerramienta.disabled =
+        disponibles.length === 0 || tecnicosAlmacen.length === 0;
+}
+
 function filtrarHerramientas() {
     const busqueda = filtroBuscarHerramienta.value.trim().toLocaleLowerCase("es-PE");
     const estadoSeleccionado = filtroEstadoHerramienta.value;
@@ -772,12 +829,14 @@ async function cargarHerramientas() {
         }
 
         herramientasAlmacen = herramientas;
+        actualizarOpcionesAsignacionHerramienta();
         filtrarHerramientas();
         estadoHerramientas.classList.remove("almacen-mensaje-error");
         return true;
     } catch (error) {
         console.error("Error al cargar las herramientas:", error);
         herramientasAlmacen = [];
+        actualizarOpcionesAsignacionHerramienta();
         mostrarMensajeHerramientas(error.message || "Ocurrió un error al cargar las herramientas.");
         estadoHerramientas.textContent =
             error.message || "Ocurrió un error al cargar las herramientas.";
@@ -788,9 +847,169 @@ async function cargarHerramientas() {
     }
 }
 
+async function cargarTecnicos() {
+    try {
+        const respuesta = await solicitarApi("/api/personal?estado=ACTIVO");
+        const tecnicos = await respuesta.json();
+        if (!Array.isArray(tecnicos)) {
+            throw new Error("La respuesta del backend para los técnicos no tiene el formato esperado.");
+        }
+
+        tecnicosAlmacen = tecnicos.filter(
+            (tecnico) => typeof tecnico.id === "number" && tecnico.nombres
+        );
+        actualizarOpcionesAsignacionHerramienta();
+        estadoAsignacionHerramienta.textContent = tecnicosAlmacen.length > 0
+            ? ""
+            : "No hay técnicos activos disponibles para asignar herramientas.";
+        estadoAsignacionHerramienta.classList.remove("almacen-mensaje-error");
+        return true;
+    } catch (error) {
+        console.error("Error al cargar los técnicos activos:", error);
+        tecnicosAlmacen = [];
+        actualizarOpcionesAsignacionHerramienta();
+        estadoAsignacionHerramienta.textContent =
+            error.message || "No se pudieron cargar los técnicos activos.";
+        estadoAsignacionHerramienta.classList.add("almacen-mensaje-error");
+        return false;
+    }
+}
+
+function mostrarMensajeAsignacionesHerramienta(mensaje) {
+    const fila = document.createElement("tr");
+    const celda = document.createElement("td");
+
+    celda.colSpan = 5;
+    celda.className = "almacen-vacio";
+    celda.textContent = mensaje;
+    fila.append(celda);
+    listaAsignacionesHerramienta.replaceChildren(fila);
+}
+
+function mostrarAsignacionesHerramienta(asignaciones) {
+    if (asignaciones.length === 0) {
+        mostrarMensajeAsignacionesHerramienta("Todavía no hay asignaciones registradas.");
+        estadoAsignacionesHerramienta.textContent = "No hay asignaciones ni devoluciones registradas.";
+        return;
+    }
+
+    const filas = asignaciones.map((asignacion) => {
+        const fila = document.createElement("tr");
+        const tecnico = tecnicosAlmacen.find(
+            (item) => String(item.id) === String(asignacion.tecnicoId)
+        );
+        const celdaAccion = document.createElement("td");
+        if (asignacion.fechaDevolucion) {
+            celdaAccion.textContent = "Devuelta";
+        } else {
+            const botonDevolver = document.createElement("button");
+            botonDevolver.className = "almacen-boton-secundario";
+            botonDevolver.type = "button";
+            botonDevolver.dataset.asignacionId = asignacion.asignacionId;
+            botonDevolver.textContent = "Registrar devolución";
+            botonDevolver.setAttribute(
+                "aria-label",
+                `Registrar devolución de ${asignacion.nombreHerramienta ?? "herramienta"}`
+            );
+            celdaAccion.append(botonDevolver);
+        }
+
+        fila.append(
+            crearCelda(
+                `${asignacion.codigoHerramienta ?? ""} - ${asignacion.nombreHerramienta ?? ""}`.trim()
+                || "Herramienta no disponible"
+            ),
+            crearCelda(tecnico?.nombres ?? `Técnico #${asignacion.tecnicoId}`),
+            crearCelda(formatearFechaRegistroHerramienta(asignacion.fechaAsignacion)),
+            crearCelda(formatearFechaRegistroHerramienta(asignacion.fechaDevolucion)),
+            celdaAccion
+        );
+        return fila;
+    });
+
+    listaAsignacionesHerramienta.replaceChildren(...filas);
+    estadoAsignacionesHerramienta.textContent =
+        `${asignaciones.length.toLocaleString("es-PE")} asignación(es) en el historial.`;
+}
+
+async function cargarAsignacionesHerramienta() {
+    listaAsignacionesHerramienta.setAttribute("aria-busy", "true");
+    estadoAsignacionesHerramienta.textContent = "Cargando historial de asignaciones...";
+    estadoAsignacionesHerramienta.classList.remove("almacen-mensaje-error");
+
+    try {
+        const resultados = await Promise.allSettled(
+            herramientasAlmacen.map(async (herramienta) => {
+                const respuesta = await solicitarApi(
+                    `/api/v1/herramientas/${encodeURIComponent(herramienta.id)}/asignaciones`
+                );
+                const historial = await respuesta.json();
+                if (!Array.isArray(historial)) {
+                    throw new Error(
+                        `El historial de la herramienta ${herramienta.codigo} tiene un formato inesperado.`
+                    );
+                }
+                return historial;
+            })
+        );
+
+        const historiales = resultados
+            .filter((resultado) => resultado.status === "fulfilled")
+            .flatMap((resultado) => resultado.value);
+        const errores = resultados.filter((resultado) => resultado.status === "rejected");
+        mostrarAsignacionesHerramienta(historiales);
+        if (errores.length > 0) {
+            if (historiales.length === 0) {
+                mostrarMensajeAsignacionesHerramienta(
+                    "No se pudieron consultar asignaciones para algunas herramientas."
+                );
+            }
+            estadoAsignacionesHerramienta.textContent =
+                `No se pudo cargar el historial de ${errores.length} herramienta(s). Actualiza para reintentar.`;
+            estadoAsignacionesHerramienta.classList.add("almacen-mensaje-error");
+            return false;
+        }
+        return true;
+    } catch (error) {
+        console.error("Error al cargar el historial de asignaciones:", error);
+        mostrarMensajeAsignacionesHerramienta(
+            error.message || "Ocurrió un error al cargar las asignaciones."
+        );
+        estadoAsignacionesHerramienta.textContent =
+            error.message || "Ocurrió un error al cargar las asignaciones.";
+        estadoAsignacionesHerramienta.classList.add("almacen-mensaje-error");
+        return false;
+    } finally {
+        listaAsignacionesHerramienta.setAttribute("aria-busy", "false");
+    }
+}
+
+async function refrescarHerramientasYAsignaciones() {
+    const [herramientasCargadas] = await Promise.all([
+        cargarHerramientas(),
+        cargarTecnicos()
+    ]);
+    if (!herramientasCargadas) {
+        mostrarMensajeAsignacionesHerramienta(
+            "No se pudo cargar la lista de herramientas para consultar asignaciones."
+        );
+        estadoAsignacionesHerramienta.textContent =
+            "No se pudo cargar el historial. Actualiza para reintentar.";
+        estadoAsignacionesHerramienta.classList.add("almacen-mensaje-error");
+        listaAsignacionesHerramienta.setAttribute("aria-busy", "false");
+        return false;
+    }
+    return cargarAsignacionesHerramienta();
+}
+
 function establecerEstadoFormularioHerramienta(mensaje, esError = false) {
     estadoFormularioHerramienta.textContent = mensaje;
     estadoFormularioHerramienta.classList.toggle("almacen-mensaje-error", esError);
+}
+
+function establecerEstadoAsignacionHerramienta(mensaje, esError = false) {
+    estadoAsignacionHerramienta.textContent = mensaje;
+    estadoAsignacionHerramienta.classList.toggle("almacen-mensaje-error", esError);
 }
 
 function restablecerFormularioHerramienta() {
@@ -989,6 +1208,13 @@ configurarFormularioPlegable(
     null,
     restablecerFormularioHerramienta
 );
+configurarFormularioPlegable(
+    btnToggleAsignacionHerramienta,
+    contenedorFormAsignacionHerramienta,
+    formularioAsignacionHerramienta,
+    null,
+    () => formularioAsignacionHerramienta.reset()
+);
 
 botonCancelarEdicion.addEventListener("click", () => {
     restablecerFormularioProducto();
@@ -1021,7 +1247,8 @@ document.querySelector("#btnRefrescarProductos").addEventListener("click", carga
 document.querySelector("#btnRefrescarMovimientos").addEventListener("click", cargarMovimientos);
 document.querySelector("#btnRefrescarAlertas").addEventListener("click", cargarAlertasStock);
 document.querySelector("#btnRefrescarEquipos").addEventListener("click", cargarEquipos);
-document.querySelector("#btnRefrescarHerramientas").addEventListener("click", cargarHerramientas);
+document.querySelector("#btnRefrescarHerramientas")
+    .addEventListener("click", refrescarHerramientasYAsignaciones);
 
 filtroHastaMovimiento.addEventListener("change", () => {
     if (filtroDesdeMovimiento.value && filtroHastaMovimiento.value < filtroDesdeMovimiento.value) {
@@ -1270,8 +1497,92 @@ formularioHerramienta.addEventListener("submit", async (evento) => {
     }
 });
 
+formularioAsignacionHerramienta.addEventListener("submit", async (evento) => {
+    evento.preventDefault();
+    const herramientaId = herramientaParaAsignar.value;
+    const tecnicoId = tecnicoHerramienta.value;
+    if (!herramientaId || !tecnicoId) {
+        establecerEstadoAsignacionHerramienta(
+            "Selecciona una herramienta y un técnico activo.",
+            true
+        );
+        return;
+    }
+
+    botonGuardarAsignacionHerramienta.disabled = true;
+    establecerEstadoAsignacionHerramienta("Asignando herramienta...");
+
+    try {
+        await solicitarApi(
+            `/api/v1/herramientas/${encodeURIComponent(herramientaId)}/asignaciones`,
+            {
+                method: "POST",
+                body: JSON.stringify({ tecnicoId: Number(tecnicoId) })
+            }
+        );
+
+        formularioAsignacionHerramienta.reset();
+        contenedorFormAsignacionHerramienta.hidden = true;
+        btnToggleAsignacionHerramienta.setAttribute("aria-expanded", "false");
+        btnToggleAsignacionHerramienta.textContent = "Asignar a técnico";
+
+        const herramientasCargadas = await cargarHerramientas();
+        const asignacionesCargadas = herramientasCargadas
+            ? await cargarAsignacionesHerramienta()
+            : false;
+        establecerEstadoAsignacionHerramienta(
+            herramientasCargadas && asignacionesCargadas
+                ? "Herramienta asignada correctamente."
+                : "Herramienta asignada, pero no se pudo actualizar el inventario o el historial.",
+            !(herramientasCargadas && asignacionesCargadas)
+        );
+    } catch (error) {
+        console.error("Error al asignar la herramienta:", error);
+        establecerEstadoAsignacionHerramienta(
+            error.message || "No se pudo asignar la herramienta.",
+            true
+        );
+    } finally {
+        actualizarOpcionesAsignacionHerramienta();
+    }
+});
+
+listaAsignacionesHerramienta.addEventListener("click", async (evento) => {
+    const boton = evento.target.closest("[data-asignacion-id]");
+    if (!boton) {
+        return;
+    }
+
+    boton.disabled = true;
+    establecerEstadoAsignacionHerramienta("Registrando devolución...");
+    try {
+        await solicitarApi(
+            `/api/v1/herramientas/asignaciones/${encodeURIComponent(boton.dataset.asignacionId)}/devolucion`,
+            { method: "POST" }
+        );
+
+        const herramientasCargadas = await cargarHerramientas();
+        const asignacionesCargadas = herramientasCargadas
+            ? await cargarAsignacionesHerramienta()
+            : false;
+        establecerEstadoAsignacionHerramienta(
+            herramientasCargadas && asignacionesCargadas
+                ? "Devolución registrada correctamente."
+                : "Devolución registrada, pero no se pudo actualizar el inventario o el historial.",
+            !(herramientasCargadas && asignacionesCargadas)
+        );
+    } catch (error) {
+        console.error("Error al registrar la devolución:", error);
+        establecerEstadoAsignacionHerramienta(
+            error.message || "No se pudo registrar la devolución.",
+            true
+        );
+        boton.disabled = false;
+    }
+});
+
 cargarProductos();
 cargarMovimientos();
 cargarAlertasStock();
 cargarEquipos();
-cargarHerramientas();
+refrescarHerramientasYAsignaciones();

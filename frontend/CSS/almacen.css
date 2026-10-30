@@ -154,8 +154,15 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    flex-wrap: wrap;
     gap: 1rem;
     margin-bottom: 1rem;
+}
+
+.almacen-acciones-encabezado {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
 }
 
 .almacen-seccion-encabezado p {
@@ -267,7 +274,8 @@ body {
 .almacen-formulario-movimiento select,
 .almacen-formulario-equipo input,
 .almacen-formulario-equipo select,
-.almacen-formulario-herramienta input {
+.almacen-formulario-herramienta input,
+.almacen-formulario-herramienta select {
     width: 100%;
     padding: 0.7rem;
     border: 1px solid #c5cdd5;
@@ -283,7 +291,8 @@ body {
 .almacen-formulario-movimiento select:focus-visible,
 .almacen-formulario-equipo input:focus-visible,
 .almacen-formulario-equipo select:focus-visible,
-.almacen-formulario-herramienta input:focus-visible {
+.almacen-formulario-herramienta input:focus-visible,
+.almacen-formulario-herramienta select:focus-visible {
     outline: 3px solid var(--color-secondary);
 }
 
@@ -455,6 +464,14 @@ body {
 
     .almacen-boton-principal {
         width: 100%;
+    }
+
+    .almacen-acciones-encabezado {
+        width: 100%;
+    }
+
+    .almacen-acciones-encabezado button {
+        flex: 1 1 auto;
     }
 
     .almacen-barra-filtros {
