@@ -18,11 +18,12 @@
 
     <header>
         <h1>Gestión de Almacén</h1>
-        <p>Consulta de productos, movimientos y alertas de inventario</p>
+        <p>Gestiona productos, movimientos, equipos y herramientas del almacén</p>
     </header>
 
     <nav aria-label="Navegación de almacén">
-       <a href="operaciones.html">Operaciones</a>
+        <a href="index.html">Inicio</a>
+        <a href="operaciones.html">Operaciones</a>
         <a href="RRHH.html">RRHH</a>
         <a href="asistencia-trabajador.html">Asistencia</a>
         <a href="almacen.html">Almacén</a>
@@ -87,6 +88,10 @@
             <button class="almacen-pestana" id="pestana-equipos" type="button"
                 role="tab" aria-selected="false" aria-controls="panel-equipos" data-panel="panel-equipos" tabindex="-1">
                 🛠️ Equipos
+            </button>
+            <button class="almacen-pestana" id="pestana-herramientas" type="button"
+                role="tab" aria-selected="false" aria-controls="panel-herramientas" data-panel="panel-herramientas" tabindex="-1">
+                🔧 Herramientas
             </button>
         </div>
 
@@ -459,6 +464,142 @@
                     </table>
                 </div>
             </section>
+        </section>
+        </section>
+
+        <section id="panel-herramientas" class="almacen-panel" role="tabpanel"
+            aria-labelledby="pestana-herramientas" tabindex="0" hidden>
+        <section class="almacen-seccion" aria-labelledby="titulo-herramientas">
+            <div class="almacen-seccion-encabezado">
+                <div>
+                    <h2 id="titulo-herramientas">Herramientas</h2>
+                    <p>Registra herramientas y consulta su estado en el almacén.</p>
+                </div>
+                <div class="almacen-acciones-encabezado">
+                    <button id="btnToggleFormHerramienta" class="almacen-boton-principal" type="button"
+                        aria-expanded="false" aria-controls="contenedorFormHerramienta">
+                        ➕ Nueva herramienta
+                    </button>
+                    <button id="btnToggleAsignacionHerramienta" class="almacen-boton-secundario" type="button"
+                        aria-expanded="false" aria-controls="contenedorFormAsignacionHerramienta">
+                        Asignar a técnico
+                    </button>
+                </div>
+            </div>
+
+            <div id="contenedorFormHerramienta" class="almacen-formulario-contenedor" hidden>
+            <form id="formHerramienta" class="almacen-formulario-herramienta">
+                <h3>Registrar herramienta</h3>
+
+                <label for="codigoHerramienta">Código</label>
+                <input id="codigoHerramienta" name="codigo" type="text" maxlength="30" required>
+
+                <label for="nombreHerramienta">Nombre</label>
+                <input id="nombreHerramienta" name="nombre" type="text" maxlength="100" required>
+
+                <label for="descripcionHerramienta">Descripción</label>
+                <input id="descripcionHerramienta" name="descripcion" type="text" maxlength="255">
+
+                <div class="almacen-acciones-formulario">
+                    <button id="guardarHerramienta" type="submit">Registrar herramienta</button>
+                </div>
+            </form>
+            </div>
+
+            <p id="estadoFormularioHerramienta" class="almacen-mensaje" role="status" aria-live="polite"></p>
+            <p id="estadoHerramientas" class="almacen-mensaje" role="status" aria-live="polite">
+                Cargando herramientas...
+            </p>
+
+            <div id="contenedorFormAsignacionHerramienta" class="almacen-formulario-contenedor" hidden>
+            <form id="formAsignacionHerramienta" class="almacen-formulario-herramienta">
+                <h3>Asignar herramienta a técnico</h3>
+
+                <label for="herramientaParaAsignar">Herramienta disponible</label>
+                <select id="herramientaParaAsignar" name="herramientaId" required>
+                    <option value="">Cargando herramientas...</option>
+                </select>
+
+                <label for="tecnicoHerramienta">Técnico activo</label>
+                <select id="tecnicoHerramienta" name="tecnicoId" required>
+                    <option value="">Cargando técnicos...</option>
+                </select>
+
+                <div class="almacen-acciones-formulario">
+                    <button id="guardarAsignacionHerramienta" type="submit" disabled>
+                        Confirmar asignación
+                    </button>
+                </div>
+            </form>
+            </div>
+            <p id="estadoAsignacionHerramienta" class="almacen-mensaje" role="status" aria-live="polite"></p>
+
+            <div class="almacen-barra-filtros">
+                <div class="almacen-filtro">
+                    <label for="filtroBuscarHerramienta">Buscar herramienta</label>
+                    <input id="filtroBuscarHerramienta" type="search" placeholder="Código o nombre">
+                </div>
+                <div class="almacen-filtro">
+                    <label for="filtroEstadoHerramienta">Estado</label>
+                    <select id="filtroEstadoHerramienta">
+                        <option value="">Todos</option>
+                        <option value="DISPONIBLE">Disponible</option>
+                        <option value="ASIGNADA">Asignada</option>
+                        <option value="EN_MANTENIMIENTO">En mantenimiento</option>
+                        <option value="FUERA_DE_SERVICIO">Fuera de servicio</option>
+                        <option value="BAJA">Baja</option>
+                    </select>
+                </div>
+                <button id="btnRefrescarHerramientas" class="almacen-boton-secundario" type="button">
+                    ↻ Actualizar
+                </button>
+            </div>
+
+            <section class="almacen-historial-equipo" aria-labelledby="tituloAsignacionesHerramienta">
+                <h3 id="tituloAsignacionesHerramienta">Asignaciones y devoluciones</h3>
+                <p id="estadoAsignacionesHerramienta" class="almacen-mensaje" role="status" aria-live="polite">
+                    Cargando historial de asignaciones...
+                </p>
+                <div class="tabla-contenedor">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th scope="col">Herramienta</th>
+                                <th scope="col">Técnico</th>
+                                <th scope="col">Fecha de asignación</th>
+                                <th scope="col">Fecha de devolución</th>
+                                <th scope="col">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="listaAsignacionesHerramienta" aria-busy="true">
+                            <tr>
+                                <td colspan="5" class="almacen-vacio">
+                                    Consultando asignaciones...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <div class="tabla-contenedor">
+                <table>
+                    <thead>
+                        <tr>
+                            <th scope="col">Código</th>
+                            <th scope="col">Nombre</th>
+                            <th scope="col">Descripción</th>
+                            <th scope="col">Estado</th>
+                            <th scope="col">Fecha de registro</th>
+                        </tr>
+                    </thead>
+                    <tbody id="listaHerramientas" aria-busy="true">
+                        <tr>
+                            <td colspan="5" class="almacen-vacio">Consultando herramientas...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </section>
         </section>
 

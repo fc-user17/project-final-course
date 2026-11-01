@@ -3,13 +3,18 @@
     margin: 0 auto;
 }
 
+body {
+    background-color: #f1f5f9;
+}
+
 .almacen-intro,
 .almacen-seccion {
     margin-bottom: 1rem;
     padding: 1.5rem;
-    border: 1px solid #dce2e8;
-    border-radius: 8px;
+    border: 1px solid #d7e0eb;
+    border-radius: 12px;
     background-color: var(--color-white);
+    box-shadow: 0 4px 20px rgba(15, 38, 71, 0.07);
 }
 
 [hidden] {
@@ -32,10 +37,10 @@
     align-items: center;
     gap: 1rem;
     padding: 1.1rem;
-    border: 1px solid #dce2e8;
-    border-radius: 8px;
+    border: 1px solid #d7e0eb;
+    border-radius: 12px;
     background-color: var(--color-white);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 20px rgba(15, 38, 71, 0.07);
 }
 
 .almacen-metrica-icono {
@@ -73,7 +78,7 @@
     gap: 0.4rem;
     margin-bottom: 1rem;
     overflow-x: auto;
-    border-bottom: 2px solid #dce2e8;
+    border-bottom: 2px solid #d7e0eb;
 }
 
 .almacen-pestana {
@@ -96,7 +101,7 @@
 
 .almacen-pestana.active {
     border-bottom-color: var(--color-primary);
-    background-color: var(--color-white);
+    background-color: #eaf1f8;
     color: var(--color-primary);
 }
 
@@ -149,8 +154,15 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    flex-wrap: wrap;
     gap: 1rem;
     margin-bottom: 1rem;
+}
+
+.almacen-acciones-encabezado {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
 }
 
 .almacen-seccion-encabezado p {
@@ -251,12 +263,19 @@
     margin-top: 1rem;
 }
 
+.almacen-formulario-herramienta {
+    max-width: 760px;
+    margin-top: 1rem;
+}
+
 .almacen-formulario-producto input,
 .almacen-formulario-producto select,
 .almacen-formulario-movimiento input,
 .almacen-formulario-movimiento select,
 .almacen-formulario-equipo input,
-.almacen-formulario-equipo select {
+.almacen-formulario-equipo select,
+.almacen-formulario-herramienta input,
+.almacen-formulario-herramienta select {
     width: 100%;
     padding: 0.7rem;
     border: 1px solid #c5cdd5;
@@ -271,7 +290,9 @@
 .almacen-formulario-movimiento input:focus-visible,
 .almacen-formulario-movimiento select:focus-visible,
 .almacen-formulario-equipo input:focus-visible,
-.almacen-formulario-equipo select:focus-visible {
+.almacen-formulario-equipo select:focus-visible,
+.almacen-formulario-herramienta input:focus-visible,
+.almacen-formulario-herramienta select:focus-visible {
     outline: 3px solid var(--color-secondary);
 }
 
@@ -302,6 +323,15 @@
     background-color: #f8fafc;
 }
 
+.almacen-formulario-herramienta {
+    display: grid;
+    gap: 0.65rem 1rem;
+    padding: 1rem;
+    border: 1px solid #dce2e8;
+    border-radius: 6px;
+    background-color: #f8fafc;
+}
+
 .almacen-formulario-producto h3 {
     margin: 0 0 0.25rem;
     color: var(--color-primary);
@@ -313,6 +343,7 @@
 }
 
 .almacen-formulario-equipo h3,
+.almacen-formulario-herramienta h3,
 .almacen-historial-equipo h3 {
     margin: 0 0 0.25rem;
     color: var(--color-primary);
@@ -405,9 +436,16 @@
         align-items: center;
     }
 
+    .almacen-formulario-herramienta {
+        display: grid;
+        grid-template-columns: minmax(130px, 0.7fr) minmax(220px, 1.3fr);
+        align-items: center;
+    }
+
     .almacen-formulario-producto h3,
     .almacen-formulario-movimiento h3,
     .almacen-formulario-equipo h3,
+    .almacen-formulario-herramienta h3,
     .almacen-acciones-formulario {
         grid-column: 1 / -1;
     }
@@ -426,6 +464,14 @@
 
     .almacen-boton-principal {
         width: 100%;
+    }
+
+    .almacen-acciones-encabezado {
+        width: 100%;
+    }
+
+    .almacen-acciones-encabezado button {
+        flex: 1 1 auto;
     }
 
     .almacen-barra-filtros {
