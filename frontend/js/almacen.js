@@ -1,4 +1,4 @@
-const API_ALMACEN_URL = "http://localhost:8080";
+const API_ALMACEN_URL = "http://localhost:8081";
 
 const formularioProducto = document.querySelector("#formProducto");
 const tituloFormularioProducto = document.querySelector("#tituloFormularioProducto");
@@ -22,17 +22,58 @@ const botonCancelarEdicionEquipo = document.querySelector("#cancelarEdicionEquip
 const estadoFormularioEquipo = document.querySelector("#estadoFormularioEquipo");
 const listaEquipos = document.querySelector("#listaEquipos");
 const estadoEquipos = document.querySelector("#estadoEquipos");
+const formularioHerramienta = document.querySelector("#formHerramienta");
+const botonGuardarHerramienta = document.querySelector("#guardarHerramienta");
+const estadoFormularioHerramienta = document.querySelector("#estadoFormularioHerramienta");
+const listaHerramientas = document.querySelector("#listaHerramientas");
+const estadoHerramientas = document.querySelector("#estadoHerramientas");
+const filtroBuscarHerramienta = document.querySelector("#filtroBuscarHerramienta");
+const filtroEstadoHerramienta = document.querySelector("#filtroEstadoHerramienta");
+const formularioAsignacionHerramienta = document.querySelector("#formAsignacionHerramienta");
+const herramientaParaAsignar = document.querySelector("#herramientaParaAsignar");
+const tecnicoHerramienta = document.querySelector("#tecnicoHerramienta");
+const botonGuardarAsignacionHerramienta = document.querySelector("#guardarAsignacionHerramienta");
+const estadoAsignacionHerramienta = document.querySelector("#estadoAsignacionHerramienta");
+const estadoAsignacionesHerramienta = document.querySelector("#estadoAsignacionesHerramienta");
+const listaAsignacionesHerramienta = document.querySelector("#listaAsignacionesHerramienta");
 const seccionHistorialEquipo = document.querySelector("#historialEquipo");
 const tituloHistorialEquipo = document.querySelector("#tituloHistorialEquipo");
 const estadoHistorialEquipo = document.querySelector("#estadoHistorialEquipo");
 const listaHistorialEquipo = document.querySelector("#listaHistorialEquipo");
+const tabButtons = document.querySelectorAll(".almacen-pestana");
+const tabPanels = document.querySelectorAll(".almacen-panel");
+const filtroBuscarProducto = document.querySelector("#filtroBuscarProducto");
+const filtroEstadoProducto = document.querySelector("#filtroEstadoProducto");
+const filtroStockProducto = document.querySelector("#filtroStockProducto");
+const filtroTipoMovimiento = document.querySelector("#filtroTipoMovimiento");
+const filtroProductoMovimiento = document.querySelector("#filtroProductoMovimiento");
+const filtroDesdeMovimiento = document.querySelector("#filtroDesdeMovimiento");
+const filtroHastaMovimiento = document.querySelector("#filtroHastaMovimiento");
+const filtroBuscarAlerta = document.querySelector("#filtroBuscarAlerta");
+const filtroBuscarEquipo = document.querySelector("#filtroBuscarEquipo");
+const filtroEstadoEquipo = document.querySelector("#filtroEstadoEquipo");
+const contenedorFormProducto = document.querySelector("#contenedorFormProducto");
+const btnToggleFormProducto = document.querySelector("#btnToggleFormProducto");
+const contenedorFormMovimiento = document.querySelector("#contenedorFormMovimiento");
+const btnToggleFormMovimiento = document.querySelector("#btnToggleFormMovimiento");
+const contenedorFormEquipo = document.querySelector("#contenedorFormEquipo");
+const btnToggleFormEquipo = document.querySelector("#btnToggleFormEquipo");
+const contenedorFormHerramienta = document.querySelector("#contenedorFormHerramienta");
+const btnToggleFormHerramienta = document.querySelector("#btnToggleFormHerramienta");
+const contenedorFormAsignacionHerramienta = document.querySelector("#contenedorFormAsignacionHerramienta");
+const btnToggleAsignacionHerramienta = document.querySelector("#btnToggleAsignacionHerramienta");
 
 let productosAlmacen = [];
+let movimientosAlmacen = [];
+let alertasStockAlmacen = [];
+let equiposAlmacen = [];
+let herramientasAlmacen = [];
+let tecnicosAlmacen = [];
 
 async function obtenerMensajeError(respuesta, mensajePredeterminado) {
     try {
         const detalle = await respuesta.json();
-        return detalle.message || detalle.error || detalle.detail || mensajePredeterminado;
+        return detalle.message || detalle.mensaje || detalle.error || detalle.detail || mensajePredeterminado;
     } catch {
         return mensajePredeterminado;
     }
@@ -43,6 +84,10 @@ async function solicitarApi(ruta, opciones = {}) {
         Accept: "application/json",
         ...opciones.headers
     };
+    const token = sessionStorage.getItem("autenticacion");
+    if (token) {
+        headers.Authorization = `Bearer ${token}`;
+    }
     if (opciones.body) {
         headers["Content-Type"] = "application/json";
     }
@@ -53,7 +98,7 @@ async function solicitarApi(ruta, opciones = {}) {
     });
 
     if (respuesta.status === 401) {
-        throw new Error("El backend requiere autenticación para esta operación. El acceso se integrará con el login principal.");
+        throw new Error("Tu sesión no es válida o ha expirado. Inicia sesión nuevamente.");
     }
     if (respuesta.status === 403) {
         throw new Error("No tienes permisos para realizar esta operación.");
@@ -82,6 +127,90 @@ function crearEtiqueta(texto, clase) {
     return etiqueta;
 }
 
+function actualizarDashboard() {
+    document.querySelector("#kpiProductos").textContent = productosAlmacen.length.toLocaleString("es-PE");
+    document.querySelector("#kpiStockBajo").textContent = alertasStockAlmacen.length.toLocaleString("es-PE");
+    document.querySelector("#kpiMovimientos").textContent = movimientosAlmacen.length.toLocaleString("es-PE");
+    document.querySelector("#kpiEquipos").textContent = equiposAlmacen.length.toLocaleString("es-PE");
+}
+
+function activarPestana(boton) {
+    const panelActivo = document.getElementById(boton.dataset.panel);
+    if (!panelActivo) {
+        return;
+    }
+
+    tabButtons.forEach((pestana) => {
+        const seleccionada = pestana === boton;
+        pestana.classList.toggle("active", seleccionada);
+        pestana.setAttribute("aria-selected", String(seleccionada));
+        pestana.tabIndex = seleccionada ? 0 : -1;
+    });
+
+    tabPanels.forEach((panel) => {
+        const activo = panel === panelActivo;
+        panel.classList.toggle("active", activo);
+        panel.hidden = !activo;
+    });
+}
+
+function configurarPestanas() {
+    tabButtons.forEach((boton, indice) => {
+        boton.addEventListener("click", () => activarPestana(boton));
+        boton.addEventListener("keydown", (evento) => {
+            if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(evento.key)) {
+                return;
+            }
+
+            evento.preventDefault();
+            let siguienteIndice = indice;
+            if (evento.key === "ArrowRight") {
+                siguienteIndice = (indice + 1) % tabButtons.length;
+            } else if (evento.key === "ArrowLeft") {
+                siguienteIndice = (indice - 1 + tabButtons.length) % tabButtons.length;
+            } else if (evento.key === "Home") {
+                siguienteIndice = 0;
+            } else if (evento.key === "End") {
+                siguienteIndice = tabButtons.length - 1;
+            }
+
+            tabButtons[siguienteIndice].focus();
+            activarPestana(tabButtons[siguienteIndice]);
+        });
+    });
+}
+
+function configurarFormularioPlegable(boton, contenedor, formulario, cancelar, resetear) {
+    const etiquetaInicial = boton.textContent.trim();
+    boton.addEventListener("click", () => {
+        const mostrar = contenedor.hidden;
+        if (mostrar && formulario) {
+            resetear();
+        }
+        contenedor.hidden = !mostrar;
+        boton.setAttribute("aria-expanded", String(mostrar));
+        boton.textContent = mostrar ? "✕ Cerrar formulario" : etiquetaInicial;
+        if (mostrar) {
+            contenedor.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+    });
+
+    if (cancelar) {
+        cancelar.addEventListener("click", () => {
+            resetear();
+            contenedor.hidden = true;
+            boton.setAttribute("aria-expanded", "false");
+            boton.textContent = etiquetaInicial;
+        });
+    }
+}
+
+function abrirFormularioPlegable(boton, contenedor) {
+    contenedor.hidden = false;
+    boton.setAttribute("aria-expanded", "true");
+    boton.textContent = "✕ Cerrar formulario";
+}
+
 function mostrarMensajeTabla(mensaje) {
     const fila = document.createElement("tr");
     const celda = document.createElement("td");
@@ -96,10 +225,39 @@ function mostrarMensajeTabla(mensaje) {
 function mostrarProductos(productos) {
     productosAlmacen = productos;
     actualizarOpcionesProductosMovimiento();
+    actualizarOpcionesFiltroProducto();
+    actualizarDashboard();
+
+    filtrarProductos();
+}
+
+function filtrarProductos() {
+    const busqueda = filtroBuscarProducto.value.trim().toLocaleLowerCase("es-PE");
+    const estadoSeleccionado = filtroEstadoProducto.value;
+    const stockSeleccionado = filtroStockProducto.value;
+    const productos = productosAlmacen.filter((producto) => {
+        const coincideBusqueda = `${producto.codigo ?? ""} ${producto.nombre ?? ""}`
+            .toLocaleLowerCase("es-PE")
+            .includes(busqueda);
+        const coincideEstado = !estadoSeleccionado
+            || (estadoSeleccionado === "activo" ? producto.estado === true : producto.estado === false);
+        const stockActual = Number(producto.stockActual);
+        const stockMinimo = Number(producto.stockMinimo);
+        const tieneStockValido = Number.isFinite(stockActual) && Number.isFinite(stockMinimo);
+        const stockBajo = tieneStockValido && stockActual <= stockMinimo;
+        const coincideStock = !stockSeleccionado
+            || (stockSeleccionado === "bajo" ? stockBajo : tieneStockValido && !stockBajo);
+
+        return coincideBusqueda && coincideEstado && coincideStock;
+    });
 
     if (productos.length === 0) {
-        mostrarMensajeTabla("No hay productos registrados.");
-        estadoProductos.textContent = "No se encontraron productos en el inventario.";
+        mostrarMensajeTabla(productosAlmacen.length === 0
+            ? "No hay productos registrados."
+            : "No hay productos que coincidan con los filtros.");
+        estadoProductos.textContent = productosAlmacen.length === 0
+            ? "No se encontraron productos en el inventario."
+            : "No se encontraron productos con los filtros seleccionados.";
         return;
     }
 
@@ -155,7 +313,24 @@ function mostrarProductos(productos) {
     });
 
     listaProductos.replaceChildren(...filas);
-    estadoProductos.textContent = `${productos.length.toLocaleString("es-PE")} producto(s) en el inventario.`;
+    estadoProductos.textContent = `Mostrando ${productos.length.toLocaleString("es-PE")} de ${productosAlmacen.length.toLocaleString("es-PE")} producto(s).`;
+}
+
+function actualizarOpcionesFiltroProducto() {
+    const seleccionActual = filtroProductoMovimiento.value;
+    const opciones = [new Option("Todos los productos", "")];
+
+    productosAlmacen.forEach((producto) => {
+        opciones.push(new Option(
+            `${producto.codigo ?? ""} - ${producto.nombre ?? ""}`.trim(),
+            String(producto.id)
+        ));
+    });
+
+    filtroProductoMovimiento.replaceChildren(...opciones);
+    if (productosAlmacen.some((producto) => String(producto.id) === seleccionActual)) {
+        filtroProductoMovimiento.value = seleccionActual;
+    }
 }
 
 function actualizarOpcionesProductosMovimiento() {
@@ -198,7 +373,9 @@ async function cargarProductos() {
         console.error("Error al cargar los productos del almacén:", error);
         productosAlmacen = [];
         actualizarOpcionesProductosMovimiento();
-        mostrarMensajeTabla(error.message || "Ocurrió un error al cargar los productos.");
+        actualizarOpcionesFiltroProducto();
+        actualizarDashboard();
+        filtrarProductos();
         estadoProductos.textContent = error.message || "Ocurrió un error al cargar los productos.";
         estadoProductos.classList.add("almacen-mensaje-error");
         return false;
@@ -230,9 +407,31 @@ function formatearFechaMovimiento(fecha) {
 }
 
 function mostrarMovimientos(movimientos) {
+    movimientosAlmacen = movimientos;
+    actualizarDashboard();
+    filtrarMovimientos();
+}
+
+function filtrarMovimientos() {
+    const tipo = filtroTipoMovimiento.value;
+    const productoId = filtroProductoMovimiento.value;
+    const desde = filtroDesdeMovimiento.value;
+    const hasta = filtroHastaMovimiento.value;
+    const movimientos = movimientosAlmacen.filter((movimiento) => {
+        const fecha = movimiento.fechaMovimiento ? movimiento.fechaMovimiento.slice(0, 10) : "";
+        return (!tipo || movimiento.tipoMovimiento === tipo)
+            && (!productoId || String(movimiento.producto?.id) === productoId)
+            && (!desde || (fecha && fecha >= desde))
+            && (!hasta || (fecha && fecha <= hasta));
+    });
+
     if (movimientos.length === 0) {
-        mostrarMensajeMovimientos("Todavía no hay movimientos registrados.");
-        estadoMovimientos.textContent = "No se encontraron movimientos de inventario.";
+        mostrarMensajeMovimientos(movimientosAlmacen.length === 0
+            ? "Todavía no hay movimientos registrados."
+            : "No hay movimientos que coincidan con los filtros.");
+        estadoMovimientos.textContent = movimientosAlmacen.length === 0
+            ? "No se encontraron movimientos de inventario."
+            : "No se encontraron movimientos con los filtros seleccionados.";
         return;
     }
 
@@ -261,7 +460,7 @@ function mostrarMovimientos(movimientos) {
     });
 
     listaMovimientos.replaceChildren(...filas);
-    estadoMovimientos.textContent = `${movimientos.length.toLocaleString("es-PE")} movimiento(s) registrados.`;
+    estadoMovimientos.textContent = `Mostrando ${movimientos.length.toLocaleString("es-PE")} de ${movimientosAlmacen.length.toLocaleString("es-PE")} movimiento(s).`;
 }
 
 async function cargarMovimientos() {
@@ -279,6 +478,8 @@ async function cargarMovimientos() {
         return true;
     } catch (error) {
         console.error("Error al cargar los movimientos de inventario:", error);
+        movimientosAlmacen = [];
+        actualizarDashboard();
         mostrarMensajeMovimientos(error.message || "Ocurrió un error al cargar los movimientos.");
         estadoMovimientos.textContent = error.message || "Ocurrió un error al cargar los movimientos.";
         estadoMovimientos.classList.add("almacen-mensaje-error");
@@ -300,9 +501,24 @@ function mostrarMensajeAlertas(mensaje) {
 }
 
 function mostrarAlertasStock(alertas) {
+    alertasStockAlmacen = alertas;
+    actualizarDashboard();
+    filtrarAlertasStock();
+}
+
+function filtrarAlertasStock() {
+    const busqueda = filtroBuscarAlerta.value.trim().toLocaleLowerCase("es-PE");
+    const alertas = alertasStockAlmacen.filter((alerta) =>
+        `${alerta.codigo ?? ""} ${alerta.nombre ?? ""}`.toLocaleLowerCase("es-PE").includes(busqueda)
+    );
+
     if (alertas.length === 0) {
-        mostrarMensajeAlertas("No hay productos con stock bajo.");
-        estadoAlertasStock.textContent = "No hay alertas de stock bajo.";
+        mostrarMensajeAlertas(alertasStockAlmacen.length === 0
+            ? "No hay productos con stock bajo."
+            : "No hay alertas que coincidan con la búsqueda.");
+        estadoAlertasStock.textContent = alertasStockAlmacen.length === 0
+            ? "No hay alertas de stock bajo."
+            : "No hay alertas que coincidan con la búsqueda.";
         return;
     }
 
@@ -325,7 +541,7 @@ function mostrarAlertasStock(alertas) {
     });
 
     listaAlertasStock.replaceChildren(...filas);
-    estadoAlertasStock.textContent = `${alertas.length.toLocaleString("es-PE")} producto(s) requieren reposición.`;
+    estadoAlertasStock.textContent = `Mostrando ${alertas.length.toLocaleString("es-PE")} de ${alertasStockAlmacen.length.toLocaleString("es-PE")} producto(s) que requieren reposición.`;
 }
 
 async function cargarAlertasStock() {
@@ -343,6 +559,8 @@ async function cargarAlertasStock() {
         return true;
     } catch (error) {
         console.error("Error al cargar las alertas de stock bajo:", error);
+        alertasStockAlmacen = [];
+        actualizarDashboard();
         mostrarMensajeAlertas(error.message || "Ocurrió un error al cargar las alertas.");
         estadoAlertasStock.textContent = error.message || "Ocurrió un error al cargar las alertas.";
         estadoAlertasStock.classList.add("almacen-mensaje-error");
@@ -374,9 +592,34 @@ function traducirEstadoEquipo(estado) {
 }
 
 function mostrarEquipos(equipos) {
+    equiposAlmacen = equipos;
+    actualizarDashboard();
+    filtrarEquipos();
+}
+
+function filtrarEquipos() {
+    const busqueda = filtroBuscarEquipo.value.trim().toLocaleLowerCase("es-PE");
+    const estadoSeleccionado = filtroEstadoEquipo.value;
+    const equipos = equiposAlmacen.filter((equipo) => {
+        const textoEquipo = [
+            equipo.codigoPatrimonial,
+            equipo.marca,
+            equipo.modelo,
+            equipo.numeroSerie,
+            equipo.ubicacion,
+            equipo.responsable
+        ].join(" ").toLocaleLowerCase("es-PE");
+        return textoEquipo.includes(busqueda)
+            && (!estadoSeleccionado || equipo.estado === estadoSeleccionado);
+    });
+
     if (equipos.length === 0) {
-        mostrarMensajeEquipos("No hay equipos registrados.");
-        estadoEquipos.textContent = "No se encontraron equipos.";
+        mostrarMensajeEquipos(equiposAlmacen.length === 0
+            ? "No hay equipos registrados."
+            : "No hay equipos que coincidan con los filtros.");
+        estadoEquipos.textContent = equiposAlmacen.length === 0
+            ? "No se encontraron equipos."
+            : "No se encontraron equipos con los filtros seleccionados.";
         return;
     }
 
@@ -415,7 +658,7 @@ function mostrarEquipos(equipos) {
     });
 
     listaEquipos.replaceChildren(...filas);
-    estadoEquipos.textContent = `${equipos.length.toLocaleString("es-PE")} equipo(s) registrados.`;
+    estadoEquipos.textContent = `Mostrando ${equipos.length.toLocaleString("es-PE")} de ${equiposAlmacen.length.toLocaleString("es-PE")} equipo(s).`;
 }
 
 async function cargarEquipos() {
@@ -433,6 +676,8 @@ async function cargarEquipos() {
         return true;
     } catch (error) {
         console.error("Error al cargar los equipos:", error);
+        equiposAlmacen = [];
+        actualizarDashboard();
         mostrarMensajeEquipos(error.message || "Ocurrió un error al cargar los equipos.");
         estadoEquipos.textContent = error.message || "Ocurrió un error al cargar los equipos.";
         estadoEquipos.classList.add("almacen-mensaje-error");
@@ -440,6 +685,336 @@ async function cargarEquipos() {
     } finally {
         listaEquipos.setAttribute("aria-busy", "false");
     }
+}
+
+function mostrarMensajeHerramientas(mensaje) {
+    const fila = document.createElement("tr");
+    const celda = document.createElement("td");
+
+    celda.colSpan = 5;
+    celda.className = "almacen-vacio";
+    celda.textContent = mensaje;
+    fila.append(celda);
+    listaHerramientas.replaceChildren(fila);
+}
+
+function traducirEstadoHerramienta(estado) {
+    const etiquetas = {
+        DISPONIBLE: "Disponible",
+        ASIGNADA: "Asignada",
+        EN_MANTENIMIENTO: "En mantenimiento",
+        FUERA_DE_SERVICIO: "Fuera de servicio",
+        BAJA: "Baja"
+    };
+    return etiquetas[estado] ?? estado ?? "Sin información";
+}
+
+function formatearFechaRegistroHerramienta(fecha) {
+    if (!fecha) {
+        return "—";
+    }
+
+    const fechaConvertida = new Date(fecha);
+    if (Number.isNaN(fechaConvertida.getTime())) {
+        return fecha;
+    }
+
+    return new Intl.DateTimeFormat("es-PE", {
+        dateStyle: "short",
+        timeStyle: "short"
+    }).format(fechaConvertida);
+}
+
+function actualizarOpcionesAsignacionHerramienta() {
+    const seleccionHerramienta = herramientaParaAsignar.value;
+    const disponibles = herramientasAlmacen.filter(
+        (herramienta) => herramienta.estado === "DISPONIBLE"
+    );
+    const opcionesHerramientas = [
+        new Option(
+            disponibles.length > 0
+                ? "Selecciona una herramienta..."
+                : "No hay herramientas disponibles.",
+            ""
+        )
+    ];
+
+    disponibles.forEach((herramienta) => {
+        opcionesHerramientas.push(new Option(
+            `${herramienta.codigo} - ${herramienta.nombre}`,
+            String(herramienta.id)
+        ));
+    });
+    herramientaParaAsignar.replaceChildren(...opcionesHerramientas);
+    if (disponibles.some((herramienta) => String(herramienta.id) === seleccionHerramienta)) {
+        herramientaParaAsignar.value = seleccionHerramienta;
+    }
+
+    const seleccionTecnico = tecnicoHerramienta.value;
+    const opcionesTecnicos = [
+        new Option(
+            tecnicosAlmacen.length > 0 ? "Selecciona un técnico..." : "No hay técnicos activos.",
+            ""
+        )
+    ];
+    tecnicosAlmacen.forEach((tecnico) => {
+        opcionesTecnicos.push(new Option(
+            `${tecnico.nombres}${tecnico.cargo ? ` - ${tecnico.cargo}` : ""}`,
+            String(tecnico.id)
+        ));
+    });
+    tecnicoHerramienta.replaceChildren(...opcionesTecnicos);
+    if (tecnicosAlmacen.some((tecnico) => String(tecnico.id) === seleccionTecnico)) {
+        tecnicoHerramienta.value = seleccionTecnico;
+    }
+
+    botonGuardarAsignacionHerramienta.disabled =
+        disponibles.length === 0 || tecnicosAlmacen.length === 0;
+}
+
+function filtrarHerramientas() {
+    const busqueda = filtroBuscarHerramienta.value.trim().toLocaleLowerCase("es-PE");
+    const estadoSeleccionado = filtroEstadoHerramienta.value;
+    const herramientas = herramientasAlmacen.filter((herramienta) =>
+        `${herramienta.codigo ?? ""} ${herramienta.nombre ?? ""}`
+            .toLocaleLowerCase("es-PE")
+            .includes(busqueda)
+        && (!estadoSeleccionado || herramienta.estado === estadoSeleccionado)
+    );
+
+    if (herramientas.length === 0) {
+        mostrarMensajeHerramientas(herramientasAlmacen.length === 0
+            ? "No hay herramientas registradas."
+            : "No hay herramientas que coincidan con los filtros.");
+        estadoHerramientas.textContent = herramientasAlmacen.length === 0
+            ? "No se encontraron herramientas."
+            : "No se encontraron herramientas con los filtros seleccionados.";
+        return;
+    }
+
+    const filas = herramientas.map((herramienta) => {
+        const fila = document.createElement("tr");
+        const estado = (herramienta.estado ?? "").toUpperCase();
+        const claseEstado = estado === "DISPONIBLE" || estado === "ASIGNADA"
+            ? "almacen-etiqueta-activo"
+            : "almacen-etiqueta-inactivo";
+        const celdaEstado = document.createElement("td");
+        celdaEstado.append(
+            crearEtiqueta(traducirEstadoHerramienta(herramienta.estado), claseEstado)
+        );
+
+        fila.append(
+            crearCelda(herramienta.codigo ?? "—"),
+            crearCelda(herramienta.nombre ?? "—"),
+            crearCelda(herramienta.descripcion ?? "—"),
+            celdaEstado,
+            crearCelda(formatearFechaRegistroHerramienta(herramienta.fechaRegistro))
+        );
+        return fila;
+    });
+
+    listaHerramientas.replaceChildren(...filas);
+    estadoHerramientas.textContent =
+        `Mostrando ${herramientas.length.toLocaleString("es-PE")} de ${herramientasAlmacen.length.toLocaleString("es-PE")} herramienta(s).`;
+}
+
+async function cargarHerramientas() {
+    listaHerramientas.setAttribute("aria-busy", "true");
+
+    try {
+        const respuesta = await solicitarApi("/api/v1/herramientas");
+        const herramientas = await respuesta.json();
+        if (!Array.isArray(herramientas)) {
+            throw new Error("La respuesta del backend para las herramientas no tiene el formato esperado.");
+        }
+
+        herramientasAlmacen = herramientas;
+        actualizarOpcionesAsignacionHerramienta();
+        filtrarHerramientas();
+        estadoHerramientas.classList.remove("almacen-mensaje-error");
+        return true;
+    } catch (error) {
+        console.error("Error al cargar las herramientas:", error);
+        herramientasAlmacen = [];
+        actualizarOpcionesAsignacionHerramienta();
+        mostrarMensajeHerramientas(error.message || "Ocurrió un error al cargar las herramientas.");
+        estadoHerramientas.textContent =
+            error.message || "Ocurrió un error al cargar las herramientas.";
+        estadoHerramientas.classList.add("almacen-mensaje-error");
+        return false;
+    } finally {
+        listaHerramientas.setAttribute("aria-busy", "false");
+    }
+}
+
+async function cargarTecnicos() {
+    try {
+        const respuesta = await solicitarApi("/api/personal?estado=ACTIVO");
+        const tecnicos = await respuesta.json();
+        if (!Array.isArray(tecnicos)) {
+            throw new Error("La respuesta del backend para los técnicos no tiene el formato esperado.");
+        }
+
+        tecnicosAlmacen = tecnicos.filter(
+            (tecnico) => typeof tecnico.id === "number" && tecnico.nombres
+        );
+        actualizarOpcionesAsignacionHerramienta();
+        estadoAsignacionHerramienta.textContent = tecnicosAlmacen.length > 0
+            ? ""
+            : "No hay técnicos activos disponibles para asignar herramientas.";
+        estadoAsignacionHerramienta.classList.remove("almacen-mensaje-error");
+        return true;
+    } catch (error) {
+        console.error("Error al cargar los técnicos activos:", error);
+        tecnicosAlmacen = [];
+        actualizarOpcionesAsignacionHerramienta();
+        estadoAsignacionHerramienta.textContent =
+            error.message || "No se pudieron cargar los técnicos activos.";
+        estadoAsignacionHerramienta.classList.add("almacen-mensaje-error");
+        return false;
+    }
+}
+
+function mostrarMensajeAsignacionesHerramienta(mensaje) {
+    const fila = document.createElement("tr");
+    const celda = document.createElement("td");
+
+    celda.colSpan = 5;
+    celda.className = "almacen-vacio";
+    celda.textContent = mensaje;
+    fila.append(celda);
+    listaAsignacionesHerramienta.replaceChildren(fila);
+}
+
+function mostrarAsignacionesHerramienta(asignaciones) {
+    if (asignaciones.length === 0) {
+        mostrarMensajeAsignacionesHerramienta("Todavía no hay asignaciones registradas.");
+        estadoAsignacionesHerramienta.textContent = "No hay asignaciones ni devoluciones registradas.";
+        return;
+    }
+
+    const filas = asignaciones.map((asignacion) => {
+        const fila = document.createElement("tr");
+        const tecnico = tecnicosAlmacen.find(
+            (item) => String(item.id) === String(asignacion.tecnicoId)
+        );
+        const celdaAccion = document.createElement("td");
+        if (asignacion.fechaDevolucion) {
+            celdaAccion.textContent = "Devuelta";
+        } else {
+            const botonDevolver = document.createElement("button");
+            botonDevolver.className = "almacen-boton-secundario";
+            botonDevolver.type = "button";
+            botonDevolver.dataset.asignacionId = asignacion.asignacionId;
+            botonDevolver.textContent = "Registrar devolución";
+            botonDevolver.setAttribute(
+                "aria-label",
+                `Registrar devolución de ${asignacion.nombreHerramienta ?? "herramienta"}`
+            );
+            celdaAccion.append(botonDevolver);
+        }
+
+        fila.append(
+            crearCelda(
+                `${asignacion.codigoHerramienta ?? ""} - ${asignacion.nombreHerramienta ?? ""}`.trim()
+                || "Herramienta no disponible"
+            ),
+            crearCelda(tecnico?.nombres ?? `Técnico #${asignacion.tecnicoId}`),
+            crearCelda(formatearFechaRegistroHerramienta(asignacion.fechaAsignacion)),
+            crearCelda(formatearFechaRegistroHerramienta(asignacion.fechaDevolucion)),
+            celdaAccion
+        );
+        return fila;
+    });
+
+    listaAsignacionesHerramienta.replaceChildren(...filas);
+    estadoAsignacionesHerramienta.textContent =
+        `${asignaciones.length.toLocaleString("es-PE")} asignación(es) en el historial.`;
+}
+
+async function cargarAsignacionesHerramienta() {
+    listaAsignacionesHerramienta.setAttribute("aria-busy", "true");
+    estadoAsignacionesHerramienta.textContent = "Cargando historial de asignaciones...";
+    estadoAsignacionesHerramienta.classList.remove("almacen-mensaje-error");
+
+    try {
+        const resultados = await Promise.allSettled(
+            herramientasAlmacen.map(async (herramienta) => {
+                const respuesta = await solicitarApi(
+                    `/api/v1/herramientas/${encodeURIComponent(herramienta.id)}/asignaciones`
+                );
+                const historial = await respuesta.json();
+                if (!Array.isArray(historial)) {
+                    throw new Error(
+                        `El historial de la herramienta ${herramienta.codigo} tiene un formato inesperado.`
+                    );
+                }
+                return historial;
+            })
+        );
+
+        const historiales = resultados
+            .filter((resultado) => resultado.status === "fulfilled")
+            .flatMap((resultado) => resultado.value);
+        const errores = resultados.filter((resultado) => resultado.status === "rejected");
+        mostrarAsignacionesHerramienta(historiales);
+        if (errores.length > 0) {
+            if (historiales.length === 0) {
+                mostrarMensajeAsignacionesHerramienta(
+                    "No se pudieron consultar asignaciones para algunas herramientas."
+                );
+            }
+            estadoAsignacionesHerramienta.textContent =
+                `No se pudo cargar el historial de ${errores.length} herramienta(s). Actualiza para reintentar.`;
+            estadoAsignacionesHerramienta.classList.add("almacen-mensaje-error");
+            return false;
+        }
+        return true;
+    } catch (error) {
+        console.error("Error al cargar el historial de asignaciones:", error);
+        mostrarMensajeAsignacionesHerramienta(
+            error.message || "Ocurrió un error al cargar las asignaciones."
+        );
+        estadoAsignacionesHerramienta.textContent =
+            error.message || "Ocurrió un error al cargar las asignaciones.";
+        estadoAsignacionesHerramienta.classList.add("almacen-mensaje-error");
+        return false;
+    } finally {
+        listaAsignacionesHerramienta.setAttribute("aria-busy", "false");
+    }
+}
+
+async function refrescarHerramientasYAsignaciones() {
+    const [herramientasCargadas] = await Promise.all([
+        cargarHerramientas(),
+        cargarTecnicos()
+    ]);
+    if (!herramientasCargadas) {
+        mostrarMensajeAsignacionesHerramienta(
+            "No se pudo cargar la lista de herramientas para consultar asignaciones."
+        );
+        estadoAsignacionesHerramienta.textContent =
+            "No se pudo cargar el historial. Actualiza para reintentar.";
+        estadoAsignacionesHerramienta.classList.add("almacen-mensaje-error");
+        listaAsignacionesHerramienta.setAttribute("aria-busy", "false");
+        return false;
+    }
+    return cargarAsignacionesHerramienta();
+}
+
+function establecerEstadoFormularioHerramienta(mensaje, esError = false) {
+    estadoFormularioHerramienta.textContent = mensaje;
+    estadoFormularioHerramienta.classList.toggle("almacen-mensaje-error", esError);
+}
+
+function establecerEstadoAsignacionHerramienta(mensaje, esError = false) {
+    estadoAsignacionHerramienta.textContent = mensaje;
+    estadoAsignacionHerramienta.classList.toggle("almacen-mensaje-error", esError);
+}
+
+function restablecerFormularioHerramienta() {
+    formularioHerramienta.reset();
+    establecerEstadoFormularioHerramienta("");
 }
 
 function establecerEstadoFormularioEquipo(mensaje, esError = false) {
@@ -469,6 +1044,7 @@ function iniciarEdicionEquipo(equipo) {
     botonGuardarEquipo.textContent = "Guardar cambios";
     botonCancelarEdicionEquipo.hidden = false;
     establecerEstadoFormularioEquipo("Edita los datos y guarda los cambios.");
+    abrirFormularioPlegable(btnToggleFormEquipo, contenedorFormEquipo);
     formularioEquipo.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
@@ -599,10 +1175,98 @@ function iniciarEdicion(producto) {
     botonGuardarProducto.textContent = "Guardar cambios";
     botonCancelarEdicion.hidden = false;
     establecerEstadoFormulario("Edita los datos y guarda los cambios.");
+    abrirFormularioPlegable(btnToggleFormProducto, contenedorFormProducto);
     formularioProducto.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
-botonCancelarEdicion.addEventListener("click", restablecerFormularioProducto);
+configurarPestanas();
+configurarFormularioPlegable(
+    btnToggleFormProducto,
+    contenedorFormProducto,
+    formularioProducto,
+    null,
+    restablecerFormularioProducto
+);
+configurarFormularioPlegable(
+    btnToggleFormMovimiento,
+    contenedorFormMovimiento,
+    formularioMovimiento,
+    null,
+    () => formularioMovimiento.reset()
+);
+configurarFormularioPlegable(
+    btnToggleFormEquipo,
+    contenedorFormEquipo,
+    formularioEquipo,
+    null,
+    restablecerFormularioEquipo
+);
+configurarFormularioPlegable(
+    btnToggleFormHerramienta,
+    contenedorFormHerramienta,
+    formularioHerramienta,
+    null,
+    restablecerFormularioHerramienta
+);
+configurarFormularioPlegable(
+    btnToggleAsignacionHerramienta,
+    contenedorFormAsignacionHerramienta,
+    formularioAsignacionHerramienta,
+    null,
+    () => formularioAsignacionHerramienta.reset()
+);
+
+botonCancelarEdicion.addEventListener("click", () => {
+    restablecerFormularioProducto();
+    contenedorFormProducto.hidden = true;
+    btnToggleFormProducto.setAttribute("aria-expanded", "false");
+    btnToggleFormProducto.textContent = "➕ Nuevo producto";
+});
+
+botonCancelarEdicionEquipo.addEventListener("click", () => {
+    restablecerFormularioEquipo();
+    contenedorFormEquipo.hidden = true;
+    btnToggleFormEquipo.setAttribute("aria-expanded", "false");
+    btnToggleFormEquipo.textContent = "➕ Nuevo equipo";
+});
+
+filtroBuscarProducto.addEventListener("input", filtrarProductos);
+filtroEstadoProducto.addEventListener("change", filtrarProductos);
+filtroStockProducto.addEventListener("change", filtrarProductos);
+filtroTipoMovimiento.addEventListener("change", filtrarMovimientos);
+filtroProductoMovimiento.addEventListener("change", filtrarMovimientos);
+filtroDesdeMovimiento.addEventListener("change", filtrarMovimientos);
+filtroHastaMovimiento.addEventListener("change", filtrarMovimientos);
+filtroBuscarAlerta.addEventListener("input", filtrarAlertasStock);
+filtroBuscarEquipo.addEventListener("input", filtrarEquipos);
+filtroEstadoEquipo.addEventListener("change", filtrarEquipos);
+filtroBuscarHerramienta.addEventListener("input", filtrarHerramientas);
+filtroEstadoHerramienta.addEventListener("change", filtrarHerramientas);
+
+document.querySelector("#btnRefrescarProductos").addEventListener("click", cargarProductos);
+document.querySelector("#btnRefrescarMovimientos").addEventListener("click", cargarMovimientos);
+document.querySelector("#btnRefrescarAlertas").addEventListener("click", cargarAlertasStock);
+document.querySelector("#btnRefrescarEquipos").addEventListener("click", cargarEquipos);
+document.querySelector("#btnRefrescarHerramientas")
+    .addEventListener("click", refrescarHerramientasYAsignaciones);
+
+filtroHastaMovimiento.addEventListener("change", () => {
+    if (filtroDesdeMovimiento.value && filtroHastaMovimiento.value < filtroDesdeMovimiento.value) {
+        filtroHastaMovimiento.setCustomValidity("La fecha final debe ser igual o posterior a la fecha inicial.");
+        filtroHastaMovimiento.reportValidity();
+        return;
+    }
+    filtroHastaMovimiento.setCustomValidity("");
+});
+
+filtroDesdeMovimiento.addEventListener("change", () => {
+    if (filtroHastaMovimiento.value && filtroHastaMovimiento.value < filtroDesdeMovimiento.value) {
+        filtroDesdeMovimiento.setCustomValidity("La fecha inicial debe ser igual o anterior a la fecha final.");
+        filtroDesdeMovimiento.reportValidity();
+        return;
+    }
+    filtroDesdeMovimiento.setCustomValidity("");
+});
 
 listaProductos.addEventListener("click", async (evento) => {
     const boton = evento.target.closest("[data-producto-id]");
@@ -646,6 +1310,9 @@ formularioProducto.addEventListener("submit", async (evento) => {
         );
 
         restablecerFormularioProducto();
+        contenedorFormProducto.hidden = true;
+        btnToggleFormProducto.setAttribute("aria-expanded", "false");
+        btnToggleFormProducto.textContent = "➕ Nuevo producto";
         const [productosCargados, alertasCargadas] = await Promise.all([
             cargarProductos(),
             cargarAlertasStock()
@@ -690,6 +1357,9 @@ formularioMovimiento.addEventListener("submit", async (evento) => {
         });
 
         formularioMovimiento.reset();
+        contenedorFormMovimiento.hidden = true;
+        btnToggleFormMovimiento.setAttribute("aria-expanded", "false");
+        btnToggleFormMovimiento.textContent = "➕ Registrar movimiento";
         const [productosCargados, movimientosCargados, alertasCargadas] = await Promise.all([
             cargarProductos(),
             cargarMovimientos(),
@@ -715,8 +1385,6 @@ formularioMovimiento.addEventListener("submit", async (evento) => {
         botonGuardarMovimiento.disabled = productosAlmacen.every((producto) => producto.estado !== true);
     }
 });
-
-botonCancelarEdicionEquipo.addEventListener("click", restablecerFormularioEquipo);
 
 listaEquipos.addEventListener("click", async (evento) => {
     const boton = evento.target.closest("[data-accion-equipo]");
@@ -767,6 +1435,9 @@ formularioEquipo.addEventListener("submit", async (evento) => {
         );
 
         restablecerFormularioEquipo();
+        contenedorFormEquipo.hidden = true;
+        btnToggleFormEquipo.setAttribute("aria-expanded", "false");
+        btnToggleFormEquipo.textContent = "➕ Nuevo equipo";
         const equiposCargados = await cargarEquipos();
         establecerEstadoFormularioEquipo(
             id
@@ -786,7 +1457,132 @@ formularioEquipo.addEventListener("submit", async (evento) => {
     }
 });
 
+formularioHerramienta.addEventListener("submit", async (evento) => {
+    evento.preventDefault();
+    const herramienta = {
+        codigo: document.querySelector("#codigoHerramienta").value.trim(),
+        nombre: document.querySelector("#nombreHerramienta").value.trim(),
+        descripcion: document.querySelector("#descripcionHerramienta").value.trim()
+    };
+
+    botonGuardarHerramienta.disabled = true;
+    establecerEstadoFormularioHerramienta("Registrando herramienta...");
+
+    try {
+        await solicitarApi("/api/v1/herramientas", {
+            method: "POST",
+            body: JSON.stringify(herramienta)
+        });
+
+        restablecerFormularioHerramienta();
+        contenedorFormHerramienta.hidden = true;
+        btnToggleFormHerramienta.setAttribute("aria-expanded", "false");
+        btnToggleFormHerramienta.textContent = "➕ Nueva herramienta";
+
+        const herramientasCargadas = await cargarHerramientas();
+        establecerEstadoFormularioHerramienta(
+            herramientasCargadas
+                ? "Herramienta registrada correctamente."
+                : "Herramienta registrada, pero no se pudo actualizar la lista.",
+            !herramientasCargadas
+        );
+    } catch (error) {
+        console.error("Error al registrar la herramienta:", error);
+        establecerEstadoFormularioHerramienta(
+            error.message || "No se pudo registrar la herramienta.",
+            true
+        );
+    } finally {
+        botonGuardarHerramienta.disabled = false;
+    }
+});
+
+formularioAsignacionHerramienta.addEventListener("submit", async (evento) => {
+    evento.preventDefault();
+    const herramientaId = herramientaParaAsignar.value;
+    const tecnicoId = tecnicoHerramienta.value;
+    if (!herramientaId || !tecnicoId) {
+        establecerEstadoAsignacionHerramienta(
+            "Selecciona una herramienta y un técnico activo.",
+            true
+        );
+        return;
+    }
+
+    botonGuardarAsignacionHerramienta.disabled = true;
+    establecerEstadoAsignacionHerramienta("Asignando herramienta...");
+
+    try {
+        await solicitarApi(
+            `/api/v1/herramientas/${encodeURIComponent(herramientaId)}/asignaciones`,
+            {
+                method: "POST",
+                body: JSON.stringify({ tecnicoId: Number(tecnicoId) })
+            }
+        );
+
+        formularioAsignacionHerramienta.reset();
+        contenedorFormAsignacionHerramienta.hidden = true;
+        btnToggleAsignacionHerramienta.setAttribute("aria-expanded", "false");
+        btnToggleAsignacionHerramienta.textContent = "Asignar a técnico";
+
+        const herramientasCargadas = await cargarHerramientas();
+        const asignacionesCargadas = herramientasCargadas
+            ? await cargarAsignacionesHerramienta()
+            : false;
+        establecerEstadoAsignacionHerramienta(
+            herramientasCargadas && asignacionesCargadas
+                ? "Herramienta asignada correctamente."
+                : "Herramienta asignada, pero no se pudo actualizar el inventario o el historial.",
+            !(herramientasCargadas && asignacionesCargadas)
+        );
+    } catch (error) {
+        console.error("Error al asignar la herramienta:", error);
+        establecerEstadoAsignacionHerramienta(
+            error.message || "No se pudo asignar la herramienta.",
+            true
+        );
+    } finally {
+        actualizarOpcionesAsignacionHerramienta();
+    }
+});
+
+listaAsignacionesHerramienta.addEventListener("click", async (evento) => {
+    const boton = evento.target.closest("[data-asignacion-id]");
+    if (!boton) {
+        return;
+    }
+
+    boton.disabled = true;
+    establecerEstadoAsignacionHerramienta("Registrando devolución...");
+    try {
+        await solicitarApi(
+            `/api/v1/herramientas/asignaciones/${encodeURIComponent(boton.dataset.asignacionId)}/devolucion`,
+            { method: "POST" }
+        );
+
+        const herramientasCargadas = await cargarHerramientas();
+        const asignacionesCargadas = herramientasCargadas
+            ? await cargarAsignacionesHerramienta()
+            : false;
+        establecerEstadoAsignacionHerramienta(
+            herramientasCargadas && asignacionesCargadas
+                ? "Devolución registrada correctamente."
+                : "Devolución registrada, pero no se pudo actualizar el inventario o el historial.",
+            !(herramientasCargadas && asignacionesCargadas)
+        );
+    } catch (error) {
+        console.error("Error al registrar la devolución:", error);
+        establecerEstadoAsignacionHerramienta(
+            error.message || "No se pudo registrar la devolución.",
+            true
+        );
+        boton.disabled = false;
+    }
+});
+
 cargarProductos();
 cargarMovimientos();
 cargarAlertasStock();
 cargarEquipos();
+refrescarHerramientasYAsignaciones();

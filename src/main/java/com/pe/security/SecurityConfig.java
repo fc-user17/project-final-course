@@ -4,7 +4,6 @@ package com.pe.security;
 import com.pe.service.UserDetailsServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -32,6 +31,7 @@ public class SecurityConfig {
     private final UserDetailsServiceImpl userDetailsService;
     private final JwtAuthFilter jwtAuthFilter;
 
+    // Inyectar las dependencias de Spring
     public SecurityConfig(
             UserDetailsServiceImpl userDetailsService,
             JwtAuthFilter jwtAuthFilter) {
@@ -48,7 +48,6 @@ public class SecurityConfig {
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider =
                 new DaoAuthenticationProvider(userDetailsService);
-
         provider.setPasswordEncoder(passwordEncoder());
         return provider;
     }
@@ -59,6 +58,7 @@ public class SecurityConfig {
         return config.getAuthenticationManager();
     }
 
+    // Permitir la comunicación con el frontend
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuracion = new CorsConfiguration();
@@ -69,18 +69,12 @@ public class SecurityConfig {
         ));
 
         configuracion.setAllowedMethods(List.of(
-                "GET",
-                "POST",
-                "PUT",
-                "DELETE",
-                "PATCH",
-                "OPTIONS"
+                "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"
         ));
 
         configuracion.setAllowedHeaders(List.of(
                 "Authorization",
-                "Content-Type",
-                "Accept"
+                "Content-Type"
         ));
 
         configuracion.setAllowCredentials(false);
@@ -93,34 +87,37 @@ public class SecurityConfig {
         return origen;
     }
 
-    @Bean
-    public SecurityFilterChain filterChain(
-            HttpSecurity http) throws Exception {
+    
+@Bean
+public SecurityFilterChain filterChain(HttpSecurity http)
+        throws Exception {
+    http
+        .cors(cors ->
+            cors.configurationSource(corsConfigurationSource())
+        )
+        .csrf(AbstractHttpConfigurer::disable)
+        .sessionManagement(session ->
+            session.sessionCreationPolicy(
+                SessionCreationPolicy.STATELESS
+            )
+        )
+        .authorizeHttpRequests(auth -> auth
+            .requestMatchers(
+                org.springframework.http.HttpMethod.OPTIONS,
+                "/**"
+            ).permitAll()
+            .requestMatchers("/api/auth/**").permitAll()
+            .requestMatchers("/api/admin/**").hasRole("ADMIN")
+            .requestMatchers("/api/personal/**").hasRole("ADMIN")
+            .anyRequest().authenticated()
+        )
+        .authenticationProvider(authenticationProvider())
+        .addFilterBefore(
+            jwtAuthFilter,
+            UsernamePasswordAuthenticationFilter.class
+        );
 
-        http
-            .cors(cors ->
-                cors.configurationSource(corsConfigurationSource())
-            )
-            .csrf(AbstractHttpConfigurer::disable)
-            .sessionManagement(session ->
-                session.sessionCreationPolicy(
-                    SessionCreationPolicy.STATELESS
-                )
-            )
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                .requestMatchers("/api/personal/**").hasRole("ADMIN")
-                .requestMatchers("/api/asistencia/**").authenticated()
-                .anyRequest().authenticated()
-            )
-            .authenticationProvider(authenticationProvider())
-            .addFilterBefore(
-                jwtAuthFilter,
-                UsernamePasswordAuthenticationFilter.class
-            );
+    return http.build();
+}
 
-        return http.build();
-    }
 }

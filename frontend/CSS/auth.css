@@ -1,0 +1,264 @@
+/**
+ * Autor: VLM
+ * Descripción: Estilos para la autenticación, pantalla de Login,
+ * barra de usuario y badges de roles en el sistema.
+ */
+
+/* =========================================
+   PANTALLA DE LOGIN
+   ========================================= */
+
+.login-body {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--color-primary) 0%, #0d2740 100%);
+    padding: 1.5rem;
+    box-sizing: border-box;
+}
+
+.login-card {
+    background-color: var(--color-white);
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    width: 100%;
+    max-width: 440px;
+    padding: 2.5rem;
+    box-sizing: border-box;
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.login-header .login-icon {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.login-header h1 {
+    font-size: 1.5rem;
+    color: var(--color-primary);
+    margin: 0 0 0.5rem 0;
+}
+
+.login-header p {
+    color: #666;
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.form-group label {
+    font-size: 0.9rem;
+    color: var(--color-text);
+    font-weight: 600;
+}
+
+.form-group input {
+    padding: 0.85rem 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-group input:focus {
+    border-color: var(--color-secondary);
+    box-shadow: 0 0 0 3px rgba(46, 117, 182, 0.2);
+    outline: none;
+}
+
+.btn-login {
+    background-color: var(--color-primary);
+    color: var(--color-white);
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 0.9rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+    margin-top: 0.5rem;
+}
+
+.btn-login:hover {
+    background-color: var(--color-secondary);
+}
+
+.btn-login:active {
+    transform: scale(0.98);
+}
+
+.btn-login:disabled {
+    background-color: #9ca3af;
+    cursor: not-allowed;
+}
+
+/* Mensajes de alerta */
+.auth-alert {
+    padding: 0.85rem 1rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    display: none;
+    margin-bottom: 1rem;
+}
+
+.auth-alert-error {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #f87171;
+}
+
+.auth-alert-success {
+    background-color: #dcfce7;
+    color: #166534;
+    border: 1px solid #86efac;
+}
+
+/* Caja de credenciales demo */
+.demo-credentials {
+    margin-top: 1.8rem;
+    padding: 1rem;
+    background-color: #f8fafc;
+    border: 1px dashed #cbd5e1;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    color: #475569;
+}
+
+.demo-credentials h4 {
+    margin: 0 0 0.5rem 0;
+    color: var(--color-primary);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.demo-credentials ul {
+    margin: 0;
+    padding-left: 1.2rem;
+}
+
+.demo-credentials li {
+    margin-bottom: 0.25rem;
+}
+
+.demo-credentials code {
+    background: #e2e8f0;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.82rem;
+    cursor: pointer;
+}
+
+/* =========================================
+   BARRA DE USUARIO SUPERIOR (NAVBAR)
+   ========================================= */
+
+.user-top-bar {
+    background-color: #163654;
+    color: var(--color-white);
+    padding: 0.5rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+    border-bottom: 2px solid var(--color-secondary);
+}
+
+.user-info-section {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.user-email-text {
+    font-weight: 500;
+}
+
+/* Badges para cada rol */
+.role-badge {
+    display: inline-block;
+    padding: 0.25rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.role-ADMIN {
+    background-color: #e02424;
+    color: #ffffff;
+}
+
+.role-RRHH {
+    background-color: #059669;
+    color: #ffffff;
+}
+
+.role-FINANZAS {
+    background-color: #d97706;
+    color: #ffffff;
+}
+
+.role-TECNICO {
+    background-color: #2563eb;
+    color: #ffffff;
+}
+
+.btn-logout {
+    background-color: transparent;
+    color: #cbd5e1;
+    border: 1px solid #475569;
+    padding: 0.35rem 0.8rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+}
+
+.btn-logout:hover {
+    background-color: #ef4444;
+    color: #ffffff;
+    border-color: #ef4444;
+}
+
+/* Mensaje de acceso restringido en tarjetas */
+.tarjeta.bloqueada {
+    opacity: 0.5;
+    filter: grayscale(80%);
+    position: relative;
+    cursor: not-allowed;
+}
+
+.tarjeta.bloqueada a {
+    pointer-events: none;
+    background-color: #94a3b8;
+}
+
+.badge-restringido {
+    display: inline-block;
+    background-color: #64748b;
+    color: #ffffff;
+    font-size: 0.75rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    margin-top: 0.5rem;
+}
