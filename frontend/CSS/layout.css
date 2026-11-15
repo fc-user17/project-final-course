@@ -382,3 +382,36 @@ footer p {
         animation-iteration-count: 1 !important;
     }
 }
+/* =========================================
+   NAVEGACIÓN DEL PORTAL DEL TRABAJADOR
+========================================= */
+
+/* Ocultar las secciones inicialmente */
+.rrhh-layout .page-section {
+    display: none;
+}
+
+/* Mostrar solamente la sección activa */
+.rrhh-layout .page-section.active-section {
+    display: block;
+}
+
+/* Evitar que los estilos generales interfieran */
+.rrhh-layout .main-content {
+    min-width: 0;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+.rrhh-layout .topbar {
+    text-align: left;
+}
+
+.rrhh-layout .topbar nav {
+    justify-content: flex-start;
+}
+
+.rrhh-layout .page-footer {
+    text-align: left;
+}

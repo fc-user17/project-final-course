@@ -1,12 +1,11 @@
+
 package com.pe.recursos_humanos.trabajadores;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
 import java.util.List;
-
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -14,46 +13,58 @@ import java.util.List;
 public class PersonalController {
 
     private final PersonalService personalService;
+    private final CuentaTrabajadorService cuentaTrabajadorService;
 
-    public PersonalController(PersonalService personalService) {
+    public PersonalController(
+            PersonalService personalService,
+            CuentaTrabajadorService cuentaTrabajadorService) {
+
         this.personalService = personalService;
+        this.cuentaTrabajadorService = cuentaTrabajadorService;
     }
 
     @GetMapping
     public ResponseEntity<List<Trabajador>> listar(
             @RequestParam(required = false) String area,
             @RequestParam(required = false) String estado) {
+
         return ResponseEntity.ok(personalService.listar(area, estado));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Trabajador> obtener(@PathVariable Long id) {
+
         return personalService.buscarPorId(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-@PostMapping
-public ResponseEntity<?> registrar(@RequestBody Trabajador nuevo) {
+    @PostMapping
+    public ResponseEntity<?> registrar(@RequestBody Trabajador nuevo) {
 
-    System.out.println("NOMBRES: " + nuevo.getNombres());
-    System.out.println("DOCUMENTO: " + nuevo.getDocumentoIdentidad());
-    System.out.println("CARGO: " + nuevo.getCargo());
-    System.out.println("AREA: " + nuevo.getArea());
-    System.out.println("ESTADO: " + nuevo.getEstado());
+        System.out.println("NOMBRES: " + nuevo.getNombres());
+        System.out.println("DOCUMENTO: " + nuevo.getDocumentoIdentidad());
+        System.out.println("CARGO: " + nuevo.getCargo());
+        System.out.println("AREA: " + nuevo.getArea());
+        System.out.println("ESTADO: " + nuevo.getEstado());
 
-    try {
-        Trabajador creado = personalService.registrar(nuevo);
-        return ResponseEntity.status(HttpStatus.CREATED).body(creado);
-    } catch (IllegalArgumentException e) {
-        return ResponseEntity.badRequest().body(e.getMessage());
-    } catch (IllegalStateException e) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        try {
+            Trabajador creado = personalService.registrar(nuevo);
+            return ResponseEntity.status(HttpStatus.CREATED).body(creado);
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        }
     }
-}
 
     @PutMapping("/{id}")
-    public ResponseEntity<Trabajador> actualizar(@PathVariable Long id, @RequestBody Trabajador cambios) {
+    public ResponseEntity<Trabajador> actualizar(
+            @PathVariable Long id,
+            @RequestBody Trabajador cambios) {
+
         return personalService.actualizar(id, cambios)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -61,7 +72,32 @@ public ResponseEntity<?> registrar(@RequestBody Trabajador nuevo) {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
+
         boolean eliminado = personalService.eliminar(id);
-        return eliminado ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
+
+        return eliminado
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.notFound().build();
+    }
+
+    // CREAR CUENTA PARA UN TRABAJADOR
+    @PostMapping("/{id}/crear-cuenta")
+    public ResponseEntity<?> crearCuenta(
+            @PathVariable Long id,
+            @RequestBody CrearCuentaRequest request) {
+
+        try {
+            cuentaTrabajadorService.crearCuenta(id, request);
+
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body("Cuenta creada correctamente");
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(e.getMessage());
+        }
     }
 }
