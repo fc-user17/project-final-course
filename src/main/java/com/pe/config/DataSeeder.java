@@ -4,6 +4,7 @@ import com.pe.model.*;
 import com.pe.repository.EquipoRepository;
 import com.pe.repository.OrdenTrabajoRepository;
 import com.pe.repository.RolRepository;
+import com.pe.repository.TicketRepository;
 import com.pe.repository.TipoMantenimientoRepository;
 import com.pe.repository.UsuarioRepository;
 import com.pe.recursos_humanos.trabajadores.Trabajador;
@@ -46,6 +47,7 @@ public class DataSeeder implements CommandLineRunner {
     private final EquipoRepository equipoRepository;
     private final TipoMantenimientoRepository tipoMantenimientoRepository;
     private final OrdenTrabajoRepository ordenTrabajoRepository;
+    private final TicketRepository ticketRepository;
 
     @Override
     @Transactional
@@ -57,6 +59,7 @@ public class DataSeeder implements CommandLineRunner {
         seedEquipos();
         seedTiposMantenimiento();
         seedOrdenesTrabajo();
+        seedTickets();
         log.info("========== Seeder finalizado correctamente ==========");
     }
 
@@ -334,5 +337,72 @@ public class DataSeeder implements CommandLineRunner {
         }
 
         log.info("  [OT] {} ordenes de trabajo de demostracion sembradas.", count);
+    }
+
+    // =========================================================================
+    // 7. TICKETS DE SOPORTE TI (SISTEMAS)
+    // =========================================================================
+
+    private void seedTickets() {
+        if (ticketRepository.count() > 0) {
+            return;
+        }
+
+        Usuario admin = usuarioRepository.findByEmail("admin@empresa.pe").orElse(null);
+        Usuario tecnico = usuarioRepository.findByEmail("tecnico@empresa.pe").orElse(null);
+
+        if (admin == null) {
+            return;
+        }
+
+        List<Ticket> ticketsDemo = List.of(
+            Ticket.builder()
+                .codigo("TCK-00001")
+                .titulo("Falla de conectividad a la red interna en área de Almacén")
+                .descripcion("El punto de red de la terminal 2 de recepción pierde conexión intermitentemente durante el registro de ingresos.")
+                .categoria(CategoriaTicket.REDES_CONECTIVIDAD)
+                .prioridad(Prioridad.ALTA)
+                .estado(EstadoTicket.ABIERTO)
+                .usuarioSolicitante(admin)
+                .build(),
+            Ticket.builder()
+                .codigo("TCK-00002")
+                .titulo("Instalación y actualización de software antivirus en equipos de RRHH")
+                .descripcion("Se requiere desplegar la actualización de seguridad de Endpoint Protection en las estaciones de Recursos Humanos.")
+                .categoria(CategoriaTicket.SOFTWARE)
+                .prioridad(Prioridad.MEDIA)
+                .estado(EstadoTicket.EN_PROCESO)
+                .usuarioSolicitante(admin)
+                .tecnicoAsignado(tecnico)
+                .build(),
+            Ticket.builder()
+                .codigo("TCK-00003")
+                .titulo("Configuración de permisos de acceso a la carpeta de Finanzas y Pagos")
+                .descripcion("Otorgar permisos de solo lectura al personal auditor en la carpeta compartida de liquidaciones y comprobantes.")
+                .categoria(CategoriaTicket.ACCESOS_SEGURIDAD)
+                .prioridad(Prioridad.MEDIA)
+                .estado(EstadoTicket.RESUELTO)
+                .usuarioSolicitante(admin)
+                .tecnicoAsignado(tecnico)
+                .solucion("Se configuró el grupo de seguridad en el servidor de archivos y se validó el acceso de solo lectura.")
+                .fechaCierre(java.time.LocalDateTime.now().minusDays(1))
+                .build(),
+            Ticket.builder()
+                .codigo("TCK-00004")
+                .titulo("Impresora de etiquetas no detecta el rollo en almacén de herramientas")
+                .descripcion("La impresora térmica Zebra muestra luz roja de error de sensor de papel al enviar órdenes de salida.")
+                .categoria(CategoriaTicket.HARDWARE)
+                .prioridad(Prioridad.URGENTE)
+                .estado(EstadoTicket.ABIERTO)
+                .usuarioSolicitante(admin)
+                .build()
+        );
+
+        for (Ticket t : ticketsDemo) {
+            Ticket guardado = ticketRepository.save(t);
+            log.info("  [TICKET] Creado demo: {} - {}", guardado.getCodigo(), guardado.getTitulo());
+        }
+
+        log.info("  [TICKETS] {} tickets iniciales sembrados.", ticketsDemo.size());
     }
 }

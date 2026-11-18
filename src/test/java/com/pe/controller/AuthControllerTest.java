@@ -47,14 +47,19 @@ class AuthControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @MockitoBean
     private AuthService authService;
 
     @MockitoBean
     private UsuarioService usuarioService;
+
+    @MockitoBean
+    private com.pe.security.JwtUtil jwtUtil;
+
+    @MockitoBean
+    private com.pe.service.UserDetailsServiceImpl userDetailsService;
 
     // ─────────────────────────────────────────────────────────────────────────
     // POST /api/auth/login ✅ Casos exitosos
