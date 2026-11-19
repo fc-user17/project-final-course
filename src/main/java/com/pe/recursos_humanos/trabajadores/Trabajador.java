@@ -1,12 +1,18 @@
 
 package com.pe.recursos_humanos.trabajadores;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.pe.model.Usuario;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Column;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
 @Table(name = "trabajadores")
@@ -27,6 +33,11 @@ public class Trabajador {
     private String area;
 
     private String estado;
+
+    @JsonIgnore
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "usuario_id", unique = true)
+    private Usuario usuario;
 
     public Trabajador() {
     }
@@ -88,4 +99,16 @@ public class Trabajador {
     public void setEstado(String estado) {
         this.estado = estado;
     }
+
+    public Usuario getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
+    }
+    @JsonProperty("tieneCuenta")
+public boolean isTieneCuenta() {
+    return usuario != null;
+}
 }

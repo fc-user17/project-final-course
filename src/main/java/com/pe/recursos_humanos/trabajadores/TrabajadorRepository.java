@@ -2,7 +2,6 @@
 package com.pe.recursos_humanos.trabajadores;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-
 import java.util.Optional;
 
 public interface TrabajadorRepository
@@ -10,4 +9,6 @@ public interface TrabajadorRepository
 
     Optional<Trabajador> findByDocumentoIdentidad(
             String documentoIdentidad);
+
+    Optional<Trabajador> findByUsuario_Id(Long usuarioId);
 }

@@ -119,6 +119,22 @@ async function cargarTrabajadores() {
                 editarTrabajador(trabajador);
             });
 
+            // Botón para crear cuenta
+            const botonCuenta = document.createElement("button");
+            botonCuenta.type = "button";
+            botonCuenta.className = "accion-cuenta";
+
+            if (trabajador.tieneCuenta) {
+                botonCuenta.textContent = "Cuenta creada";
+                botonCuenta.disabled = true;
+            } else {
+                botonCuenta.textContent = "Crear cuenta";
+
+                botonCuenta.addEventListener("click", function () {
+                    crearCuentaTrabajador(trabajador);
+                });
+            }
+
 
             const botonEstado = document.createElement("button");
             botonEstado.type = "button";
@@ -144,7 +160,12 @@ async function cargarTrabajadores() {
                 eliminarTrabajador(trabajador);
             });
 
-            acciones.append(botonEditar, botonEstado, botonEliminar);
+            acciones.append(
+    botonCuenta,
+    botonEditar,
+    botonEstado,
+    botonEliminar
+);
             fila.appendChild(acciones);
             lista.appendChild(fila);
         });
@@ -166,6 +187,65 @@ async function cargarTrabajadores() {
     }
 }
 
+/* =========================================
+   PERSONAL - CREAR CUENTA
+========================================= */
+
+async function crearCuentaTrabajador(trabajador) {
+
+    const email = prompt(
+        `Correo para la cuenta de ${trabajador.nombres}:`
+    );
+
+    if (email === null) return;
+
+    if (!email.trim()) {
+        alert("Debes ingresar un correo.");
+        return;
+    }
+
+    const password = prompt(
+        "Ingresa la contraseña inicial (mínimo 8 caracteres):"
+    );
+
+    if (password === null) return;
+
+    if (password.length < 8) {
+        alert("La contraseña debe tener al menos 8 caracteres.");
+        return;
+    }
+
+    if (!confirm(`¿Crear una cuenta para ${trabajador.nombres}?`)) {
+        return;
+    }
+
+    try {
+        const respuesta = await fetchAutenticado(
+            `${API_URL}/api/personal/${trabajador.id}/crear-cuenta`,
+            {
+                method: "POST",
+                body: JSON.stringify({
+                    email: email.trim(),
+                    password: password
+                })
+            }
+        );
+
+        const mensaje = await respuesta.text();
+
+        if (!respuesta.ok) {
+            throw new Error(mensaje || "No se pudo crear la cuenta.");
+        }
+
+        alert("Cuenta creada correctamente.");
+
+        await cargarTrabajadores();
+
+    } catch (error) {
+        console.error("Error al crear cuenta:", error);
+        alert("No se pudo crear la cuenta: " + error.message);
+    }
+}
 
 /* =========================================
    PERSONAL - REGISTRAR TRABAJADOR
@@ -1297,8 +1377,3 @@ if (listaInicialDocumentos) {
         </tr>
     `;
 }
-
-// Se mantiene el resumen general de próximos a vencer.
-
-cargarTrabajadores();
-

@@ -3,6 +3,7 @@ package com.pe.recursos_humanos.asistencia;
 
 import com.pe.recursos_humanos.trabajadores.PersonalService;
 import com.pe.recursos_humanos.trabajadores.Trabajador;
+import com.pe.recursos_humanos.trabajadores.TrabajadorRepository;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,15 +19,22 @@ public class AsistenciaService {
 
     private final PersonalService personalService;
     private final MarcacionRepository marcacionRepository;
+    private final TrabajadorRepository trabajadorRepository;
 
     public AsistenciaService(
             PersonalService personalService,
-            MarcacionRepository marcacionRepository) {
+            MarcacionRepository marcacionRepository,
+            TrabajadorRepository trabajadorRepository) {
+
         this.personalService = personalService;
         this.marcacionRepository = marcacionRepository;
+        this.trabajadorRepository = trabajadorRepository;
     }
 
-    // Registrar una marcación sin fotografía.
+    // =========================================
+    // REGISTRAR MARCACIÓN SIN FOTOGRAFÍA
+    // =========================================
+
     @Transactional
     public Marcacion marcar(
             String documentoIdentidad,
@@ -38,10 +46,10 @@ public class AsistenciaService {
         Trabajador trabajador = buscarTrabajador(documentoIdentidad);
 
         Marcacion marcacion = new Marcacion();
+
         marcacion.setTrabajadorId(trabajador.getId());
         marcacion.setTipo(tipo);
 
-        // Si no se recibe fecha, utilizar la hora de Perú.
         marcacion.setFechaHora(
                 fechaHora != null
                         ? fechaHora
@@ -51,7 +59,10 @@ public class AsistenciaService {
         return marcacionRepository.save(marcacion);
     }
 
-    // Registrar una marcación con fotografía obligatoria.
+    // =========================================
+    // REGISTRAR MARCACIÓN CON FOTOGRAFÍA
+    // =========================================
+
     @Transactional
     public Marcacion marcarConFoto(
             String documentoIdentidad,
@@ -59,65 +70,145 @@ public class AsistenciaService {
             byte[] foto) {
 
         validarDatos(documentoIdentidad, tipo);
-
-        if (foto == null || foto.length == 0) {
-            throw new IllegalArgumentException(
-                    "La fotografía es obligatoria");
-        }
-
-        // Límite máximo de 2 MB.
-        if (foto.length > 2 * 1024 * 1024) {
-            throw new IllegalArgumentException(
-                    "La fotografía no debe superar los 2 MB");
-        }
+        validarFoto(foto);
 
         Trabajador trabajador = buscarTrabajador(documentoIdentidad);
 
         Marcacion marcacion = new Marcacion();
+
         marcacion.setTrabajadorId(trabajador.getId());
         marcacion.setTipo(tipo);
 
-        // La hora se genera en el servidor, usando la zona de Perú.
         marcacion.setFechaHora(
                 LocalDateTime.now(ZoneId.of("America/Lima"))
         );
 
-        // Copiar los bytes de la fotografía.
         marcacion.setFoto(Arrays.copyOf(foto, foto.length));
 
         return marcacionRepository.save(marcacion);
     }
 
-    // Listar todas las marcaciones.
+    // =========================================
+    // REGISTRAR MARCACIÓN POR USUARIO AUTENTICADO
+    // =========================================
+
+    @Transactional
+    public Marcacion marcarConFotoPorUsuario(
+            Long usuarioId,
+            TipoMarcacion tipo,
+            byte[] foto) {
+
+        if (usuarioId == null) {
+            throw new IllegalArgumentException(
+                    "No se pudo identificar al usuario.");
+        }
+
+        if (tipo == null) {
+            throw new IllegalArgumentException(
+                    "El tipo de marcación es obligatorio.");
+        }
+
+        validarFoto(foto);
+
+        Trabajador trabajador = trabajadorRepository
+                .findByUsuario_Id(usuarioId)
+                .orElseThrow(() -> new NoSuchElementException(
+                        "No existe un trabajador asociado a esta cuenta."));
+
+        Marcacion marcacion = new Marcacion();
+
+        marcacion.setTrabajadorId(trabajador.getId());
+        marcacion.setTipo(tipo);
+
+        marcacion.setFechaHora(
+                LocalDateTime.now(ZoneId.of("America/Lima"))
+        );
+
+        marcacion.setFoto(Arrays.copyOf(foto, foto.length));
+
+        return marcacionRepository.save(marcacion);
+    }
+
+    // =========================================
+    // LISTAR TODAS LAS MARCACIONES
+    // =========================================
+
     @Transactional(readOnly = true)
     public List<Marcacion> listarTodas() {
         return marcacionRepository.findAll();
     }
 
-    // Listar marcaciones de un trabajador.
+    // =========================================
+    // LISTAR MARCACIONES POR TRABAJADOR
+    // =========================================
+
     @Transactional(readOnly = true)
     public List<Marcacion> listarPorTrabajador(Long trabajadorId) {
         return marcacionRepository.findByTrabajadorId(trabajadorId);
     }
 
-    // Obtener la fotografía de una marcación.
+    // =========================================
+    // LISTAR MARCACIONES DEL USUARIO AUTENTICADO
+    // =========================================
+
+    @Transactional(readOnly = true)
+    public List<Marcacion> listarPorUsuario(Long usuarioId) {
+
+        if (usuarioId == null) {
+            throw new IllegalArgumentException(
+                    "No se pudo identificar al usuario.");
+        }
+
+        Trabajador trabajador = trabajadorRepository
+                .findByUsuario_Id(usuarioId)
+                .orElseThrow(() -> new NoSuchElementException(
+                        "No existe un trabajador asociado a esta cuenta."));
+
+        return marcacionRepository.findByTrabajadorId(trabajador.getId());
+    }
+
+    // =========================================
+    // OBTENER FOTOGRAFÍA DE UNA MARCACIÓN
+    // =========================================
+
     @Transactional(readOnly = true)
     public byte[] obtenerFoto(Long id) {
+
         Marcacion marcacion = marcacionRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException(
-                        "No existe la marcación solicitada"));
+                        "No existe la marcación solicitada."));
 
         byte[] foto = marcacion.getFoto();
 
         if (foto == null || foto.length == 0) {
             throw new NoSuchElementException(
-                    "Esta marcación no tiene fotografía");
+                    "Esta marcación no tiene fotografía.");
         }
 
         return Arrays.copyOf(foto, foto.length);
     }
 
-    // Validar los datos obligatorios.
+    // =========================================
+    // VALIDAR FOTOGRAFÍA
+    // =========================================
+
+    private void validarFoto(byte[] foto) {
+
+        if (foto == null || foto.length == 0) {
+            throw new IllegalArgumentException(
+                    "La fotografía es obligatoria.");
+        }
+
+        if (foto.length > 2 * 1024 * 1024) {
+            throw new IllegalArgumentException(
+                    "La fotografía no debe superar los 2 MB.");
+        }
+    }
+
+    // =========================================
+    // VALIDAR DATOS
+    // =========================================
+
     private void validarDatos(
             String documentoIdentidad,
             TipoMarcacion tipo) {
@@ -125,17 +216,21 @@ public class AsistenciaService {
         if (documentoIdentidad == null
                 || documentoIdentidad.isBlank()) {
             throw new IllegalArgumentException(
-                    "El documento de identidad es obligatorio");
+                    "El documento de identidad es obligatorio.");
         }
 
         if (tipo == null) {
             throw new IllegalArgumentException(
-                    "El tipo de marcación es obligatorio");
+                    "El tipo de marcación es obligatorio.");
         }
     }
 
-    // Buscar al trabajador por su documento.
+    // =========================================
+    // BUSCAR TRABAJADOR POR DOCUMENTO
+    // =========================================
+
     private Trabajador buscarTrabajador(String documentoIdentidad) {
+
         return personalService.buscarPorDocumento(documentoIdentidad)
                 .orElseThrow(() -> new NoSuchElementException(
                         "No existe un trabajador con documento "
