@@ -1,143 +1,495 @@
 
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Asistencia de trabajadores</title>
+    <title>Portal del trabajador</title>
 
     <link rel="stylesheet" href="css/variables.css">
     <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="css/asistencia-trabajador.css">
 </head>
+
 <body>
 
-    <main class="contenedor-asistencia">
-        <section class="tarjeta-asistencia">
+<div class="rrhh-layout">
 
-            <header class="encabezado-asistencia">
-                <h1>Registro de asistencia</h1>
-                <p>Ingresa tu documento y confirma tu fotografía antes de marcar.</p>
-            </header>
+    <!-- MENÚ LATERAL DEL TRABAJADOR -->
+    <aside class="sidebar">
 
-            <form id="formAsistencia" autocomplete="off">
+        <a class="brand" href="#inicio">
+            <span class="brand-logo">S</span>
+            <span class="brand-text">
+                <strong>PORTAL DEL TRABAJADOR</strong>
+            </span>
+        </a>
 
-                <div class="grupo-formulario">
-                    <label for="documentoTrabajador">
-                        Documento de identidad
-                    </label>
+        <div class="sidebar-section">
 
-                    <input
-                        type="text"
-                        id="documentoTrabajador"
-                        name="documentoIdentidad"
-                        placeholder="Ingresa tu documento"
-                        maxlength="20"
-                        required
-                    >
-                </div>
+            <p class="sidebar-label">MENÚ PRINCIPAL</p>
 
-                <section class="seccion-camara">
-                    <h2>Fotografía de verificación</h2>
+            <nav class="sidebar-nav"
+                 aria-label="Navegación del trabajador">
 
-                    <div class="marco-camara">
-                        <video
-                            id="videoCamara"
-                            autoplay
-                            playsinline
-                            muted
-                        ></video>
-
-                        <canvas id="canvasFoto" hidden></canvas>
-
-                        <img
-                            id="fotoCapturada"
-                            alt="Vista previa de la fotografía"
-                            hidden
-                        >
-                    </div>
-
-                    <p id="estadoCamara" role="status">
-                        Activa la cámara para comenzar.
-                    </p>
-
-                    <div class="botones-camara">
-                        <button
-                            type="button"
-                            id="btnActivarCamara"
-                        >
-                            Activar cámara
-                        </button>
-
-                        <button
-                            type="button"
-                            id="btnTomarFoto"
-                            disabled
-                        >
-                            Tomar fotografía
-                        </button>
-
-                        <button
-                            type="button"
-                            id="btnRepetirFoto"
-                            hidden
-                        >
-                            Repetir fotografía
-                        </button>
-                    </div>
-                </section>
-
-                <div
-                    id="confirmacionFoto"
-                    class="confirmacion-foto"
-                    hidden
-                >
-                    <p>
-                        Revisa la fotografía. Si es correcta, confirma
-                        para registrar tu asistencia.
-                    </p>
-                </div>
-
-                <div class="botones-marcacion">
-                    <button
-                        type="button"
-                        id="btnEntrada"
-                        disabled
-                    >
-                        Marcar entrada
-                    </button>
-
-                    <button
-                        type="button"
-                        id="btnSalida"
-                        disabled
-                    >
-                        Marcar salida
-                    </button>
-                </div>
-
-                <div
-                    id="mensajeMarcacion"
-                    role="status"
-                    aria-live="polite"
-                ></div>
-
-            </form>
-
-            <!-- BOTÓN PARA VOLVER -->
-            <div class="volver-container">
-                <a href="index.html" class="btn-volver">
-                    <span aria-hidden="true">←</span>
-                    Volver al inicio
+                <a href="#inicio" class="nav-link active">
+                    <span class="nav-icon">▦</span>
+                    <span>Panel principal</span>
                 </a>
+
+                <a href="#asistencia" class="nav-link">
+                    <span class="nav-icon">◷</span>
+                    <span>Mi asistencia</span>
+                </a>
+
+                <a href="#permisos-vacaciones" class="nav-link">
+                    <span class="nav-icon">▤</span>
+                    <span>Mis permisos y vacaciones</span>
+                </a>
+                
+
+            </nav>
+
+        </div>
+
+        <div class="sidebar-bottom">
+
+            <div class="sidebar-help">
+                <span class="help-icon">?</span>
+
+                <div>
+                    <strong>¿Necesitas ayuda?</strong>
+                    <p>Consulta tus registros y solicitudes.</p>
+                </div>
+            </div>
+
+            <a href="index.html" class="back-link">
+                <span>←</span>
+                Volver al inicio
+            </a>
+
+        </div>
+
+    </aside>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="main-content">
+
+        <!-- BARRA SUPERIOR -->
+        <header class="topbar">
+
+            <div class="breadcrumb">
+                <span>Sistema empresarial</span>
+                <span class="breadcrumb-separator">/</span>
+                <strong>Portal del trabajador</strong>
+            </div>
+
+            <div class="topbar-right">
+
+                <span class="system-status">
+                    <span class="status-dot"></span>
+                    Sistema de personal
+                </span>
+
+                <div class="user-avatar" aria-label="Usuario">
+                    US
+                </div>
+
+            </div>
+
+        </header>
+
+        <!-- PANEL PRINCIPAL -->
+        <section id="inicio" class="page-section active-section">
+
+            <div class="welcome-section">
+
+                <div>
+                    <p class="eyebrow">PORTAL DEL TRABAJADOR</p>
+
+                    <h1>Bienvenido al sistema</h1>
+
+                    <p class="welcome-description">
+                        Desde este espacio podrás registrar tu asistencia,
+                        consultar tus marcaciones y gestionar tus solicitudes
+                        de permisos y vacaciones.
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="section-heading">
+
+                <div>
+                    <h2>Mis funcionalidades</h2>
+                    <p>Selecciona el apartado que deseas consultar.</p>
+                </div>
+
+            </div>
+
+            <div class="quick-access-grid">
+
+                <a href="#asistencia" class="quick-access-card">
+
+                    <span class="quick-icon quick-blue">◷</span>
+
+                    <span class="quick-text">
+                        <strong>Mi asistencia</strong>
+                        <small>Registrar entrada y salida</small>
+                    </span>
+
+                    <span class="quick-arrow">→</span>
+
+                </a>
+
+                <a href="#permisos-vacaciones" class="quick-access-card">
+
+                    <span class="quick-icon quick-green">▤</span>
+
+                    <span class="quick-text">
+                        <strong>Mis permisos y vacaciones</strong>
+                        <small>Registrar y consultar solicitudes</small>
+                    </span>
+
+                    <span class="quick-arrow">→</span>
+
+                </a>
+
             </div>
 
         </section>
+
+        <!-- MI ASISTENCIA -->
+        <section id="asistencia" class="page-section">
+
+            <div class="section-heading">
+
+                <div>
+                    <h2>Mi asistencia</h2>
+
+                    <p>
+                        Registra tu entrada y salida mediante la
+                        verificación fotográfica.
+                    </p>
+                </div>
+
+            </div>
+
+            <!-- REGISTRO DE ASISTENCIA -->
+            <div class="content-card">
+
+                <div class="contenedor-asistencia">
+
+                    <section class="tarjeta-asistencia">
+
+                        <header class="encabezado-asistencia">
+
+                            <h1>Registro de asistencia</h1>
+
+                            <p>
+                                Confirma tu fotografía antes de registrar
+                                tu marcación.
+                            </p>
+
+                        </header>
+
+                        <form id="formAsistencia" autocomplete="off">
+
+                            <!-- CÁMARA -->
+                            <section class="seccion-camara">
+
+                                <h2>Fotografía de verificación</h2>
+
+                                <div class="marco-camara">
+
+                                    <video
+                                        id="videoCamara"
+                                        autoplay
+                                        playsinline
+                                        muted>
+                                    </video>
+
+                                    <canvas
+                                        id="canvasFoto"
+                                        hidden>
+                                    </canvas>
+
+                                    <img
+                                        id="fotoCapturada"
+                                        alt="Vista previa de la fotografía"
+                                        hidden
+                                    >
+
+                                </div>
+
+                                <p id="estadoCamara" role="status">
+                                    Activa la cámara para comenzar.
+                                </p>
+
+                                <div class="botones-camara">
+
+                                    <button
+                                        type="button"
+                                        id="btnActivarCamara">
+                                        Activar cámara
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        id="btnTomarFoto"
+                                        disabled>
+                                        Tomar fotografía
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        id="btnRepetirFoto"
+                                        hidden>
+                                        Repetir fotografía
+                                    </button>
+
+                                </div>
+
+                            </section>
+
+                            <!-- CONFIRMACIÓN DE FOTOGRAFÍA -->
+                            <div
+                                id="confirmacionFoto"
+                                class="confirmacion-foto"
+                                hidden>
+
+                                <p>
+                                    Revisa la fotografía. Si es correcta,
+                                    confirma para registrar tu asistencia.
+                                </p>
+
+                            </div>
+
+                            <!-- BOTONES DE MARCACIÓN -->
+                            <div class="botones-marcacion">
+
+                                <button
+                                    type="button"
+                                    id="btnEntrada"
+                                    disabled>
+                                    Marcar entrada
+                                </button>
+
+                                <button
+                                    type="button"
+                                    id="btnSalida"
+                                    disabled>
+                                    Marcar salida
+                                </button>
+
+                            </div>
+
+                            <!-- MENSAJE DE MARCACIÓN -->
+                            <div
+                                id="mensajeMarcacion"
+                                role="status"
+                                aria-live="polite">
+                            </div>
+
+                        </form>
+
+                    </section>
+
+                </div>
+
+            </div>
+
+            <!-- HISTORIAL DE ASISTENCIA -->
+            <div class="content-card historial-asistencia">
+
+                <div class="card-heading">
+
+                    <div class="card-heading-icon">◷</div>
+
+                    <div>
+                        <h3>Mi historial de asistencia</h3>
+
+                        <p>
+                            Consulta tus registros de entrada y salida.
+                        </p>
+                    </div>
+
+                </div>
+
+                <div class="tabla-contenedor">
+
+                    <table class="tabla-asistencia">
+
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Tipo de marcación</th>
+                                <th>Hora</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="tablaMisMarcaciones">
+
+                            <tr>
+                                <td colspan="3">
+                                    Cargando marcaciones...
+                                </td>
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+                <p id="mensajeHistorial" role="status"></p>
+
+            </div>
+
+        </section>
+
+<!-- MIS PERMISOS Y VACACIONES -->
+<section id="permisos-vacaciones" class="page-section">
+
+    <div class="section-heading">
+        <div>
+            <h2>Mis permisos y vacaciones</h2>
+            <p>
+                Registra tus solicitudes y consulta su estado de aprobación.
+            </p>
+        </div>
+    </div>
+
+    <!-- FORMULARIO DE SOLICITUD -->
+    <div class="content-card">
+
+        <div class="card-heading">
+            <div class="card-heading-icon">▤</div>
+
+            <div>
+                <h3>Nueva solicitud</h3>
+                <p>Completa los datos para enviar tu solicitud a Recursos Humanos.</p>
+            </div>
+        </div>
+
+        <form id="formSolicitud">
+
+            <div class="form-group">
+                <label for="tipoSolicitud">Tipo de solicitud</label>
+
+                <select id="tipoSolicitud" name="tipoSolicitud" required>
+                    <option value="">Selecciona una opción</option>
+                    <option value="PERMISO">Permiso</option>
+                    <option value="VACACIONES">Vacaciones</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="fechaInicio">Fecha de inicio</label>
+                <input
+                    type="date"
+                    id="fechaInicio"
+                    name="fechaInicio"
+                    required>
+            </div>
+
+            <div class="form-group">
+                <label for="fechaFin">Fecha de fin</label>
+                <input
+                    type="date"
+                    id="fechaFin"
+                    name="fechaFin"
+                    required>
+            </div>
+
+            <div class="form-group">
+                <label for="motivoSolicitud">Motivo de la solicitud</label>
+                <textarea
+                    id="motivoSolicitud"
+                    name="motivoSolicitud"
+                    rows="4"
+                    placeholder="Describe brevemente el motivo de tu solicitud..."
+                    required></textarea>
+            </div>
+
+            <button type="submit" id="btnEnviarSolicitud">
+                Enviar solicitud
+            </button>
+
+            <p id="mensajeSolicitud" role="status"></p>
+
+        </form>
+
+    </div>
+
+    <!-- HISTORIAL DE SOLICITUDES -->
+    <div class="content-card">
+
+        <div class="card-heading">
+            <div class="card-heading-icon">◷</div>
+
+            <div>
+                <h3>Mis solicitudes registradas</h3>
+                <p>Consulta el estado de tus solicitudes enviadas.</p>
+            </div>
+        </div>
+
+        <div class="tabla-contenedor">
+
+            <table class="tabla-asistencia">
+
+                <thead>
+                    <tr>
+                        <th>Tipo</th>
+                        <th>Fecha de inicio</th>
+                        <th>Fecha de fin</th>
+                        <th>Motivo</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+
+                <tbody id="tablaMisSolicitudes">
+                    <tr>
+                        <td colspan="5">
+                            Todavía no tienes solicitudes registradas.
+                        </td>
+                    </tr>
+                </tbody>
+
+            </table>
+
+        </div>
+
+        <p id="mensajeHistorialSolicitudes" role="status"></p>
+
+    </div>
+
+</section>
+
+
+        <!-- PIE DE PÁGINA -->
+        <footer class="page-footer">
+
+            <span>
+                <strong>SEA RR. HH.</strong>
+                · Sistema de Gestión Empresarial
+            </span>
+
+            <span>Portal del trabajador</span>
+
+        </footer>
+
     </main>
 
-    <script src="js/app.js" defer></script>
-    <script src="js/asistencia-trabajador.js" defer></script>
+</div>
+
+<script src="js/app.js" defer></script>
+<script src="js/asistencia-trabajador.js" defer></script>
+<script src="js/navegacion-trabajador.js" defer></script>
+<script src="js/solicitudes-trabajador.js" defer></script>
 
 </body>
 </html>

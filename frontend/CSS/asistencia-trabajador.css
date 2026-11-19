@@ -365,3 +365,181 @@
     outline: 3px solid rgb(59 130 246 / 30%);
     outline-offset: 3px;
 }
+
+
+/* ==========================================
+   TABLAS DE SOLICITUDES Y ASISTENCIA
+   ========================================== */
+
+/* Contenedores de tablas */
+.tabla-contenedor,
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+    margin-top: 20px;
+    background: #ffffff;
+    border: 1px solid #e5eaf1;
+    border-radius: 12px;
+}
+
+/* Tablas */
+.tabla-asistencia,
+.table-container table {
+    width: 100%;
+    min-width: 700px;
+    border-collapse: collapse;
+    table-layout: auto;
+    background: #ffffff;
+}
+
+/* Encabezados */
+.tabla-asistencia thead,
+.table-container table thead {
+    background: #f8fafc;
+}
+
+.tabla-asistencia th,
+.table-container table th {
+    padding: 16px 18px;
+    color: #334155;
+    font-size: 13px;
+    font-weight: 700;
+    text-align: center;
+    white-space: nowrap;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+/* Celdas */
+.tabla-asistencia td,
+.table-container table td {
+    padding: 15px 18px;
+    color: #334155;
+    font-size: 13px;
+    text-align: center;
+    vertical-align: middle;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+/* Filas */
+.tabla-asistencia tbody tr,
+.table-container table tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.tabla-asistencia tbody tr:hover,
+.table-container table tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+.tabla-asistencia tbody tr:last-child td,
+.table-container table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Motivo: permitir que el texto ocupe varias líneas */
+.table-container table td:nth-child(5) {
+    min-width: 220px;
+    max-width: 320px;
+    text-align: left;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+/* Nombre del trabajador */
+.table-container table td:first-child {
+    min-width: 170px;
+    text-align: left;
+}
+
+/* Observación */
+.table-container table td:nth-child(7) {
+    min-width: 150px;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+/* Acciones */
+.table-container table td:last-child {
+    min-width: 175px;
+    white-space: nowrap;
+}
+
+/* Estados */
+.estado-solicitud {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.estado-pendiente {
+    color: #b45309;
+    background: #fef3c7;
+}
+
+.estado-aprobada {
+    color: #15803d;
+    background: #dcfce7;
+}
+
+.estado-rechazada {
+    color: #b91c1c;
+    background: #fee2e2;
+}
+
+/* Botón aprobar */
+.btn-aprobar,
+.btn-rechazar {
+    padding: 9px 13px;
+    margin: 3px;
+    border: none;
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.btn-aprobar {
+    color: #ffffff;
+    background: #15803d;
+}
+
+.btn-aprobar:hover {
+    background: #166534;
+}
+
+/* Botón rechazar */
+.btn-rechazar {
+    color: #ffffff;
+    background: #dc2626;
+}
+
+.btn-rechazar:hover {
+    background: #b91c1c;
+}
+
+/* Mensajes */
+#mensajeSolicitudes,
+#mensajeHistorialSolicitudes {
+    margin-top: 12px;
+    color: #64748b;
+    font-size: 13px;
+}
+
+/* Adaptación a pantallas pequeñas */
+@media (max-width: 768px) {
+    .tabla-contenedor,
+    .table-container {
+        border-radius: 9px;
+    }
+
+    .tabla-asistencia th,
+    .tabla-asistencia td,
+    .table-container table th,
+    .table-container table td {
+        padding: 12px 14px;
+    }
+}

@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 
@@ -20,14 +21,14 @@
         <p>Gestión de Tipos de Mantenimiento, Órdenes de Trabajo y Asignación de Recursos</p>
     </header>
 
+    <!-- Navegación principal -->
     <nav aria-label="Navegación principal">
         <a href="index.html">Inicio</a>
         <a href="operaciones.html" style="background-color: var(--color-primary); font-weight: bold;">Operaciones</a>
         <a href="RRHH.html">RRHH</a>
-        <a href="compras.html">Compras</a>
-        <a href="ventas.html">Ventas</a>
-        <a href="pagos.html">Pagos</a>
-        <a href="proveedores.html">Proveedores</a>
+           <a href="asistencia-trabajador.html">Asistencia</a>
+        <a href="almacen.html">Almacén</a>
+
     </nav>
 
     <main>
@@ -44,6 +45,7 @@
                     <div class="metrica-valor" id="kpiTotalOt">0</div>
                 </div>
             </div>
+
             <div class="metrica-card">
                 <div class="metrica-icono">⏳</div>
                 <div class="metrica-info">
@@ -51,6 +53,7 @@
                     <div class="metrica-valor" id="kpiPendientes">0</div>
                 </div>
             </div>
+
             <div class="metrica-card">
                 <div class="metrica-icono">⚡</div>
                 <div class="metrica-info">
@@ -58,6 +61,7 @@
                     <div class="metrica-valor" id="kpiEnProceso">0</div>
                 </div>
             </div>
+
             <div class="metrica-card">
                 <div class="metrica-icono">✅</div>
                 <div class="metrica-info">
@@ -65,6 +69,7 @@
                     <div class="metrica-valor" id="kpiFinalizadas">0</div>
                 </div>
             </div>
+
             <div class="metrica-card">
                 <div class="metrica-icono">🔧</div>
                 <div class="metrica-info">
@@ -79,17 +84,17 @@
             <button class="tab-btn active" data-tab="tab-ordenes" role="tab" aria-selected="true">
                 📋 Órdenes de Trabajo (RF-02)
             </button>
+
             <button class="tab-btn" data-tab="tab-programar" role="tab" aria-selected="false">
                 📅 Programación en Serie (RF-03)
             </button>
+
             <button class="tab-btn" data-tab="tab-tipos" role="tab" aria-selected="false">
                 🔧 Tipos de Mantenimiento (CRUD)
             </button>
         </div>
 
-        <!-- ===================================================================
-             PESTAÑA 1: ÓRDENES DE TRABAJO (RF-02)
-             =================================================================== -->
+        <!-- PESTAÑA 1: ÓRDENES DE TRABAJO (RF-02) -->
         <section id="tab-ordenes" class="seccion-panel active" role="tabpanel">
 
             <div class="seccion-header">
@@ -102,7 +107,7 @@
             <!-- Formulario para crear / editar OT -->
             <div id="contenedorFormOt" style="display: none; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;">
                 <h3 id="formOtTitulo" style="margin-top: 0; color: var(--color-primary);">Registrar Nueva Orden de Trabajo</h3>
-                
+
                 <form id="formOrdenTrabajo">
                     <input type="hidden" id="otId" name="otId">
 
@@ -180,6 +185,7 @@
                             <th>Acciones</th>
                         </tr>
                     </thead>
+
                     <tbody id="listaOrdenesTrabajo">
                         <tr>
                             <td colspan="8" style="text-align: center; padding: 2rem; color: #64748b;">
@@ -192,10 +198,7 @@
 
         </section>
 
-
-        <!-- ===================================================================
-             PESTAÑA 2: PROGRAMACIÓN EN SERIE (RF-03)
-             =================================================================== -->
+        <!-- PESTAÑA 2: PROGRAMACIÓN EN SERIE (RF-03) -->
         <section id="tab-programar" class="seccion-panel" role="tabpanel">
 
             <div class="seccion-header">
@@ -255,6 +258,7 @@
             <!-- Resultado de la generación en serie -->
             <div id="resultadoSerieContenedor" style="display: none; margin-top: 1.5rem;">
                 <h3 style="color: #15803d;">✅ Órdenes Generadas Exitosamente</h3>
+
                 <div class="tabla-contenedor">
                     <table>
                         <thead>
@@ -273,10 +277,7 @@
 
         </section>
 
-
-        <!-- ===================================================================
-             PESTAÑA 3: TIPOS DE MANTENIMIENTO (CRUD)
-             =================================================================== -->
+        <!-- PESTAÑA 3: TIPOS DE MANTENIMIENTO (CRUD) -->
         <section id="tab-tipos" class="seccion-panel" role="tabpanel">
 
             <div class="seccion-header">
@@ -327,6 +328,7 @@
                         <input type="checkbox" id="checkSoloActivos"> Mostrar solo activos
                     </label>
                 </div>
+
                 <div class="filtros-grupo">
                     <button class="btn btn-outline btn-sm" id="btnRefrescarTipos">🔄 Actualizar Lista</button>
                 </div>
@@ -345,6 +347,7 @@
                             <th>Acciones</th>
                         </tr>
                     </thead>
+
                     <tbody id="listaTiposMantenimiento">
                         <tr>
                             <td colspan="6" style="text-align: center; padding: 2rem; color: #64748b;">
@@ -359,16 +362,14 @@
 
     </main>
 
-
-    <!-- =======================================================================
-         MODAL 1: ASIGNAR TÉCNICO (RF-04)
-         ======================================================================= -->
+    <!-- MODAL 1: ASIGNAR TÉCNICO (RF-04) -->
     <div id="modalTecnico" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modalTecnicoTitulo">
         <div class="modal-caja">
             <div class="modal-header">
                 <h3 id="modalTecnicoTitulo">👷 Asignar Técnico a Orden de Trabajo</h3>
                 <button type="button" class="modal-cerrar" data-cerrar="modalTecnico" aria-label="Cerrar">&times;</button>
             </div>
+
             <div class="modal-body">
                 <p>
                     <strong>Orden:</strong> <span id="tecnicoOtCodigo" class="codigo-ot"></span><br>
@@ -381,6 +382,7 @@
                     <span class="form-ayuda">El sistema validará que el técnico no tenga otra orden "EN PROCESO" en la misma fecha.</span>
                 </div>
             </div>
+
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline" data-cerrar="modalTecnico">Cancelar</button>
                 <button type="button" class="btn btn-primary" id="btnGuardarTecnico">Asignar Técnico</button>
@@ -388,16 +390,14 @@
         </div>
     </div>
 
-
-    <!-- =======================================================================
-         MODAL 2: ASIGNAR Y CONSULTAR RECURSOS (RF-05)
-         ======================================================================= -->
+    <!-- MODAL 2: ASIGNAR Y CONSULTAR RECURSOS (RF-05) -->
     <div id="modalRecursos" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modalRecursosTitulo">
         <div class="modal-caja">
             <div class="modal-header">
                 <h3 id="modalRecursosTitulo">🛠️ Equipos y Herramientas Asignados</h3>
                 <button type="button" class="modal-cerrar" data-cerrar="modalRecursos" aria-label="Cerrar">&times;</button>
             </div>
+
             <div class="modal-body">
                 <p>
                     <strong>Orden:</strong> <span id="recursosOtCodigo" class="codigo-ot"></span>
@@ -411,7 +411,7 @@
                 <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 1rem 0;">
 
                 <h4 style="margin: 0 0 0.5rem; color: var(--color-primary);">Actualizar Recursos Asignados</h4>
-                
+
                 <div class="form-campo">
                     <label for="inputEquipoIds">IDs de Equipos (separados por coma)</label>
                     <input type="text" id="inputEquipoIds" placeholder="Ej: 1, 3, 5">
@@ -424,6 +424,7 @@
                     <span class="form-ayuda">IDs de herramientas del módulo de Almacén</span>
                 </div>
             </div>
+
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline" data-cerrar="modalRecursos">Cerrar</button>
                 <button type="button" class="btn btn-primary" id="btnGuardarRecursos">Guardar Recursos</button>
@@ -431,16 +432,14 @@
         </div>
     </div>
 
-
-    <!-- =======================================================================
-         MODAL 3: CAMBIAR ESTADO DE LA ORDEN
-         ======================================================================= -->
+    <!-- MODAL 3: CAMBIAR ESTADO DE LA ORDEN -->
     <div id="modalEstado" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modalEstadoTitulo">
         <div class="modal-caja" style="max-width: 450px;">
             <div class="modal-header">
                 <h3 id="modalEstadoTitulo">🔄 Cambiar Estado de Orden</h3>
                 <button type="button" class="modal-cerrar" data-cerrar="modalEstado" aria-label="Cerrar">&times;</button>
             </div>
+
             <div class="modal-body">
                 <p>
                     <strong>Orden:</strong> <span id="estadoOtCodigo" class="codigo-ot"></span>
@@ -458,6 +457,7 @@
                     </select>
                 </div>
             </div>
+
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline" data-cerrar="modalEstado">Cancelar</button>
                 <button type="button" class="btn btn-primary" id="btnGuardarEstado">Actualizar Estado</button>

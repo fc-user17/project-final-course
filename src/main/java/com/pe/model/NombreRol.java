@@ -4,5 +4,6 @@ public enum NombreRol {
     ADMIN,
     TECNICO,
     RRHH,
-    FINANZAS
+    FINANZAS,
+    TRABAJADOR
 }
