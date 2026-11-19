@@ -42,6 +42,10 @@ formulario.addEventListener("submit", async function (evento) {
         sessionStorage.setItem("usuario", datos.email);
         sessionStorage.setItem("rol", datos.rol);
 
+        localStorage.setItem("auth_token", datos.token);
+        localStorage.setItem("auth_email", datos.email);
+        localStorage.setItem("auth_role", datos.rol);
+
         window.location.href = "index.html";
 
     } catch (error) {
@@ -53,5 +57,18 @@ formulario.addEventListener("submit", async function (evento) {
         boton.disabled = false;
         boton.textContent = "Iniciar sesión";
     }
+});
+
+// Facilitar llenado al hacer clic en las credenciales de prueba
+document.querySelectorAll(".demo-credentials li").forEach(li => {
+    li.style.cursor = "pointer";
+    li.title = "Haz clic para autocompletar";
+    li.addEventListener("click", () => {
+        const codes = li.querySelectorAll("code");
+        if (codes.length >= 2) {
+            document.getElementById("usuario").value = codes[0].textContent.trim();
+            document.getElementById("contrasena").value = codes[1].textContent.trim();
+        }
+    });
 });
 
