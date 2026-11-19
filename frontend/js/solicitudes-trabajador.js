@@ -37,6 +37,33 @@ function mostrarMensajeHistorialSolicitudes(texto) {
 
 
 /* ==========================================
+   COLORES DEL ESTADO DE SOLICITUD
+========================================== */
+
+function obtenerEstadoHTML(estado) {
+
+    const estados = {
+        PENDIENTE: "estado-pendiente",
+        APROBADA: "estado-aprobada",
+        RECHAZADA: "estado-rechazada"
+    };
+
+    const estadoNormalizado = (estado || "")
+        .toUpperCase()
+        .trim();
+
+    const clase = estados[estadoNormalizado] || "";
+
+    return `
+        <span class="estado-solicitud ${clase}">
+            ${estadoNormalizado || "SIN ESTADO"}
+        </span>
+    `;
+}
+
+
+
+/* ==========================================
    FORMATEAR FECHAS
 ========================================== */
 

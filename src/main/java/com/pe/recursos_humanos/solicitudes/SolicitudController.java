@@ -45,8 +45,20 @@ public class SolicitudController {
                         .body(Map.of("mensaje", "Sesión no válida."));
             }
 
+            if (datos == null) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("mensaje", "Debes enviar los datos de la solicitud."));
+            }
+
+            String tipoTexto = datos.get("tipo");
+
+            if (tipoTexto == null || tipoTexto.isBlank()) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("mensaje", "Debes seleccionar el tipo de solicitud."));
+            }
+
             TipoSolicitud tipo = TipoSolicitud.valueOf(
-                    datos.get("tipo").trim().toUpperCase());
+                    tipoTexto.trim().toUpperCase());
 
             LocalDate fechaInicio = LocalDate.parse(
                     datos.get("fechaInicio"));
@@ -56,7 +68,7 @@ public class SolicitudController {
 
             String motivo = datos.get("motivo");
 
-            Solicitud solicitud = solicitudService.registrar(
+            SolicitudRespuesta solicitud = solicitudService.registrar(
                     usuario.getId(),
                     tipo,
                     fechaInicio,
@@ -103,16 +115,15 @@ public class SolicitudController {
 
         try {
 
-            List<Solicitud> solicitudes =
+            List<SolicitudRespuesta> solicitudes =
                     solicitudService.listarPorUsuario(usuario.getId());
 
             return ResponseEntity.ok(solicitudes);
 
         } catch (NoSuchElementException e) {
 
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                    Map.of("mensaje", e.getMessage())
-            );
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("mensaje", e.getMessage()));
         }
     }
 
@@ -122,11 +133,77 @@ public class SolicitudController {
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<Solicitud>> listarTodas() {
+    public ResponseEntity<List<SolicitudRespuesta>> listarTodas() {
 
-        List<Solicitud> solicitudes =
+        List<SolicitudRespuesta> solicitudes =
                 solicitudService.listarTodas();
 
         return ResponseEntity.ok(solicitudes);
+    }
+
+    // =========================================
+    // APROBAR SOLICITUD - RR. HH.
+    // =========================================
+
+    @PutMapping("/{id}/aprobar")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> aprobar(
+            @PathVariable Long id,
+            @RequestBody(required = false) Map<String, String> datos) {
+
+        try {
+
+            String observacion = datos == null
+                    ? null
+                    : datos.get("observacion");
+
+            SolicitudRespuesta solicitud =
+                    solicitudService.aprobar(id, observacion);
+
+            return ResponseEntity.ok(solicitud);
+
+        } catch (NoSuchElementException e) {
+
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("mensaje", e.getMessage()));
+
+        } catch (IllegalStateException | IllegalArgumentException e) {
+
+            return ResponseEntity.badRequest()
+                    .body(Map.of("mensaje", e.getMessage()));
+        }
+    }
+
+    // =========================================
+    // RECHAZAR SOLICITUD - RR. HH.
+    // =========================================
+
+    @PutMapping("/{id}/rechazar")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> rechazar(
+            @PathVariable Long id,
+            @RequestBody(required = false) Map<String, String> datos) {
+
+        try {
+
+            String observacion = datos == null
+                    ? null
+                    : datos.get("observacion");
+
+            SolicitudRespuesta solicitud =
+                    solicitudService.rechazar(id, observacion);
+
+            return ResponseEntity.ok(solicitud);
+
+        } catch (NoSuchElementException e) {
+
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("mensaje", e.getMessage()));
+
+        } catch (IllegalStateException | IllegalArgumentException e) {
+
+            return ResponseEntity.badRequest()
+                    .body(Map.of("mensaje", e.getMessage()));
+        }
     }
 }

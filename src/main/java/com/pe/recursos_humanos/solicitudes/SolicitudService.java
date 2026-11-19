@@ -25,31 +25,26 @@ public class SolicitudService {
         this.trabajadorRepository = trabajadorRepository;
     }
 
-    // =========================================
-    // REGISTRAR SOLICITUD DEL TRABAJADOR
-    // =========================================
+    // REGISTRAR SOLICITUD
 
     @Transactional
-    public Solicitud registrar(
+    public SolicitudRespuesta registrar(
             Long usuarioId,
             TipoSolicitud tipo,
             LocalDate fechaInicio,
             LocalDate fechaFin,
             String motivo) {
 
-        // Validar usuario
         if (usuarioId == null) {
             throw new IllegalArgumentException(
                     "No se pudo identificar al usuario.");
         }
 
-        // Validar tipo
         if (tipo == null) {
             throw new IllegalArgumentException(
                     "Debes seleccionar el tipo de solicitud.");
         }
 
-        // Validar fechas
         if (fechaInicio == null || fechaFin == null) {
             throw new IllegalArgumentException(
                     "Las fechas son obligatorias.");
@@ -65,19 +60,16 @@ public class SolicitudService {
                     "La fecha de fin no puede ser anterior a la fecha de inicio.");
         }
 
-        // Validar motivo
         if (motivo == null || motivo.isBlank()) {
             throw new IllegalArgumentException(
                     "El motivo de la solicitud es obligatorio.");
         }
 
-        // Buscar trabajador asociado al usuario
         Trabajador trabajador = trabajadorRepository
                 .findByUsuario_Id(usuarioId)
                 .orElseThrow(() -> new NoSuchElementException(
                         "No existe un trabajador asociado a esta cuenta."));
 
-        // Crear solicitud
         Solicitud solicitud = new Solicitud();
 
         solicitud.setTrabajador(trabajador);
@@ -87,15 +79,15 @@ public class SolicitudService {
         solicitud.setMotivo(motivo.trim());
         solicitud.setEstado(EstadoSolicitud.PENDIENTE);
 
-        return solicitudRepository.save(solicitud);
+        Solicitud guardada = solicitudRepository.save(solicitud);
+
+        return SolicitudRespuesta.desde(guardada);
     }
 
-    // =========================================
     // CONSULTAR SOLICITUDES DEL TRABAJADOR
-    // =========================================
 
     @Transactional(readOnly = true)
-    public List<Solicitud> listarPorUsuario(Long usuarioId) {
+    public List<SolicitudRespuesta> listarPorUsuario(Long usuarioId) {
 
         if (usuarioId == null) {
             throw new IllegalArgumentException(
@@ -109,17 +101,94 @@ public class SolicitudService {
 
         return solicitudRepository
                 .findByTrabajador_IdOrderByFechaSolicitudDesc(
-                        trabajador.getId());
+                        trabajador.getId())
+                .stream()
+                .map(SolicitudRespuesta::desde)
+                .toList();
     }
 
-    // =========================================
     // CONSULTAR TODAS LAS SOLICITUDES - RR. HH.
-    // =========================================
 
     @Transactional(readOnly = true)
-    public List<Solicitud> listarTodas() {
+    public List<SolicitudRespuesta> listarTodas() {
 
         return solicitudRepository
-                .findAllByOrderByFechaSolicitudDesc();
+                .findAllByOrderByFechaSolicitudDesc()
+                .stream()
+                .map(SolicitudRespuesta::desde)
+                .toList();
+    }
+
+    // APROBAR SOLICITUD
+
+    @Transactional
+    public SolicitudRespuesta aprobar(
+            Long solicitudId,
+            String observacion) {
+
+        Solicitud solicitud = buscarSolicitud(solicitudId);
+
+        validarPendiente(solicitud);
+
+        solicitud.setEstado(EstadoSolicitud.APROBADA);
+        solicitud.setObservacion(limpiarObservacion(observacion));
+
+        Solicitud actualizada = solicitudRepository.save(solicitud);
+
+        return SolicitudRespuesta.desde(actualizada);
+    }
+
+    // RECHAZAR SOLICITUD
+
+    @Transactional
+    public SolicitudRespuesta rechazar(
+            Long solicitudId,
+            String observacion) {
+
+        if (observacion == null || observacion.isBlank()) {
+            throw new IllegalArgumentException(
+                    "Debes indicar el motivo del rechazo.");
+        }
+
+        Solicitud solicitud = buscarSolicitud(solicitudId);
+
+        validarPendiente(solicitud);
+
+        solicitud.setEstado(EstadoSolicitud.RECHAZADA);
+        solicitud.setObservacion(observacion.trim());
+
+        Solicitud actualizada = solicitudRepository.save(solicitud);
+
+        return SolicitudRespuesta.desde(actualizada);
+    }
+
+    // BUSCAR SOLICITUD
+
+    private Solicitud buscarSolicitud(Long solicitudId) {
+
+        return solicitudRepository.findById(solicitudId)
+                .orElseThrow(() -> new NoSuchElementException(
+                        "No se encontró la solicitud."));
+    }
+
+    // VALIDAR ESTADO
+
+    private void validarPendiente(Solicitud solicitud) {
+
+        if (solicitud.getEstado() != EstadoSolicitud.PENDIENTE) {
+            throw new IllegalStateException(
+                    "Esta solicitud ya fue atendida anteriormente.");
+        }
+    }
+
+    // LIMPIAR OBSERVACIÓN
+
+    private String limpiarObservacion(String observacion) {
+
+        if (observacion == null || observacion.isBlank()) {
+            return null;
+        }
+
+        return observacion.trim();
     }
 }
