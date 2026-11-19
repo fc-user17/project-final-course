@@ -59,16 +59,3 @@ formulario.addEventListener("submit", async function (evento) {
     }
 });
 
-// Facilitar llenado al hacer clic en las credenciales de prueba
-document.querySelectorAll(".demo-credentials li").forEach(li => {
-    li.style.cursor = "pointer";
-    li.title = "Haz clic para autocompletar";
-    li.addEventListener("click", () => {
-        const codes = li.querySelectorAll("code");
-        if (codes.length >= 2) {
-            document.getElementById("usuario").value = codes[0].textContent.trim();
-            document.getElementById("contrasena").value = codes[1].textContent.trim();
-        }
-    });
-});
-
