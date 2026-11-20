@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 
@@ -6,54 +5,65 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Iniciar sesión - Sistema de Gestión Empresarial</title>
+    <title>Iniciar Sesión - Sistema de Gestión Empresarial</title>
 
-    <link rel="stylesheet" href="css/variables.css">
-    <link rel="stylesheet" href="css/base.css">
-    <link rel="stylesheet" href="css/login.css">
+    <link rel="stylesheet" href="CSS/variables.css">
+    <link rel="stylesheet" href="CSS/base.css">
+    <link rel="stylesheet" href="CSS/auth.css">
+    <link rel="stylesheet" href="CSS/login.css">
 </head>
 
-<body>
+<body class="login-body">
 
-    <main class="login-container">
+    <main class="login-card">
 
-        <section class="login-card">
-
+        <div class="login-header">
+            <span class="login-icon">🛡️</span>
             <h1>Sistema de Gestión Empresarial</h1>
+            <p>Ingresa tus credenciales para continuar</p>
+        </div>
 
-            <p>Ingresa tus datos para continuar</p>
+        <form id="loginForm" class="login-form">
 
-            <form id="loginForm">
-
-                <label for="usuario">Usuario</label>
-
+            <div class="form-group">
+                <label for="usuario">Correo Electrónico</label>
                 <input
-                    type="text"
+                    type="email"
                     id="usuario"
                     name="usuario"
+                    placeholder="ej: admin@empresa.pe"
                     autocomplete="username"
                     required
                 >
+            </div>
 
+            <div class="form-group">
                 <label for="contrasena">Contraseña</label>
-
                 <input
                     type="password"
                     id="contrasena"
                     name="contrasena"
+                    placeholder="••••••••"
                     autocomplete="current-password"
                     required
                 >
+            </div>
 
-                <button type="submit">
-                    Iniciar sesión
-                </button>
+            <button type="submit" class="btn-login">
+                Iniciar Sesión
+            </button>
 
-                <p id="mensaje" role="alert"></p>
+            <p id="mensaje" role="alert"></p>
 
-            </form>
+        </form>
 
-        </section>
+        <div class="demo-credentials">
+            <h4>Cuentas de Acceso Demo</h4>
+            <ul>
+                <li><strong>Admin:</strong> <code>admin@empresa.pe</code> / <code>Admin123!</code></li>
+                <li><strong>Técnico TI:</strong> <code>tecnico@empresa.pe</code> / <code>Tecnico123!</code></li>
+            </ul>
+        </div>
 
     </main>
 
