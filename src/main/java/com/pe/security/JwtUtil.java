@@ -54,7 +54,11 @@ public class JwtUtil {
      * @return email del usuario
      */
     public String extraerEmail(String token) {
-        return parsearClaims(token).getSubject();
+        try {
+            return parsearClaims(token).getSubject();
+        } catch (io.jsonwebtoken.ExpiredJwtException e) {
+            return e.getClaims().getSubject();
+        }
     }
 
     /**
@@ -65,8 +69,12 @@ public class JwtUtil {
      * @return true si el token es válido
      */
     public boolean esTokenValido(String token, UserDetails userDetails) {
-        final String email = extraerEmail(token);
-        return email.equals(userDetails.getUsername()) && !estaExpirado(token);
+        try {
+            final String email = extraerEmail(token);
+            return email.equals(userDetails.getUsername()) && !estaExpirado(token);
+        } catch (io.jsonwebtoken.JwtException | IllegalArgumentException e) {
+            return false;
+        }
     }
 
     /**
@@ -76,7 +84,11 @@ public class JwtUtil {
      * @return true si el token está vencido
      */
     public boolean estaExpirado(String token) {
-        return parsearClaims(token).getExpiration().before(new Date());
+        try {
+            return parsearClaims(token).getExpiration().before(new Date());
+        } catch (io.jsonwebtoken.ExpiredJwtException e) {
+            return true;
+        }
     }
 
     private Claims parsearClaims(String token) {

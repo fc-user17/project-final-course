@@ -1,0 +1,18 @@
+@import url('auth.css');
+
+/* Asegurar que el mensaje de error se muestre al llenarse */
+#mensaje:empty {
+    display: none;
+}
+
+#mensaje:not(:empty) {
+    display: block;
+    margin-top: 1rem;
+    padding: 0.75rem 1rem;
+    background-color: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #f87171;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    text-align: center;
+}

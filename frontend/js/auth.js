@@ -36,7 +36,9 @@
         "proveedores.html": ["ADMIN", "FINANZAS"],
         "compras.html": ["ADMIN", "FINANZAS"],
         "ventas.html": ["ADMIN", "FINANZAS"],
-        "operaciones.html": ["ADMIN", "TECNICO"]
+        "operaciones.html": ["ADMIN", "TECNICO"],
+        "almacen.html": ["ADMIN", "TECNICO"],
+        "tickets.html": ["ADMIN", "RRHH", "FINANZAS", "TECNICO"]
     };
 
     // Mapeo de tarjetas de módulos en index.html con sus roles permitidos
@@ -46,7 +48,9 @@
         "ventas": ["ADMIN", "FINANZAS"],
         "pagos": ["ADMIN", "FINANZAS"],
         "proveedores": ["ADMIN", "FINANZAS"],
-        "operaciones": ["ADMIN", "TECNICO"]
+        "operaciones": ["ADMIN", "TECNICO"],
+        "almacen": ["ADMIN", "TECNICO"],
+        "tickets": ["ADMIN", "RRHH", "FINANZAS", "TECNICO"]
     };
 
     /**

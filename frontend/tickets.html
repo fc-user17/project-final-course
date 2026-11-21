@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistemas & Mesa de Ayuda TI - Sistema de Gestión Empresarial</title>
+
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/tickets.css">
+</head>
+
+<body class="tickets-body">
+
+    <!-- HEADER PRINCIPAL -->
+    <header class="tickets-header">
+        <div class="tickets-header-content">
+            <div class="tickets-brand">
+                <h1>💻 Sistemas & Mesa de Ayuda TI</h1>
+                <p>Gestión de incidentes, requerimientos y soporte informático empresarial</p>
+            </div>
+
+            <nav class="tickets-nav-links" aria-label="Navegación del módulo">
+                <a href="index.html" class="tickets-nav-link">🏠 Inicio</a>
+                <a href="operaciones.html" class="tickets-nav-link">Operaciones</a>
+                <a href="almacen.html" class="tickets-nav-link">Almacén</a>
+                <a href="RRHH.html" class="tickets-nav-link">RRHH</a>
+
+                <div class="tickets-user-pill">
+                    <span>👤 <span id="userEmailDisplay">cargando...</span></span>
+                    <span id="userRoleDisplay" class="tickets-user-role">—</span>
+                    <button id="logoutBtn" class="tickets-logout-btn" title="Cerrar sesión">Salir</button>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- CONTENEDOR PRINCIPAL -->
+    <main class="tickets-container">
+
+        <!-- MÉTRICAS EN TIEMPO REAL -->
+        <section class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-info">
+                    <h4>Total Solicitudes</h4>
+                    <p class="metric-num" id="metricTotal">0</p>
+                </div>
+                <div class="metric-icon">📊</div>
+            </div>
+
+            <div class="metric-card" style="border-left: 4px solid var(--tck-warning);">
+                <div class="metric-info">
+                    <h4>Tickets Abiertos</h4>
+                    <p class="metric-num" id="metricAbiertos" style="color: var(--tck-warning);">0</p>
+                </div>
+                <div class="metric-icon">⚠️</div>
+            </div>
+
+            <div class="metric-card" style="border-left: 4px solid var(--tck-accent);">
+                <div class="metric-info">
+                    <h4>En Atención TI</h4>
+                    <p class="metric-num" id="metricEnProceso" style="color: var(--tck-accent);">0</p>
+                </div>
+                <div class="metric-icon">🔄</div>
+            </div>
+
+            <div class="metric-card" style="border-left: 4px solid var(--tck-success);">
+                <div class="metric-info">
+                    <h4>Resueltos</h4>
+                    <p class="metric-num" id="metricResueltos" style="color: var(--tck-success);">0</p>
+                </div>
+                <div class="metric-icon">✅</div>
+            </div>
+
+            <div class="metric-card" style="border-left: 4px solid var(--tck-purple);">
+                <div class="metric-info">
+                    <h4>Mis Requerimientos</h4>
+                    <p class="metric-num" id="metricMisTickets" style="color: var(--tck-purple);">0</p>
+                </div>
+                <div class="metric-icon">📌</div>
+            </div>
+        </section>
+
+        <!-- PESTAÑAS DE NAVEGACIÓN -->
+        <div class="tickets-tabs" role="tablist">
+            <button class="tickets-tab-btn active" data-tab="tab-mis-tickets">📋 Mis Tickets Registrados</button>
+            <button class="tickets-tab-btn" data-tab="tab-nuevo-ticket">➕ Generar Nuevo Ticket</button>
+            <button class="tickets-tab-btn" data-tab="tab-gestion-ti">🛠️ Panel de Control TI (Todos)</button>
+        </div>
+
+        <!-- TAB 1: MIS TICKETS -->
+        <div id="tab-mis-tickets" class="tab-pane active">
+            <div class="tck-card">
+                <div class="tck-card-header">
+                    <div>
+                        <h2>Mis Tickets de Soporte</h2>
+                        <p>Historial y estado de los requerimientos técnicos que has reportado</p>
+                    </div>
+                    <button class="tck-btn tck-btn-primary" onclick="document.querySelector('[data-tab=\'tab-nuevo-ticket\']').click()">
+                        + Crear Solicitud
+                    </button>
+                </div>
+
+                <div class="tck-table-responsive">
+                    <table class="tck-table">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Asunto</th>
+                                <th>Categoría</th>
+                                <th>Prioridad</th>
+                                <th>Estado</th>
+                                <th>Fecha Registro</th>
+                                <th>Detalle</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaMisTicketsBody">
+                            <tr>
+                                <td colspan="7" style="text-align: center; padding: 2rem;">Cargando tus tickets...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: NUEVO TICKET -->
+        <div id="tab-nuevo-ticket" class="tab-pane">
+            <div class="tck-card">
+                <div class="tck-card-header">
+                    <div>
+                        <h2>Generar Ticket de Soporte TI</h2>
+                        <p>Completa los datos de la incidencia o solicitud para que el equipo de Sistemas te atienda</p>
+                    </div>
+                </div>
+
+                <form id="formNuevoTicket" class="tck-form-grid">
+                    <div class="tck-form-group col-full">
+                        <label for="ticketTitulo" class="tck-label">Asunto o Título del Problema *</label>
+                        <input type="text" id="ticketTitulo" class="tck-input" required maxlength="150"
+                            placeholder="Ej: Falla al imprimir reportes de almacén en impresora de red">
+                    </div>
+
+                    <div class="tck-form-group">
+                        <label for="ticketCategoria" class="tck-label">Categoría del Problema *</label>
+                        <select id="ticketCategoria" class="tck-select" required>
+                            <option value="HARDWARE">💻 Hardware y Equipos (PC, Laptop, Impresora)</option>
+                            <option value="SOFTWARE">💿 Software y Aplicaciones del Sistema</option>
+                            <option value="REDES_CONECTIVIDAD">🌐 Redes, WiFi y Conectividad</option>
+                            <option value="ACCESOS_SEGURIDAD">🔒 Accesos, Contraseñas y Permisos</option>
+                            <option value="CORREO_COMUNICACIONES">✉️ Correo y Comunicaciones</option>
+                            <option value="OTRO">❓ Otro Requerimiento TI</option>
+                        </select>
+                    </div>
+
+                    <div class="tck-form-group">
+                        <label for="ticketPrioridad" class="tck-label">Nivel de Prioridad *</label>
+                        <select id="ticketPrioridad" class="tck-select" required>
+                            <option value="BAJA">Baja (Requerimiento o consulta menor)</option>
+                            <option value="MEDIA" selected>Media (Inconveniente habitual sin parálisis total)</option>
+                            <option value="ALTA">Alta (Afecta el flujo operativo de trabajo)</option>
+                            <option value="URGENTE">Urgente (Bloqueo crítico / Parada de operaciones)</option>
+                        </select>
+                    </div>
+
+                    <div class="tck-form-group col-full">
+                        <label for="ticketDescripcion" class="tck-label">Descripción Detallada de la Incidencia *</label>
+                        <textarea id="ticketDescripcion" class="tck-textarea" rows="4" required maxlength="2000"
+                            placeholder="Describe qué ocurrió, mensaje de error (si hubo), equipo afectado y pasos previos..."></textarea>
+                    </div>
+
+                    <div class="tck-form-group col-full" style="display: flex; flex-direction: row; justify-content: flex-end; gap: 1rem; margin-top: 1rem;">
+                        <button type="reset" class="tck-btn tck-btn-outline">Limpiar</button>
+                        <button type="submit" class="tck-btn tck-btn-primary">🚀 Registrar Ticket de Soporte</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- TAB 3: GESTIÓN TI (TODOS LOS TICKETS) -->
+        <div id="tab-gestion-ti" class="tab-pane">
+            <div class="tck-card">
+                <div class="tck-card-header">
+                    <div>
+                        <h2>Panel de Mesa de Ayuda TI</h2>
+                        <p>Bandeja integral de tickets para diagnóstico, atención técnica y resolución</p>
+                    </div>
+                </div>
+
+                <!-- BARRA DE FILTROS -->
+                <div class="tck-filters">
+                    <div>
+                        <label class="tck-label" style="margin-right: 0.5rem;">Filtrar por Estado:</label>
+                        <select id="filtroEstadoGestion" class="tck-select">
+                            <option value="">Todos los Estados</option>
+                            <option value="ABIERTO">Abiertos</option>
+                            <option value="EN_PROCESO">En Proceso</option>
+                            <option value="RESUELTO">Resueltos</option>
+                            <option value="CERRADO">Cerrados</option>
+                            <option value="CANCELADO">Cancelados</option>
+                        </select>
+                    </div>
+
+                    <div style="flex-grow: 1; max-width: 400px;">
+                        <input type="text" id="buscarTicketGestion" class="tck-input" style="width: 100%;"
+                            placeholder="Buscar por código, asunto, solicitante...">
+                    </div>
+
+                    <button class="tck-btn tck-btn-outline" onclick="cargarTodosTickets()">
+                        🔄 Actualizar
+                    </button>
+                </div>
+
+                <div class="tck-table-responsive">
+                    <table class="tck-table">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Asunto</th>
+                                <th>Solicitante</th>
+                                <th>Categoría</th>
+                                <th>Prioridad</th>
+                                <th>Estado</th>
+                                <th>Fecha Registro</th>
+                                <th>Gestión</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaGestionTiBody">
+                            <tr>
+                                <td colspan="8" style="text-align: center; padding: 2rem;">Cargando tickets...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- MODAL DE DETALLE Y RESOLUCIÓN TÉCNICA -->
+    <div id="modalTicket" class="tck-modal-backdrop">
+        <div class="tck-modal">
+            <div class="tck-modal-header">
+                <h3>Detalle del Ticket <span id="modalCodigo" class="badge-code"></span></h3>
+                <button id="btnCerrarModal" class="tck-modal-close">&times;</button>
+            </div>
+
+            <div class="tck-modal-body">
+                <div style="margin-bottom: 1.25rem;">
+                    <h4 id="modalTitulo" style="margin: 0 0 0.5rem; font-size: 1.15rem; color: var(--tck-primary);"></h4>
+                    <p style="margin: 0; font-size: 0.88rem; color: var(--tck-text-muted);">
+                        Solicitado por: <strong id="modalSolicitante"></strong> &bull;
+                        Categoría: <span id="modalCategoria"></span> &bull;
+                        Fecha: <span id="modalFecha"></span>
+                    </p>
+                </div>
+
+                <div style="background: #f8fafc; border: 1px solid var(--tck-border); border-radius: var(--tck-radius-sm); padding: 1rem; margin-bottom: 1.5rem;">
+                    <label class="tck-label" style="display:block; margin-bottom: 0.4rem;">Descripción del Solicitante:</label>
+                    <p id="modalDescripcion" style="margin: 0; font-size: 0.92rem; white-space: pre-wrap; line-height: 1.5; color: #334155;"></p>
+                </div>
+
+                <div id="modalSeccionAcciones" class="tck-form-grid">
+                    <div class="tck-form-group">
+                        <label for="modalSelectEstado" class="tck-label">Estado de la Solicitud</label>
+                        <select id="modalSelectEstado" class="tck-select">
+                            <option value="ABIERTO">Abierto</option>
+                            <option value="EN_PROCESO">En Proceso</option>
+                            <option value="RESUELTO">Resuelto</option>
+                            <option value="CERRADO">Cerrado</option>
+                            <option value="CANCELADO">Cancelado</option>
+                        </select>
+                    </div>
+
+                    <div class="tck-form-group">
+                        <label for="modalSelectPrioridad" class="tck-label">Nivel de Prioridad</label>
+                        <select id="modalSelectPrioridad" class="tck-select">
+                            <option value="BAJA">Baja</option>
+                            <option value="MEDIA">Media</option>
+                            <option value="ALTA">Alta</option>
+                            <option value="URGENTE">Urgente</option>
+                        </select>
+                    </div>
+
+                    <div class="tck-form-group col-full">
+                        <label for="modalSolucion" class="tck-label">Diagnóstico y Solución Técnica de Sistemas</label>
+                        <textarea id="modalSolucion" class="tck-textarea" rows="3"
+                            placeholder="Detalla las acciones realizadas para atender o resolver la incidencia..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tck-modal-footer">
+                <button type="button" id="btnCancelarModal" class="tck-btn tck-btn-outline">Cerrar</button>
+                <button type="button" id="btnGuardarAtencion" class="tck-btn tck-btn-success">💾 Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONTENEDOR DE NOTIFICACIONES TOAST -->
+    <div id="toastContainer" class="tck-toast-container"></div>
+
+    <!-- SCRIPTS -->
+    <script src="js/auth.js"></script>
+    <script src="js/tickets.js"></script>
+
+</body>
+
+</html>

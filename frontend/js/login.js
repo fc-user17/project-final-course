@@ -42,6 +42,10 @@ formulario.addEventListener("submit", async function (evento) {
         sessionStorage.setItem("usuario", datos.email);
         sessionStorage.setItem("rol", datos.rol);
 
+        localStorage.setItem("auth_token", datos.token);
+        localStorage.setItem("auth_email", datos.email);
+        localStorage.setItem("auth_role", datos.rol);
+
         window.location.href = "index.html";
 
     } catch (error) {
