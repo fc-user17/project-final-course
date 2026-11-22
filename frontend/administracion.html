@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Administración - Sistema de Gestión Empresarial</title>
+
+    <link rel="stylesheet" href="CSS/variables.css">
+    <link rel="stylesheet" href="CSS/base.css">
+    <link rel="stylesheet" href="CSS/layout.css">
+    <link rel="stylesheet" href="CSS/administracion.css">
+</head>
+
+<body>
+
+    <header>
+        <h1>Administración</h1>
+        <p>Gestiona ingresos, gastos, pagos, facturas, cuentas por pagar, costos y reportes financieros</p>
+    </header>
+
+    <nav aria-label="Navegación de administración">
+        <a href="index.html">Inicio</a>
+        <a href="operaciones.html">Operaciones</a>
+        <a href="RRHH.html">RRHH</a>
+        <a href="almacen.html">Almacén</a>
+        <a href="administracion.html">Administración</a>
+    </nav>
+
+    <main class="adm">
+
+        <section class="adm-intro" aria-labelledby="titulo-administracion">
+            <div>
+                <p class="adm-etiqueta">FINANZAS</p>
+                <h2 id="titulo-administracion">Panel de administración</h2>
+                <p>
+                    Controla los ingresos, gastos, pagos a trabajadores, facturas, cuentas por pagar
+                    y los costos de mantenimiento y materiales de la empresa.
+                </p>
+            </div>
+        </section>
+
+        <div id="admSesion" class="adm-aviso" role="alert" hidden>
+            <span>🔒 No has iniciado sesión o tu sesión expiró. Los datos no se pueden consultar.</span>
+            <a href="login.html" class="adm-boton adm-boton-principal">Iniciar sesión</a>
+        </div>
+
+        <section class="adm-metricas" aria-label="Resumen financiero">
+            <article class="adm-metrica">
+                <span class="adm-metrica-icono" aria-hidden="true">💵</span>
+                <div>
+                    <h2>Ingresos</h2>
+                    <p id="kpiIngresos">—</p>
+                </div>
+            </article>
+            <article class="adm-metrica">
+                <span class="adm-metrica-icono" aria-hidden="true">🧾</span>
+                <div>
+                    <h2>Gastos</h2>
+                    <p id="kpiGastos">—</p>
+                </div>
+            </article>
+            <article class="adm-metrica">
+                <span class="adm-metrica-icono" aria-hidden="true">🛠️</span>
+                <div>
+                    <h2>Costos</h2>
+                    <p id="kpiCostos">—</p>
+                </div>
+            </article>
+            <article class="adm-metrica adm-metrica-alerta">
+                <span class="adm-metrica-icono" aria-hidden="true">📤</span>
+                <div>
+                    <h2>Por pagar</h2>
+                    <p id="kpiPorPagar">—</p>
+                </div>
+            </article>
+            <article class="adm-metrica" id="tarjetaBalance">
+                <span class="adm-metrica-icono" aria-hidden="true">⚖️</span>
+                <div>
+                    <h2>Balance</h2>
+                    <p id="kpiBalance">—</p>
+                </div>
+            </article>
+        </section>
+
+        <div class="adm-pestanas" id="admPestanas" role="tablist" aria-label="Secciones de administración"></div>
+
+        <section id="admPanel" class="adm-seccion" role="tabpanel" tabindex="0" aria-live="polite">
+            <p class="adm-vacio">Cargando…</p>
+        </section>
+
+    </main>
+
+    <div id="admModal"></div>
+    <div id="admToasts" class="adm-toasts" aria-live="polite"></div>
+
+    <footer>
+        <p>Sistema de Gestión Empresarial</p>
+    </footer>
+
+    <script src="js/administracion.js"></script>
+</body>
+
+</html>
