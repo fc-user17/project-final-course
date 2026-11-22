@@ -18,8 +18,44 @@ const ENDPOINTS = {
     tipos: `${API_BASE}/api/v1/tipos-mantenimiento`,
     ordenes: `${API_BASE}/api/v1/ordenes-trabajo`,
     personal: `${API_BASE}/api/personal`,
-    equiposApi: `${API_BASE}/api/v1/equipos`
+    equiposApi: `${API_BASE}/api/v1/equipos`,
+    herramientas: `${API_BASE}/api/v1/herramientas`
 };
+
+// Todas las peticiones del módulo usan el token guardado por el login.
+async function fetchOperaciones(url, opciones = {}) {
+    const token = sessionStorage.getItem('autenticacion')
+        || localStorage.getItem('auth_token');
+
+    if (!token) {
+        throw new Error('No hay una sesión iniciada. Inicia sesión para acceder a Operaciones.');
+    }
+
+    const headers = new Headers(opciones.headers);
+    headers.set('Authorization', `Bearer ${token}`);
+
+    let respuesta;
+    try {
+        respuesta = await fetch(url, { ...opciones, headers });
+    } catch (error) {
+        if (error instanceof TypeError) {
+            throw new Error('No se pudo conectar con el servidor. Revisa que el backend esté disponible y que el origen del frontend esté permitido por CORS.');
+        }
+        throw error;
+    }
+
+    if (respuesta.status === 401) {
+        throw new Error('Tu sesión no es válida o ha expirado. Vuelve a iniciar sesión.');
+    }
+    if (respuesta.status === 403) {
+        const esPersonal = new URL(url, window.location.href).pathname.startsWith('/api/personal');
+        throw new Error(esPersonal
+            ? 'Acceso denegado (403): consultar técnicos requiere una sesión con rol ADMIN. Si ya tienes ese rol, vuelve a iniciar sesión.'
+            : 'Acceso denegado (403). Vuelve a iniciar sesión; si el problema continúa, revisa los permisos de tu usuario.');
+    }
+
+    return respuesta;
+}
 
 // Cache de tipos de mantenimiento para formularios y visualización
 let tiposMantenimientoCache = [];
@@ -39,11 +75,8 @@ function showToast(mensaje, tipo = 'info', duracion = 4500) {
     const toast = document.createElement('div');
     toast.className = `toast toast-${tipo}`;
 
-    const iconos = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
-
     toast.innerHTML = `
-        <span class="toast-icon">${iconos[tipo] || 'ℹ️'}</span>
-        <div style="flex: 1; word-break: break-word;">${mensaje}</div>
+        <div style="flex: 1; word-break: break-word;">${escapeHtml(mensaje)}</div>
     `;
 
     contenedor.appendChild(toast);
@@ -112,7 +145,7 @@ tabButtons.forEach(btn => {
 });
 
 // =============================================================================
-// GESTIÓN DE TIPOS DE MANTENIMIENTO (CRUD)
+// GESTIÓN DE TIPOS DE MANTENIMIENTO
 // =============================================================================
 
 const checkSoloActivos = document.getElementById('checkSoloActivos');
@@ -148,7 +181,7 @@ async function cargarTiposMantenimiento() {
     const soloActivos = checkSoloActivos ? checkSoloActivos.checked : false;
 
     try {
-        const res = await fetch(`${ENDPOINTS.tipos}?soloActivos=${soloActivos}`);
+        const res = await fetchOperaciones(`${ENDPOINTS.tipos}?soloActivos=${soloActivos}`);
         if (!res.ok) throw new Error('Error al cargar tipos de mantenimiento');
 
         const tipos = await res.json();
@@ -183,11 +216,11 @@ async function cargarTiposMantenimiento() {
                 </td>
                 <td>
                     <div class="acciones-td">
-                        <button class="btn btn-outline btn-sm" onclick="editarTipo(${t.id})" title="Editar">✏️</button>
+                        <button class="btn btn-outline btn-sm" onclick="editarTipo(${t.id})" title="Editar">Editar</button>
                         <button class="btn ${t.activo ? 'btn-warning' : 'btn-success'} btn-sm" onclick="cambiarEstadoTipo(${t.id}, ${!t.activo})" title="${t.activo ? 'Desactivar' : 'Activar'}">
                             ${t.activo ? 'Desactivar' : 'Activar'}
                         </button>
-                        <button class="btn btn-danger btn-sm" onclick="eliminarTipo(${t.id})" title="Eliminar">🗑️</button>
+                        <button class="btn btn-danger btn-sm" onclick="eliminarTipo(${t.id})" title="Eliminar">Eliminar</button>
                     </div>
                 </td>
             `;
@@ -199,7 +232,7 @@ async function cargarTiposMantenimiento() {
         lista.innerHTML = `
             <tr>
                 <td colspan="6" style="text-align: center; padding: 2rem; color: #dc2626;">
-                    Error al conectar con el servidor (${error.message}). Asegúrate de que el backend esté ejecutándose en http://localhost:8080.
+                    ${escapeHtml(error.message)}
                 </td>
             </tr>
         `;
@@ -223,7 +256,7 @@ function poblarSelectsTipos(tipos) {
         if (valorActual) selectOt.value = valorActual;
     }
 
-    // Select para Programar Preventivo (RF-03)
+    // Select para Programar Preventivo
     const selectProg = document.getElementById('progTipoMantenimiento');
     if (selectProg) {
         const valorActualProg = selectProg.value;
@@ -248,10 +281,10 @@ if (selectProg) {
         const ayuda = document.getElementById('ayudaPeriodicidad');
         if (ayuda) {
             if (periodicidad) {
-                ayuda.textContent = `✅ Periodicidad configurada: cada ${periodicidad} días`;
+                ayuda.textContent = ` Periodicidad configurada: cada ${periodicidad} días`;
                 ayuda.style.color = '#15803d';
             } else {
-                ayuda.textContent = `⚠️ Este tipo no tiene periodicidad configurada en días`;
+                ayuda.textContent = ` Este tipo no tiene periodicidad configurada en días`;
                 ayuda.style.color = '#b45309';
             }
         }
@@ -278,7 +311,7 @@ if (formTipoMantenimiento) {
             const url = id ? `${ENDPOINTS.tipos}/${id}` : ENDPOINTS.tipos;
             const method = id ? 'PUT' : 'POST';
 
-            const res = await fetch(url, {
+            const res = await fetchOperaciones(url, {
                 method,
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(body)
@@ -317,7 +350,7 @@ function editarTipo(id) {
 
 async function cambiarEstadoTipo(id, nuevoEstado) {
     try {
-        const res = await fetch(`${ENDPOINTS.tipos}/${id}/estado?activo=${nuevoEstado}`, {
+        const res = await fetchOperaciones(`${ENDPOINTS.tipos}/${id}/estado?activo=${nuevoEstado}`, {
             method: 'PATCH'
         });
 
@@ -337,7 +370,7 @@ async function eliminarTipo(id) {
     }
 
     try {
-        const res = await fetch(`${ENDPOINTS.tipos}/${id}`, { method: 'DELETE' });
+        const res = await fetchOperaciones(`${ENDPOINTS.tipos}/${id}`, { method: 'DELETE' });
         if (!res.ok) {
             const errData = await res.json().catch(() => ({}));
             throw new Error(errData.message || 'No se pudo eliminar el tipo de mantenimiento. Verifique que no tenga órdenes asociadas.');
@@ -401,7 +434,7 @@ async function cargarOrdenesTrabajo() {
 
     try {
         const url = estado ? `${ENDPOINTS.ordenes}?estado=${encodeURIComponent(estado)}` : ENDPOINTS.ordenes;
-        const res = await fetch(url);
+        const res = await fetchOperaciones(url);
         if (!res.ok) throw new Error('Error al consultar las órdenes de trabajo');
 
         const ordenes = await res.json();
@@ -439,18 +472,18 @@ async function cargarOrdenesTrabajo() {
 
             // Técnico asignado — muestra el nombre, no el ID
             const tecnicoHtml = ot.tecnicoId
-                ? `<span>👷 <strong>${escapeHtml(ot.tecnicoNombre || 'Técnico #' + ot.tecnicoId)}</strong></span>`
+                ? `<span> <strong>${escapeHtml(ot.tecnicoNombre || (tecnicosCache.find(t => String(t.id) === String(ot.tecnicoId)) || {}).nombres || 'Técnico #' + ot.tecnicoId)}</strong></span>`
                 : `<span style="color: #94a3b8; font-style: italic;">Sin asignar</span>`;
 
             // Equipo asignado — muestra código + descripción
             const equipoHtml = ot.equipoId
-                ? `<span title="${escapeHtml(ot.equipoCodigoPatrimonial || '')}" style="font-size:0.82rem;">🔧 ${escapeHtml(ot.equipoDescripcion || ot.equipoCodigoPatrimonial || '#' + ot.equipoId)}</span>`
+                ? `<span title="${escapeHtml(ot.equipoCodigoPatrimonial || '')}" style="font-size:0.82rem;"> ${escapeHtml(ot.equipoDescripcion || ot.equipoCodigoPatrimonial || '#' + ot.equipoId)}</span>`
                 : `<span style="color: #94a3b8; font-style: italic;">Sin equipo</span>`;
 
             // Cantidad de recursos asignados
             const cantRecursos = ot.recursos ? ot.recursos.length : 0;
             const recursosHtml = cantRecursos > 0
-                ? `<span style="color: var(--color-primary); font-weight: 600;">🛠️ ${cantRecursos} asignado(s)</span>`
+                ? `<span style="color: var(--color-primary); font-weight: 600;"> ${cantRecursos} asignado(s)</span>`
                 : `<span style="color: #94a3b8;">0 recursos</span>`;
 
             tr.innerHTML = `
@@ -462,17 +495,17 @@ async function cargarOrdenesTrabajo() {
                 <td>${badgeEstado}</td>
                 <td>
                     ${tecnicoHtml}
-                    <button class="btn btn-outline btn-sm" style="margin-left: 0.3rem;" onclick="abrirModalTecnico(${ot.id})" title="Asignar o cambiar técnico (RF-04)">✏️</button>
+                    <button class="btn btn-outline btn-sm" style="margin-left: 0.3rem;" onclick="abrirModalTecnico(${ot.id})" title="Asignar o cambiar técnico">Asignar</button>
                 </td>
                 <td>
                     ${recursosHtml}
-                    <button class="btn btn-outline btn-sm" style="margin-left: 0.3rem;" onclick="abrirModalRecursos(${ot.id})" title="Gestionar recursos (RF-05)">🛠️</button>
+                    <button class="btn btn-outline btn-sm" style="margin-left: 0.3rem;" onclick="abrirModalRecursos(${ot.id})" title="Gestionar recursos">Gestionar</button>
                 </td>
                 <td>
                     <div class="acciones-td">
-                        <button class="btn btn-outline btn-sm" onclick="abrirModalEstado(${ot.id}, '${ot.estado}')" title="Cambiar Estado">🔄</button>
-                        <button class="btn btn-outline btn-sm" onclick="editarOt(${ot.id})" title="Editar">✏️</button>
-                        <button class="btn btn-danger btn-sm" onclick="eliminarOt(${ot.id})" title="Eliminar">🗑️</button>
+                        <button class="btn btn-outline btn-sm" onclick="abrirModalEstado(${ot.id}, '${ot.estado}')" title="Cambiar Estado">Estado</button>
+                        <button class="btn btn-outline btn-sm" onclick="editarOt(${ot.id})" title="Editar">Editar</button>
+                        <button class="btn btn-danger btn-sm" onclick="eliminarOt(${ot.id})" title="Eliminar">Eliminar</button>
                     </div>
                 </td>
             `;
@@ -481,7 +514,7 @@ async function cargarOrdenesTrabajo() {
 
     } catch (error) {
         console.error(error);
-        lista.innerHTML = `<tr><td colspan="9" class="tabla-vacia" style="color:#dc2626;">⚠️ Error al conectar con el servidor: ${error.message}</td></tr>`;
+        lista.innerHTML = `<tr><td colspan="9" class="tabla-vacia" style="color:#dc2626;"> ${escapeHtml(error.message)}</td></tr>`;
     }
 }
 
@@ -521,7 +554,7 @@ if (formOrdenTrabajo) {
             const url = id ? `${ENDPOINTS.ordenes}/${id}` : ENDPOINTS.ordenes;
             const method = id ? 'PUT' : 'POST';
 
-            const res = await fetch(url, {
+            const res = await fetchOperaciones(url, {
                 method,
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(body)
@@ -570,7 +603,7 @@ async function eliminarOt(id) {
     }
 
     try {
-        const res = await fetch(`${ENDPOINTS.ordenes}/${id}`, { method: 'DELETE' });
+        const res = await fetchOperaciones(`${ENDPOINTS.ordenes}/${id}`, { method: 'DELETE' });
         if (!res.ok) {
             const errData = await res.json().catch(() => ({}));
             throw new Error(errData.message || 'No se pudo eliminar la orden de trabajo');
@@ -589,7 +622,7 @@ if (btnRefrescarOts) btnRefrescarOts.addEventListener('click', cargarOrdenesTrab
 
 
 // =============================================================================
-// PROGRAMAR PREVENTIVO EN SERIE (RF-03)
+// PROGRAMAR PREVENTIVO EN SERIE
 // =============================================================================
 
 const formProgramarPreventivo = document.getElementById('formProgramarPreventivo');
@@ -628,7 +661,7 @@ if (formProgramarPreventivo) {
         }
 
         try {
-            const res = await fetch(`${ENDPOINTS.ordenes}/programar-preventivo`, {
+            const res = await fetchOperaciones(`${ENDPOINTS.ordenes}/programar-preventivo`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(body)
@@ -675,7 +708,7 @@ if (formProgramarPreventivo) {
         } finally {
             if (btnSubmit) {
                 btnSubmit.disabled = false;
-                btnSubmit.textContent = '⚡ Generar Serie de Órdenes';
+                btnSubmit.textContent = ' Generar Serie de Órdenes';
             }
         }
     });
@@ -691,9 +724,11 @@ if (formProgramarPreventivo) {
  * Usa caché para no repetir la llamada si ya se cargaron.
  */
 async function cargarTecnicosEnSelect(selectEl, tecnicoIdActual = null) {
+    selectEl.disabled = true;
+    selectEl.innerHTML = '<option value="">Cargando personal...</option>';
     try {
         if (tecnicosCache.length === 0) {
-            const res = await fetch(`${ENDPOINTS.personal}?estado=ACTIVO`);
+            const res = await fetchOperaciones(`${ENDPOINTS.personal}?estado=ACTIVO`);
             if (!res.ok) throw new Error('Error al cargar técnicos');
             tecnicosCache = await res.json();
         }
@@ -705,6 +740,7 @@ async function cargarTecnicosEnSelect(selectEl, tecnicoIdActual = null) {
             return;
         }
 
+        selectEl.disabled = false;
         tecnicosCache.forEach(t => {
             const opt = document.createElement('option');
             opt.value = t.id;
@@ -716,7 +752,7 @@ async function cargarTecnicosEnSelect(selectEl, tecnicoIdActual = null) {
         });
     } catch (error) {
         console.error('cargarTecnicosEnSelect:', error);
-        selectEl.innerHTML = '<option value="">⚠️ Error al cargar técnicos</option>';
+        selectEl.innerHTML = `<option value=""> ${escapeHtml(error.message)}</option>`;
     }
 }
 
@@ -727,7 +763,7 @@ async function cargarTecnicosEnSelect(selectEl, tecnicoIdActual = null) {
 async function cargarEquiposEnSelect(selectEl, equipoIdActual = null) {
     try {
         if (equiposListaCache.length === 0) {
-            const res = await fetch(`${ENDPOINTS.equiposApi}`);
+            const res = await fetchOperaciones(`${ENDPOINTS.equiposApi}`);
             if (!res.ok) throw new Error('Error al cargar equipos');
             equiposListaCache = await res.json();
         }
@@ -737,7 +773,7 @@ async function cargarEquiposEnSelect(selectEl, equipoIdActual = null) {
         equiposListaCache.forEach(e => {
             const opt = document.createElement('option');
             opt.value = e.id;
-            opt.textContent = `[${e.codigoPatrimonial}] ${e.marca} ${e.modelo}`;
+            opt.textContent = nombreEquipo(e);
             if (equipoIdActual && String(e.id) === String(equipoIdActual)) {
                 opt.selected = true;
             }
@@ -745,7 +781,7 @@ async function cargarEquiposEnSelect(selectEl, equipoIdActual = null) {
         });
     } catch (error) {
         console.error('cargarEquiposEnSelect:', error);
-        selectEl.innerHTML = '<option value="">⚠️ Error al cargar equipos</option>';
+        selectEl.innerHTML = `<option value=""> ${escapeHtml(error.message)}</option>`;
     }
 }
 
@@ -775,7 +811,7 @@ if (btnGuardarTecnico) {
         if (!otSeleccionadaIdTecnico) return;
 
         const tecnicoId = document.getElementById('selectTecnicoId').value;
-        if (!tecnicoId) {
+        if (document.getElementById('selectTecnicoId').disabled || !tecnicoId) {
             showToast('Por favor selecciona un técnico de la lista', 'warning');
             return;
         }
@@ -784,7 +820,7 @@ if (btnGuardarTecnico) {
         btnGuardarTecnico.textContent = 'Asignando...';
 
         try {
-            const res = await fetch(`${ENDPOINTS.ordenes}/${otSeleccionadaIdTecnico}/tecnico`, {
+            const res = await fetchOperaciones(`${ENDPOINTS.ordenes}/${otSeleccionadaIdTecnico}/tecnico`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ tecnicoId: parseInt(tecnicoId, 10) })
@@ -815,61 +851,98 @@ if (btnGuardarTecnico) {
 // =============================================================================
 
 let otSeleccionadaIdRecursos = null;
+let cargaRecursosVersion = 0;
+
+function nombreEquipo(equipo) {
+    return [equipo.codigoPatrimonial, equipo.marca, equipo.modelo].filter(Boolean).join(' · ') || `Equipo #${equipo.id}`;
+}
+
+function nombreHerramienta(herramienta) {
+    return [herramienta.codigo, herramienta.nombre].filter(Boolean).join(' · ') || `Herramienta #${herramienta.id}`;
+}
+
+function poblarRecursos(contenedorId, resumenId, catalogo, seleccionados, nombre, plural) {
+    const contenedor = document.getElementById(contenedorId);
+    contenedor.replaceChildren();
+    const ids = new Set(seleccionados.map(String));
+    const opciones = [...catalogo];
+    // Conservar asignaciones cuyo registro ya no aparece en el catálogo.
+    seleccionados.forEach(id => {
+        if (!opciones.some(item => String(item.id) === String(id))) opciones.push({ id });
+    });
+    const actualizarResumen = () => {
+        const cantidad = contenedor.querySelectorAll('input:checked').length;
+        document.getElementById(resumenId).textContent = cantidad
+            ? `${cantidad} ${plural} seleccionado(s)` : `Seleccionar ${plural}`;
+    };
+    opciones.forEach(item => {
+        const etiqueta = document.createElement('label');
+        etiqueta.className = 'opcion-recurso';
+        const check = document.createElement('input');
+        check.type = 'checkbox';
+        check.value = item.id;
+        check.checked = ids.has(String(item.id));
+        check.addEventListener('change', actualizarResumen);
+        const texto = document.createElement('span');
+        texto.textContent = nombre(item);
+        etiqueta.append(check, texto);
+        contenedor.appendChild(etiqueta);
+    });
+    if (!opciones.length) contenedor.textContent = `No hay ${plural} registrados en Almacén.`;
+    actualizarResumen();
+}
 
 async function abrirModalRecursos(id) {
     const ot = ordenesCache.find(o => o.id === id);
     if (!ot) return;
-
     otSeleccionadaIdRecursos = id;
+    const solicitudId = ++cargaRecursosVersion;
     document.getElementById('recursosOtCodigo').textContent = ot.codigo || `#${ot.id}`;
-
     const lista = document.getElementById('listaRecursosAsignados');
-    lista.innerHTML = '<li>Consultando recursos en el servidor...</li>';
-
+    lista.innerHTML = '<li>Cargando recursos...</li>';
+    btnGuardarRecursos.disabled = true;
+    ['opcionesEquipos', 'opcionesHerramientas'].forEach(nombre => {
+        document.getElementById(nombre).textContent = 'Cargando catálogo...';
+    });
+    ['selectorEquipos', 'selectorHerramientas'].forEach(nombre => {
+        document.getElementById(nombre).open = false;
+    });
+    document.getElementById('resumenEquipos').textContent = 'Seleccionar equipos';
+    document.getElementById('resumenHerramientas').textContent = 'Seleccionar herramientas';
     abrirModal('modalRecursos');
-
     try {
-        const res = await fetch(`${ENDPOINTS.ordenes}/${id}/recursos`);
-        if (!res.ok) throw new Error('Error al consultar recursos asignados');
-
-        const recursos = await res.json();
-        lista.innerHTML = '';
-
-        if (recursos.length === 0) {
-            lista.innerHTML = '<li style="color: #64748b;">No hay recursos asignados a esta orden.</li>';
-            document.getElementById('inputEquipoIds').value = '';
-            document.getElementById('inputHerramientaIds').value = '';
-            return;
-        }
-
-        const equipos = [];
-        const herramientas = [];
-
-        recursos.forEach(r => {
-            const li = document.createElement('li');
-            if (r.equipoId) {
-                equipos.push(r.equipoId);
-                li.innerHTML = `
-                    <span>🚜 <strong>Equipo ID:</strong> #${r.equipoId}</span>
-                    <small style="color: #64748b;">Asignado: ${formatearFechaHora(r.fechaAsignacion)}</small>
-                `;
-            } else if (r.herramientaId) {
-                herramientas.push(r.herramientaId);
-                li.innerHTML = `
-                    <span>🧰 <strong>Herramienta ID:</strong> #${r.herramientaId}</span>
-                    <small style="color: #64748b;">Asignado: ${formatearFechaHora(r.fechaAsignacion)}</small>
-                `;
-            }
-            lista.appendChild(li);
+        const consultar = async url => {
+            const respuesta = await fetchOperaciones(url);
+            if (!respuesta.ok) throw new Error('No se pudo consultar el catálogo o los recursos asignados.');
+            return respuesta.json();
+        };
+        const [recursos, equipos, herramientas] = await Promise.all([
+            consultar(`${ENDPOINTS.ordenes}/${id}/recursos`),
+            consultar(ENDPOINTS.equiposApi),
+            consultar(ENDPOINTS.herramientas)
+        ]);
+        if (solicitudId !== cargaRecursosVersion) return;
+        const equipoIds = recursos.filter(r => r.equipoId).map(r => r.equipoId);
+        const herramientaIds = recursos.filter(r => r.herramientaId).map(r => r.herramientaId);
+        poblarRecursos('opcionesEquipos', 'resumenEquipos', equipos, equipoIds, nombreEquipo, 'equipos');
+        poblarRecursos('opcionesHerramientas', 'resumenHerramientas', herramientas, herramientaIds, nombreHerramienta, 'herramientas');
+        lista.replaceChildren();
+        if (!recursos.length) lista.innerHTML = '<li>No hay recursos asignados a esta orden.</li>';
+        recursos.forEach(recurso => {
+            const elemento = document.createElement('li');
+            const nombre = recurso.equipoId
+                ? nombreEquipo(equipos.find(e => String(e.id) === String(recurso.equipoId)) || { id: recurso.equipoId })
+                : nombreHerramienta(herramientas.find(h => String(h.id) === String(recurso.herramientaId)) || { id: recurso.herramientaId });
+            elemento.textContent = nombre;
+            lista.appendChild(elemento);
         });
-
-        // Prellenar inputs con los IDs actuales
-        document.getElementById('inputEquipoIds').value = equipos.join(', ');
-        document.getElementById('inputHerramientaIds').value = herramientas.join(', ');
-
+        btnGuardarRecursos.disabled = false;
     } catch (error) {
-        console.error(error);
-        lista.innerHTML = `<li style="color: #dc2626;">Error al cargar recursos: ${error.message}</li>`;
+        if (solicitudId !== cargaRecursosVersion) return;
+        lista.innerHTML = `<li style="color:#dc2626">${escapeHtml(error.message)}</li>`;
+        ['opcionesEquipos', 'opcionesHerramientas'].forEach(nombre => {
+            document.getElementById(nombre).textContent = 'No se pudo completar la carga. Cierra y vuelve a abrir para reintentar.';
+        });
     }
 }
 
@@ -878,27 +951,14 @@ if (btnGuardarRecursos) {
     btnGuardarRecursos.addEventListener('click', async () => {
         if (!otSeleccionadaIdRecursos) return;
 
-        const parseIds = (texto) => {
-            if (!texto || !texto.trim()) return [];
-            return texto
-                .split(',')
-                .map(v => parseInt(v.trim(), 10))
-                .filter(n => !isNaN(n) && n > 0);
-        };
-
-        const equipoIds = parseIds(document.getElementById('inputEquipoIds').value);
-        const herramientaIds = parseIds(document.getElementById('inputHerramientaIds').value);
-
-        if (equipoIds.length === 0 && herramientaIds.length === 0) {
-            showToast('Debes ingresar al menos un ID de equipo o herramienta', 'warning');
-            return;
-        }
+        const equipoIds = Array.from(document.querySelectorAll('#opcionesEquipos input:checked'), input => Number(input.value));
+        const herramientaIds = Array.from(document.querySelectorAll('#opcionesHerramientas input:checked'), input => Number(input.value));
 
         btnGuardarRecursos.disabled = true;
         btnGuardarRecursos.textContent = 'Guardando...';
 
         try {
-            const res = await fetch(`${ENDPOINTS.ordenes}/${otSeleccionadaIdRecursos}/recursos`, {
+            const res = await fetchOperaciones(`${ENDPOINTS.ordenes}/${otSeleccionadaIdRecursos}/recursos`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ equipoIds, herramientaIds })
@@ -953,7 +1013,7 @@ if (btnGuardarEstado) {
         btnGuardarEstado.textContent = 'Actualizando...';
 
         try {
-            const res = await fetch(`${ENDPOINTS.ordenes}/${otSeleccionadaIdEstado}/estado?estado=${encodeURIComponent(nuevoEstado)}`, {
+            const res = await fetchOperaciones(`${ENDPOINTS.ordenes}/${otSeleccionadaIdEstado}/estado?estado=${encodeURIComponent(nuevoEstado)}`, {
                 method: 'PATCH'
             });
 
